@@ -1,0 +1,20 @@
+.customTableRow {
+  height: 20px !important;
+  line-height: 20px;
+  td {
+    height: 20px !important;
+    padding: 4px 4px !important;
+    line-height: 20px !important;
+    background-color: #f1f1f1;
+  }
+}
+
+.customTableStyle table{
+  border-collapse: separate; /* Required for spacing */
+  border-spacing: 0 8px; /* Vertical spacing between rows */
+}
+
+.teamsTableRow:nth-child(4n+3) td,
+.teamsTableRow:nth-child(4n+4) td {
+  background-color: #dff5e1 !important;
+}

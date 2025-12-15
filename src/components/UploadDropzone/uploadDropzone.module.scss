@@ -1,0 +1,23 @@
+
+.uploadDropzone {
+  :global {
+    .ant-upload{
+      width: 100% !important;
+      border: none !important;
+      background: none !important;
+      height: 100% !important;
+    }
+    .ant-upload-wrapper{
+      height: 100% !important;
+      width: 100% !important;
+      display: flex !important;
+      justify-content: stretch !important;
+      align-items: stretch !important;
+    }
+    span.ant-upload{
+      width: 100% !important;
+      height: 100% !important;
+    }
+  }
+  
+}

@@ -1,0 +1,168 @@
+.container {
+  width: fit-content;
+}
+
+.previewRoot {
+  :global(.ant-image-preview) {
+    pointer-events: initial;
+  }
+
+  :global(.ant-image-preview-mask) {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+  }
+  :global(.ant-image-preview-title) {
+    color: #ebebeb;
+    font-weight: bold;
+    font-size: 24px;
+    font-family: "Poppins", sans-serif;
+    margin: 3vh 0 0;
+    z-index: 40;
+    position: relative;
+    text-shadow: 1px 1px 0px #EBCE56, 2px 2px 0px #135F46;
+  }
+
+  :global(.ant-image-preview-img) {
+    border-radius: 8px;
+    max-height: 70vh;
+    height: max-content;
+    object-fit: contain;
+    // disable image preview
+    transform: unset !important;
+    cursor: unset;
+    position: relative;
+    img{
+      height: max-content;
+      object-fit: contain;
+    }
+  }
+
+  :global(.ant-image-preview-img-wrapper) {
+    padding-bottom: 3vh;
+    display: grid;
+  }
+
+  :global(.ant-image-preview-switch-right) {
+    height: 48px;
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #ebebeb;
+    margin-right: 24;
+    margin-top: -80px;
+
+    :global(.anticon-right) {
+      color: #8c8c8c;
+    }
+  }
+
+  :global(.ant-image-preview-switch-left) {
+    height: 48px;
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #ebebeb;
+    margin-left: 24px;
+    margin-top: -80px;
+
+    :global(.anticon-left) {
+      color: #8c8c8c;
+    }
+  }
+
+  :global(.ant-image-preview-close) {
+    height: 48px;
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #8c8c8c;
+
+    top: 32px;
+    right: 35px;
+
+    :global(.anticon-close) {
+      color: #ebebeb;
+    }
+  }
+
+  // hide scrollbar
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  &.single {
+    :global(.ant-image-preview-img-wrapper) {
+      padding-bottom: 0px;
+    }
+  }
+}
+
+.imageContainer {
+  margin-top: -25vh;
+
+  &.single {
+    margin-top: -60vh;
+  }
+}
+
+.miniThumbnail {
+  border-radius: 14px;
+  height: 80px;
+  width: 80px;
+  object-fit: cover;
+
+  &.inactive {
+    filter: grayscale(100%);
+  }
+  &.inactive:hover {
+    filter: grayscale(50%);
+  }
+}
+
+.footerContainer {
+  display: flex;
+  gap: 16px;
+  position: relative;
+  // vertical scroll handler
+  width: 100vw;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+  padding: 8px 0;
+
+  &.centered {
+    justify-content: center;
+  }
+
+  > :first-child {
+    margin-left: 32px;
+  }
+
+  > :last-child {
+    margin-right: 32px;
+  }
+}
+
+.counterContainer {
+  color: #ebebeb;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: -100px;
+
+  &.single {
+    margin-top: 32px;
+  }
+}
+
+// only used in storybook.
+// DO NOT use in the component directly.
+.inlinePreviewTrigger {
+  display: inline-block;
+  color: --color-emerald-100;
+  cursor: pointer;
+}

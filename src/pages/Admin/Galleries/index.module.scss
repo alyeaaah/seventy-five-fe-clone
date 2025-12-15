@@ -1,0 +1,15 @@
+.customTableRow {
+  height: 20px !important;
+  line-height: 20px;
+  td {
+    height: 20px !important;
+    padding: 4px 4px !important;
+    line-height: 20px !important;
+    background-color: #f1f1f1;
+  }
+}
+
+.customTableStyle table{
+  border-collapse: separate; /* Required for spacing */
+  border-spacing: 0 8px; /* Vertical spacing between rows */
+}

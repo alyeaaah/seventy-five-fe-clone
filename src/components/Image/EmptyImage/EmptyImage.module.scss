@@ -1,0 +1,27 @@
+.container {
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background-color:#ebebeb;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+
+  :global(.ant-empty-image) {
+    margin: 0;
+    width: unset;
+    height: unset;
+    :global(img) {
+      object-fit: contain;
+    }
+  }
+
+  :global(.ant-empty-description) {
+    color: #bababa;
+    font-weight: 600;
+  }
+}
