@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "dev:vite": "vite",
-    "build:vite": "tsc && vite build",
+    "dev:next": "next dev --turbopack",
+    "build:next": "next build",
+    "start:next": "next start",
+    "dev": "vite",
+    "build": "tsc && vite build",
     "preview:vite": "vite preview"
   },
   "dependencies": {
