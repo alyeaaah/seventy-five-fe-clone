@@ -56,7 +56,7 @@ export const MatchDetail = () => {
         uuid: tournamentInfo?.data?.point_config_uuid || 0
       }
     }, {
-      enabled: (!!tournamentInfo?.data?.point_config_uuid)
+    enabled: (!!tournamentInfo?.data?.point_config_uuid)
   });
 
   const { mutate: updateScoreApi } = MatchDetailApiHooks.useUpdateMatchScoreApi({
@@ -108,14 +108,14 @@ export const MatchDetail = () => {
   const { mutate: updateScoreFirebase } = useUpdateScore();
   const updateScore = (matchUuid: string, team: "home" | "away", score: "UP" | "DOWN") => {
     if (
-      !data || 
+      !data ||
       !!data?.data?.winner_team_uuid ||
       ["TBD", "BYE"].includes(data?.data?.home_team_uuid || "") ||
       ["TBD", "BYE"].includes(data?.data?.away_team_uuid || "")
     ) {
       return;
     }
-    
+
     let baseData: MatchScoreFirestore = {
       match_uuid: matchUuid,
       tournament_uuid: data?.data?.tournament_uuid || "",
@@ -140,14 +140,14 @@ export const MatchDetail = () => {
         }
       })
       return;
-    } 
+    }
 
     let updatedScore: MatchScoreFirestore = {
       ...currentScore,
       with_ad: data?.data?.with_ad || false,
     };
     const { game_score_home, game_score_away, with_ad } = currentScore;
-    if ([game_score_home, game_score_away].includes("WIN")) { 
+    if ([game_score_home, game_score_away].includes("WIN")) {
       return;
     }
 
@@ -198,7 +198,7 @@ export const MatchDetail = () => {
             updatedScore.game_score_away = (Number(game_score_away) - 1).toString();
           }
         }
-      }      
+      }
     }
 
     else {
@@ -214,7 +214,7 @@ export const MatchDetail = () => {
               } else if (game_score_away == "AD") {
                 updatedScore.game_score_home = "40";
                 updatedScore.game_score_away = "40";
-              } else { 
+              } else {
                 updatedScore.game_score_home = "WIN";
               }
             } else {
@@ -234,7 +234,7 @@ export const MatchDetail = () => {
             updatedScore.game_score_home = "40";
           }
         }
-      }else{
+      } else {
         if (score == "UP") {
           // increase away score
           if (game_score_away == "40") {
@@ -299,10 +299,10 @@ export const MatchDetail = () => {
             home_team_score: updatedScore.prev.set_score_home,
             away_team_score: updatedScore.prev.set_score_away,
             game_scores: scores?.map(score => (score.set == updatedScore.set ? {
-                set: updatedScore.set,
-                game_score_home: updatedScore.game_score_home,
-                game_score_away: updatedScore.game_score_away
-              } :
+              set: updatedScore.set,
+              game_score_home: updatedScore.game_score_home,
+              game_score_away: updatedScore.game_score_away
+            } :
               {
                 set: score.set,
                 game_score_home: score.game_score_home,
@@ -368,7 +368,7 @@ export const MatchDetail = () => {
               game_score_away: score.game_score_away
             }))
           })
-          
+
           unsubscribeFirestore();
         }, 300);
         queryClient.invalidateQueries({
@@ -382,7 +382,7 @@ export const MatchDetail = () => {
   }
   const generateAbandonedScore = (
     { matchUuid, team }:
-      { matchUuid: string, team: "home" | "away",}): MatchScoreFirestore[]  => {
+      { matchUuid: string, team: "home" | "away", }): MatchScoreFirestore[] => {
     const currentMatchScore = {
       ...currentScore,
       game_score_away: team === "home" ? (currentScore?.game_score_home == "40" ? "AD" : "40") : currentScore?.game_score_away,
@@ -483,12 +483,12 @@ export const MatchDetail = () => {
       }
     );
     // console.log("RESTSETSCORE", JSON.parse(JSON.stringify(restSetScore)));
-    
+
     return restSetScore;
   }
   const setRetirement = (
-    { matchUuid, team, player_uuid, notes, retirement}:
-      { matchUuid: string, team: "home" | "away", player_uuid?: string, notes?: string, retirement?:"INJURY" | "NO_SHOW" }) => {
+    { matchUuid, team, player_uuid, notes, retirement }:
+      { matchUuid: string, team: "home" | "away", player_uuid?: string, notes?: string, retirement?: "INJURY" | "NO_SHOW" }) => {
     const restScores = generateAbandonedScore({ matchUuid, team });
     // return;
     if (restScores.length === 0) {
@@ -784,8 +784,8 @@ export const MatchDetail = () => {
                   >
                     <Lucide icon="Play" /> Start Match
                   </Button>
-                )
-              }
+                  )
+                }
               </div>
             </div>
             {/* BEGIN: Score */}
@@ -797,20 +797,20 @@ export const MatchDetail = () => {
                     className="px-1 py-0 w-full rounded-xl mb-1"
                     variant="outline-primary"
                     disabled={data?.data?.status != "ONGOING"}
-                    onClick={() => { 
+                    onClick={() => {
                       updateScore(matchUuid, "home", "UP");
                     }}
                   >
                     <Lucide icon="ChevronUp" />
                   </Button>
-                  <div className={`border font-bold text-emerald-800 bg-white border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl ${["WIN", "LOSE"].includes(currentScore?.game_score_home+"") ? "text-lg" : "text-3xl"}`}>
+                  <div className={`border font-bold text-emerald-800 bg-white border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl ${["WIN", "LOSE"].includes(currentScore?.game_score_home + "") ? "text-lg" : "text-3xl"}`}>
                     {currentScore?.game_score_home || 0}
                   </div>
                   <Button
                     className="px-1 py-0 w-full rounded-xl mt-1"
                     variant="outline-danger"
                     disabled={data?.data?.status != "ONGOING"}
-                    onClick={() => { 
+                    onClick={() => {
                       updateScore(matchUuid, "home", "DOWN");
                     }}
                   >
@@ -864,7 +864,7 @@ export const MatchDetail = () => {
                 </div>
               </div>
               {/* END: Score Left Side */}
-              <Divider className="col-span-12"/>
+              <Divider className="col-span-12" />
               <div className="col-span-12 flex flex-col items-end">
                 <h2 className="text-lg font-bold capitalize">{data?.data?.home_team?.name} </h2>
                 <h3 className="text-base font-normal capitalize">{data?.data?.home_team?.alias}</h3>
@@ -877,7 +877,7 @@ export const MatchDetail = () => {
               </div>
               {![currentScore?.game_score_away, currentScore?.game_score_home].includes("WIN") ?
                 <h1 className="text-xs font-bold">Set {currentScore?.set || 1}</h1>
-                : 
+                :
                 <h1 className="text-xs font-bold">Match Ended</h1>
               }
             </div>
@@ -924,7 +924,7 @@ export const MatchDetail = () => {
                   >
                     <Lucide icon="ChevronUp" />
                   </Button>
-                  <div className={`border font-bold text-emerald-800 bg-white border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl ${["WIN", "LOSE"].includes(currentScore?.game_score_away+"") ? "text-lg": "text-3xl"}`}>
+                  <div className={`border font-bold text-emerald-800 bg-white border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl ${["WIN", "LOSE"].includes(currentScore?.game_score_away + "") ? "text-lg" : "text-3xl"}`}>
                     {currentScore?.game_score_away || 0}
                   </div>
                   <Button
@@ -940,7 +940,7 @@ export const MatchDetail = () => {
                 </div>
               </div>
               {/* END: Score Right Side*/}
-              <Divider className="col-span-12"/>
+              <Divider className="col-span-12" />
               <div className="col-span-12 flex flex-col items-start">
                 <h2 className="text-lg font-bold capitalize">{data?.data?.away_team?.name} </h2>
                 <h3 className="text-base font-normal capitalize">{data?.data?.away_team?.alias}</h3>
@@ -964,7 +964,7 @@ export const MatchDetail = () => {
                           <h3 className="text-xs text-right font-normal capitalize">{player?.nickname}</h3>
                         </div>
                         <div className="border rounded-lg p-0.5">
-                          <Image src={player?.media_url} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
+                          <Image src={player?.media_url || ''} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
                         </div>
                       </div>
                     </div>
@@ -1020,7 +1020,7 @@ export const MatchDetail = () => {
                     >
                       <div className="flex flex-row items-center">
                         <div className="border rounded-lg p-0.5">
-                          <Image src={player?.media_url} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
+                          <Image src={player?.media_url || ''} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
                         </div>
                         <div className="ml-2">
                           <h2 className="text-sm text-left font-bold capitalize">{player?.name}</h2>
@@ -1074,7 +1074,7 @@ export const MatchDetail = () => {
                     <h3 className="text-[10px] text-right font-light capitalize text-ellipsis line-clamp-1">{player?.nickname}</h3>
                   </div>
                   <div className="min-w-8">
-                    <Image src={player?.media_url} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
+                    <Image src={player?.media_url || ''} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
                   </div>
                 </div>
               ))}
@@ -1110,7 +1110,7 @@ export const MatchDetail = () => {
               {data?.data?.away_team?.players?.map((player, index) => (
                 <div key={index} className="col-span-12 flex flex-row items-center">
                   <div className="min-w-8">
-                    <Image src={player?.media_url} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
+                    <Image src={player?.media_url || ''} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
                   </div>
                   <div className="ml-2 w-full">
                     <h2 className="text-[10px] text-left font-normal capitalize text-ellipsis line-clamp-1 w-full">{player?.name}</h2>
@@ -1162,7 +1162,7 @@ export const MatchDetail = () => {
               <div className="py-2 col-span-4 sm:col-span-5 flex justify-center bg-slate-200 rounded-tr-lg">
                 <span className="text-sm font-medium capitalize">{data?.data?.away_team?.name}</span>
               </div>
-              {(scores || []).sort((a, b) => a.set - b.set).slice(0,-1).map((setScore, i) => (
+              {(scores || []).sort((a, b) => a.set - b.set).slice(0, -1).map((setScore, i) => (
                 <Fragment key={setScore.refId}>
                   <div className={`py-1 col-span-4 sm:col-span-2 flex justify-end items-center px-2 ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
                     <span className="text-end font-medium capitalize text-slate-500 text-xs">Set {setScore.set}</span>
@@ -1181,7 +1181,7 @@ export const MatchDetail = () => {
               ))}
               {(scores || []).sort((a, b) => a.set - b.set).slice(0, -1).length == 0 && <div className="col-span-12 bg-gray-100 p-4 text-center text-xs">
                 The set is live, but this point determines the match winner.<br />Currently, Set not concluded.
-                </div>}
+              </div>}
             </div>
           </div>
           <div className="p-5 box col-span-12 ">
@@ -1191,10 +1191,10 @@ export const MatchDetail = () => {
                 <Divider className="mb-0 mt-1" />
               </div>
               <div className="sm:col-span-4 col-span-5">
-                <span className="text-sm font-medium capitalize">Win: <span className="text-success">+{tournamentInfo ? detailPointConfig?.data?.points?.find(r => r.round ===  data?.data?.round)?.win_point : data?.data?.point_config?.points?.find(r => r.round ===  1)?.win_point} Point</span></span>
+                <span className="text-sm font-medium capitalize">Win: <span className="text-success">+{tournamentInfo ? detailPointConfig?.data?.points?.find(r => r.round === data?.data?.round)?.win_point : data?.data?.point_config?.points?.find(r => r.round === 1)?.win_point} Point</span></span>
               </div>
               <div className="sm:col-span-4 col-span-5">
-                <span className="text-sm font-medium capitalize">Lose: <span className="text-danger">+{tournamentInfo ? detailPointConfig?.data?.points?.find(r => r.round ===  data?.data?.round)?.lose_point : data?.data?.point_config?.points?.find(r => r.round ===  1)?.lose_point} Point</span></span>
+                <span className="text-sm font-medium capitalize">Lose: <span className="text-danger">+{tournamentInfo ? detailPointConfig?.data?.points?.find(r => r.round === data?.data?.round)?.lose_point : data?.data?.point_config?.points?.find(r => r.round === 1)?.lose_point} Point</span></span>
               </div>
             </div>
           </div>

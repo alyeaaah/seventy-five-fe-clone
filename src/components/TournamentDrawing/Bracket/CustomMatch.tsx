@@ -43,9 +43,9 @@ export const CustomMatch = ({ seed, roundIndex, seedIndex, round, onDrop, onSeed
 
   return (
     <div className={`bracket-seed-container `} key={seedIndex}>
-      <div className={`bracket-seed bg-white ${readOnly ? 'hover:transform hover:scale-105 duration-700 transition-all hover:z-10' : ''}`} onClick={() => !!onSeedClick ? onSeedClick(seed, seedIndex, roundIndex) : null}>
+      <div className={`bracket-seed bg-white dark:bg-darkmode-600 ${readOnly ? 'hover:transform hover:scale-105 duration-700 transition-all hover:z-10' : ''}`} onClick={() => !!onSeedClick ? onSeedClick(seed, seedIndex, roundIndex) : null}>
         <div className='absolute bottom-[94px] w-full z-10 flex justify-center cursor-pointer text-xs font-medium'>
-          <div className='border px-2 rounded-md border-emerald-800 text-emerald-800 capitalize'>
+          <div className='border px-2 rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 capitalize'>
             {round || `Match ${seedIndex + 1}`}
           </div>
         </div>

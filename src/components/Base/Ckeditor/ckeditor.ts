@@ -30,43 +30,64 @@ const init = async <C extends React.ElementType>(
     cacheData: MutableRefObject<string>;
   }
 ) => {
-  // Initial data
-  cacheData.current = props.value;
-  props.config.initialData = props.value;
+  // Pastikan element masih ada
+  if (!el || !el.isConnected) {
+    return;
+  }
 
-  // Init CKEditor
-  const editor = await editorBuild.create(el, props.config);
+  try {
+    // Initial data
+    cacheData.current = props.value;
+    const editorConfig = {
+      ...props.config,
+      initialData: props.value,
+    };
 
-  // Attach CKEditor instance
-  el.CKEditor = editor;
+    // Init CKEditor
+    const editor = await editorBuild.create(el, editorConfig);
 
-  // Set initial disabled state
-  props.disabled && editor.enableReadOnlyMode("ckeditor");
-
-  // Set on change event
-  editor.model.document.on("change:data", () => {
-    const data = editor.getData();
-    cacheData.current = data;
-    props.onChange(data);
-  });
-
-  // Set on focus event
-  editor.editing.view.document.on("focus", (evt: any) => {
-    if (props.onFocus) {
-      props.onFocus(evt, editor);
+    // Pastikan element masih ada setelah async operation
+    if (!el.isConnected) {
+      await editor.destroy().catch(() => {});
+      return;
     }
-  });
 
-  // Set on blur event
-  editor.editing.view.document.on("blur", (evt: any) => {
-    if (props.onBlur) {
-      props.onBlur(evt, editor);
+    // Attach CKEditor instance
+    el.CKEditor = editor;
+
+    // Set initial disabled state
+    if (props.disabled) {
+      editor.enableReadOnlyMode("ckeditor");
     }
-  });
 
-  // Set on ready event
-  if (props.onReady) {
-    props.onReady(editor);
+    // Set on change event
+    editor.model.document.on("change:data", () => {
+      const data = editor.getData();
+      cacheData.current = data;
+      props.onChange(data);
+    });
+
+    // Set on focus event
+    editor.editing.view.document.on("focus", (evt: any) => {
+      if (props.onFocus) {
+        props.onFocus(evt, editor);
+      }
+    });
+
+    // Set on blur event
+    editor.editing.view.document.on("blur", (evt: any) => {
+      if (props.onBlur) {
+        props.onBlur(evt, editor);
+      }
+    });
+
+    // Set on ready event
+    if (props.onReady) {
+      props.onReady(editor);
+    }
+  } catch (error) {
+    console.error("CKEditor initialization failed:", error);
+    throw error;
   }
 };
 
@@ -81,8 +102,17 @@ const updateData = <C extends React.ElementType>(
     cacheData: MutableRefObject<string>;
   }
 ) => {
-  if (cacheData.current !== props.value) {
-    el.CKEditor.setData(props.value);
+  if (!el?.CKEditor || !el.isConnected) {
+    return;
+  }
+
+  try {
+    if (cacheData.current !== props.value) {
+      el.CKEditor.setData(props.value);
+      cacheData.current = props.value;
+    }
+  } catch (error) {
+    console.error("CKEditor updateData failed:", error);
   }
 };
 

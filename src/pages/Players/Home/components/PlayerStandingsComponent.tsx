@@ -29,7 +29,7 @@ export const PlayerStandingsComponent = ({ className, title = "Rank", player, le
       </div>
       <div className="flex flex-col w-full overflow-scroll">
         {playerStanding?.data?.map((pl, index) => (
-          <div key={index} className={`flex flex-row items-center justify-between w-full py-2 px-3 ${index % 2 === 1 ? 'bg-gray-100' : ''} ${pl.uuid === player ? 'border border-emerald-800 rounded' : ''}`}>
+          <div key={index} className={`flex flex-row items-center justify-between w-full py-2 px-3 ${index % 2 === 1 ? 'bg-gray-100 dark:bg-darkmode-800' : ''} ${pl.uuid === player ? 'border border-emerald-800 dark:border-emerald-400 rounded' : ''}`}>
             <div className="flex flex-row items-center">
               <div className="w-4 h-4 text-xs font-medium">
                 {index + 1}

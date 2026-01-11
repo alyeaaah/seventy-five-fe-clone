@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Team } from "../Bracket/interfaces";
+import { ITeam } from "../TournamentDrawing/interfaces";
 import { DrawingTeamsProps, Match } from "./interface";
 import { DraggableTeam } from "./DraggableTeam";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -15,7 +15,7 @@ export const DrawingTeams: React.FC<DrawingTeamsProps> = ({
   scores
 }) => {
   // Handle team drop
-  const handleTeamDrop = (draggedTeam: Team, targetTeam: Team) => {
+  const handleTeamDrop = (draggedTeam: ITeam, targetTeam: ITeam) => {
     // Find which matches contain these teams
     let draggedMatchIndex = -1;
     let draggedTeamPosition: 'home_team' | 'away_team' = 'home_team';
@@ -105,7 +105,7 @@ export const DrawingTeams: React.FC<DrawingTeamsProps> = ({
                 {
                   currentSetScores && currentGameScores &&
                   <div className={`flex flex-col items-center justify-between text-xs mr-1 space-y-2`}>
-                    {<div className='border border-emerald-800 rounded-md w-[24px] text-center text-emerald-800'>{currentGameScores?.game_score_home || 0}</div> }
+                    {<div className='border border-emerald-800 rounded-md w-[24px] text-center text-emerald-800'>{currentGameScores?.game_score_home || 0}</div>}
                     {<div className='border border-emerald-800 rounded-md bg-emerald-800 text-white w-[24px] text-center'>{currentSetScores?.prev?.set_score_home || 0}</div>}
                   </div>
                 }
@@ -129,7 +129,7 @@ export const DrawingTeams: React.FC<DrawingTeamsProps> = ({
               )}
             </div>
           </div>);
-          }
+        }
         )}
       </div>
     </DndProvider>

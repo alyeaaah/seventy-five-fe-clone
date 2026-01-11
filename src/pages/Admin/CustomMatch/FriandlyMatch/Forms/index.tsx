@@ -21,6 +21,7 @@ import Litepicker from "@/components/Base/Litepicker";
 import moment from "moment";
 import dayjs from "dayjs";
 import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { isHtmlEmpty } from "@/utils/helper";
 import { LevelsApiHooks } from "@/pages/Admin/MasterData/Levels/api";
 import { CourtsApiHooks } from "@/pages/Admin/Courts/api";
@@ -77,7 +78,10 @@ export const FriendlyMatchForm = (props: Props) => {
           level: data.data.level || "",
           level_uuid: data.data.level_uuid,
           court_uuid: data.data.court_uuid,
-          rules: data?.data?.rules || [{
+          rules: data?.data?.rules?.map(rule => ({
+            uuid: rule.uuid || "",
+            description: rule.description,
+          })) || [{
             uuid: "",
             description: "",
           }],
@@ -212,7 +216,7 @@ export const FriendlyMatchForm = (props: Props) => {
       </div>
       <Divider />
       <FriendlyMatchSteps step={1} />
-      <FormProvider {...methods} key={location.pathname+"_form"}>
+      <FormProvider {...methods} key={location.pathname + "_form"}>
         <form onSubmit={handleSubmit(onSubmit)} className="relative">
           <div className="grid grid-cols-12 gap-4 ">
             <div className="col-span-12 sm:col-span-6 box p-4">
@@ -524,7 +528,7 @@ export const FriendlyMatchForm = (props: Props) => {
               </div>
               <div className="col-span-12 grid grid-cols-12">
                 {watch('rules')?.map((rule, index) => (
-                  <div className="col-span-12 grid grid-cols-12 gap-2" key={index+"_rule"} >
+                  <div className="col-span-12 grid grid-cols-12 gap-2" key={index + "_rule"} >
                     <div className="col-span-1 text-right pr-2 ">
                       <Button type="button" size="sm" variant="outline-success" onClick={() => {
                         // setValue('rules', watch('rules').filter((_, i) => i !== index));
@@ -557,7 +561,7 @@ export const FriendlyMatchForm = (props: Props) => {
                   onChange={setRuleDescription}
                   theme="snow"
                   className="w-full min-h-36"
-              
+
                   modules={{
                     toolbar: [
                       [
@@ -586,7 +590,8 @@ export const FriendlyMatchForm = (props: Props) => {
                         .replace(/class="ql-size-huge"/g, 'class="text-3xl"')
                         // For other classes you might want to replace
                         .replace(/class="ql-align-center"/g, 'class="text-center"')
-                        .replace(/class="ql-align-right"/g, 'class="text-right"')) }]);
+                        .replace(/class="ql-align-right"/g, 'class="text-right"'))
+                    }]);
                     setRuleDescription("");
                   }}
                 >
@@ -610,26 +615,26 @@ export const FriendlyMatchForm = (props: Props) => {
                 Cancel
               </Button>
               <div className="flex">
-              {friendlyMatchUuid && <Button
-                type="button"
-                variant="outline-secondary"
-                onClick={() => {
-                  navigate(paths.administrator.customMatch.friendlyMatch.edit.players({ friendlyMatchUuid: friendlyMatchUuid }).$);
+                {friendlyMatchUuid && <Button
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={() => {
+                    navigate(paths.administrator.customMatch.friendlyMatch.edit.players({ friendlyMatchUuid: friendlyMatchUuid }).$);
 
-                }}
-                className="w-[46%] sm:w-auto sm:mr-2"
-              >
-                Next Step
-              </Button>}
-              <Button
-                variant="primary"
-                type="submit"
-                className="w-[46%] sm:w-auto"
-                disabled={formState.isSubmitting || !formState.isValid}
-              >
-                <Lucide icon="Save" className="w-4 h-4 mr-2" />
-                Save & Continue
-              </Button>
+                  }}
+                  className="w-[46%] sm:w-auto sm:mr-2"
+                >
+                  Next Step
+                </Button>}
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-[46%] sm:w-auto"
+                  disabled={formState.isSubmitting || !formState.isValid}
+                >
+                  <Lucide icon="Save" className="w-4 h-4 mr-2" />
+                  Save & Continue
+                </Button>
               </div>
             </div>
           </div>

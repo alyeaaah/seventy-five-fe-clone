@@ -14,7 +14,6 @@ import Lucide from "@/components/Base/Lucide";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import 'react-quill/dist/quill.snow.css';
 import TournamentSteps from "../Components/FriendlyMatchSteps";
-import { CustomIRoundProps } from "@/components/Bracket/interfaces";
 import { ModalMatch } from "./ModalMatch";
 import { faker } from "@faker-js/faker";
 import { CourtsApiHooks } from "@/pages/Admin/Courts/api";
@@ -37,7 +36,7 @@ export const FriendlyMatchFormSchedule = (props: Props) => {
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const [selectedMatch, setSelectedMatch] = useState<Match | undefined>();
   const [modalFormMatch, setModalFormMatch] = useState(false);
-  
+
   const { data } = TournamentsApiHooks.useGetTournamentsDetail({
     params: {
       uuid: friendlyMatchUuid || 0
@@ -67,7 +66,40 @@ export const FriendlyMatchFormSchedule = (props: Props) => {
       if (dataMatches && methods) {
         methods.reset({
           tournament_uuid: friendlyMatchUuid || "",
-          matches: dataMatches.data || []
+          matches: (dataMatches.data || []).map(match => ({
+            ...match,
+            uuid: match.uuid || "",
+            tournament_uuid: match.tournament_uuid || "",
+            home_team_uuid: match.home_team_uuid || "",
+            away_team_uuid: match.away_team_uuid || "",
+            home_team_score: match.home_team_score || 0,
+            away_team_score: match.away_team_score || 0,
+            court_field_uuid: match.court_field_uuid || "",
+            round: match.round || 0,
+            status: match.status || "",
+            court: match.court || "",
+            updatedAt: match.updatedAt || "",
+            home_team: {
+              ...match.home_team,
+              uuid: match.home_team?.uuid || "",
+              players: match.home_team?.players?.map(player => ({
+                uuid: player.uuid || "",
+                name: player.name,
+                media_url: player.media_url || "",
+                level: player.level || ""
+              })) || [],
+            },
+            away_team: {
+              ...match.away_team,
+              uuid: match.away_team?.uuid || "",
+              players: match.away_team?.players?.map(player => ({
+                uuid: player.uuid || "",
+                name: player.name,
+                media_url: player.media_url || "",
+                level: player.level || ""
+              })) || []
+            },
+          }))
         });
       }
     }
@@ -83,7 +115,16 @@ export const FriendlyMatchFormSchedule = (props: Props) => {
       if (dataTeams && methods && matches) {
         if (matches.data.length > 0) {
           // check if there is a team that is not in a match
-          const teamsNotInMatch = dataTeams.data.filter(team => !matches.data.some(match => match.home_team_uuid === team.uuid || match.away_team_uuid === team.uuid));
+          const teamsNotInMatch = dataTeams.data.filter(team => !matches.data.some(match => match.home_team_uuid === team.uuid || match.away_team_uuid === team.uuid))
+            .map(team => ({
+              ...team,
+              uuid: team.uuid || "",
+              players: team.players?.map(player => ({
+                ...player,
+                uuid: player.uuid || "",
+                media_url: player.media_url || ""
+              })) || []
+            }));
           if (teamsNotInMatch.length > 0) {
             const newMatches = generateInitialMatches(
               teamsNotInMatch,
@@ -113,7 +154,14 @@ export const FriendlyMatchFormSchedule = (props: Props) => {
           methods.reset({
             tournament_uuid: friendlyMatchUuid || "",
             matches: generateInitialMatches(
-              dataTeams.data,
+              dataTeams.data.map(team => ({
+                ...team,
+                uuid: team.uuid || "",
+                players: team.players?.map(player => ({
+                  uuid: player.uuid || "",
+                  media_url: player.media_url || ""
+                })) || []
+              })),
               friendlyMatchUuid,
               new Date(data?.data?.start_date || ""),
               new Date(data?.data?.end_date || ""),
@@ -175,7 +223,15 @@ export const FriendlyMatchFormSchedule = (props: Props) => {
     let result: Match[] = [];
     if (matches?.data && teams?.data) {
       if (matches.data.length > 0) {
-        const teamsNotInMatch = teams.data.filter(team => !matches.data.some(match => match.home_team_uuid === team.uuid || match.away_team_uuid === team.uuid));
+        const teamsNotInMatch = teams.data.filter(team => !matches.data.some(match => match.home_team_uuid === team.uuid || match.away_team_uuid === team.uuid))
+          .map(team => ({
+            ...team,
+            uuid: team.uuid || "",
+            players: team.players?.map(player => ({
+              uuid: player.uuid || "",
+              media_url: player.media_url || ""
+            })) || []
+          }));
         if (teamsNotInMatch.length > 0) {
           const newMatches = generateInitialMatches(
             teamsNotInMatch,
@@ -190,7 +246,14 @@ export const FriendlyMatchFormSchedule = (props: Props) => {
         }
       } else {
         result = generateInitialMatches(
-          teams.data,
+          teams.data.map(team => ({
+            ...team,
+            uuid: team.uuid || "",
+            players: team.players?.map(player => ({
+              uuid: player.uuid || "",
+              media_url: player.media_url || ""
+            })) || []
+          })),
           friendlyMatchUuid,
           new Date(data?.data?.start_date || ""),
           new Date(data?.data?.end_date || ""),
@@ -269,7 +332,7 @@ export const FriendlyMatchFormSchedule = (props: Props) => {
                 <DrawingTeams
                   key={watch("matches").length}
                   data={watch("matches") as Match[]}
-                  onMatchClicked={(data) => { 
+                  onMatchClicked={(data) => {
                     setSelectedMatch(data);
                     setModalFormMatch(true);
                   }}
@@ -317,7 +380,7 @@ export const FriendlyMatchFormSchedule = (props: Props) => {
                   disabled={!formState.isValid}
                 >
                   <Lucide icon="Save" className="w-4 h-4 mr-2" />
-                  Save 
+                  Save
                 </Button>
               </div>
             </div>

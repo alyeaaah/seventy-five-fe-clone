@@ -217,7 +217,7 @@ export const PublicMatchDetail = () => {
                               <h3 className="text-xs text-right font-normal capitalize">{player?.nickname}</h3>
                             </div>
                             <div className="border rounded-lg p-0.5">
-                              <img src={player?.media_url} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
+                              <img src={player?.media_url || ''} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
                             </div>
                           </div>
                         </Link>
@@ -276,14 +276,14 @@ export const PublicMatchDetail = () => {
                         )}
                         {getPlayerKudos(player?.uuid || "")?.length ? (
                           <div className="flex flex-col items-end bg-gray-200 rounded-lg p-2 pt-6 px-4 relative overflow-hidden"
-                          onClick={() => {
-                            setModalKudos({
-                              open: true,
-                              matchUuid: matchUuid || "",
-                              playerUuid: player?.uuid || "",
-                              playerName: player?.name || ""
-                            });
-                          }}>
+                            onClick={() => {
+                              setModalKudos({
+                                open: true,
+                                matchUuid: matchUuid || "",
+                                playerUuid: player?.uuid || "",
+                                playerName: player?.name || ""
+                              });
+                            }}>
                             <div className="absolute font-bold text-5xl -top-2 -left-2 opacity-25">Kudos</div>
                             <div className="text-xs text-right font-medium capitalize flex flex-wrap gap-1">
                               {getPlayerKudos(player?.uuid || "")?.map((item, index) => (
@@ -293,7 +293,7 @@ export const PublicMatchDetail = () => {
                             <div className="text-xs text-right font-medium capitalize flex flex-col mt-2 gap-2">
                               {getPlayerKudos(player?.uuid || "")?.filter((item) => item.kudos_text).map((item, index) => (
                                 <div className="flex flex-col items-end">
-                                  <div className="text-xs text-right font-medium capitalize bg-[#EBCE56] w-fit px-2 py-1 pb-0 rounded-t-lg flex flex-row">{item.by_uuid == userData?.uuid ? "You" : item.by} <Lucide icon="User" className="w-4 h-4 ml-1"/></div>
+                                  <div className="text-xs text-right font-medium capitalize bg-[#EBCE56] w-fit px-2 py-1 pb-0 rounded-t-lg flex flex-row">{item.by_uuid == userData?.uuid ? "You" : item.by} <Lucide icon="User" className="w-4 h-4 ml-1" /></div>
                                   <div className="px-3 py-1 rounded-b-lg rounded-tl-lg bg-white text-emerald-800 text-xs bg-opacity-80 cursor-pointer text-left" key={index}>
                                     {item.kudos_text}
                                   </div>
@@ -302,7 +302,7 @@ export const PublicMatchDetail = () => {
                             </div>
                           </div>
                         ) : null}
-                        
+
                       </div>
                     ))}
                     <div className="col-span-6">
@@ -344,7 +344,7 @@ export const PublicMatchDetail = () => {
                         >
                           <div className="flex flex-row items-center">
                             <div className="border rounded-lg p-0.5">
-                              <img src={player?.media_url} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
+                              <img src={player?.media_url || ''} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
                             </div>
                             <div className="ml-2">
                               <h2 className="text-sm text-left font-bold capitalize">{player?.name}</h2>
@@ -384,7 +384,7 @@ export const PublicMatchDetail = () => {
                           <div className="px-2 flex flex-col items-start">
                             <div className="text-xs font-normal capitalize">Overhead</div>
                             <Progress percent={player?.skills?.overhead || 0} strokeColor="#065740" className="text-xs" percentPosition={{ align: "start" }} />
-                        </div>
+                          </div>
                         </Link>
                         {showGiveKudosButton(player?.uuid || "") && (
                           <div className="flex flex-col items-start">
@@ -423,7 +423,7 @@ export const PublicMatchDetail = () => {
                             <div className="text-xs text-left font-medium capitalize flex flex-col mt-2 gap-2">
                               {getPlayerKudos(player?.uuid || "")?.filter((item) => item.kudos_text).map((item, index) => (
                                 <div className="flex flex-col items-start">
-                                  { !userData && <div className="text-xs text-right font-medium capitalize bg-[#EBCE56] w-fit px-2 py-1 pb-0 rounded-t-lg flex flex-row">Someone on the court <Lucide icon="User" className="w-4 h-4 ml-1" /></div>}
+                                  {!userData && <div className="text-xs text-right font-medium capitalize bg-[#EBCE56] w-fit px-2 py-1 pb-0 rounded-t-lg flex flex-row">Someone on the court <Lucide icon="User" className="w-4 h-4 ml-1" /></div>}
                                   {userData?.uuid && <div className="text-xs text-right font-medium capitalize bg-[#EBCE56] w-fit px-2 py-1 pb-0 rounded-t-lg flex flex-row">
                                     {item.by_uuid == userData?.uuid ? "You" : item.by} <Lucide icon="User" className="w-4 h-4 ml-1" />
                                   </div>
@@ -450,7 +450,7 @@ export const PublicMatchDetail = () => {
                         <h3 className="text-[10px] text-right font-light capitalize text-ellipsis line-clamp-1">{player?.nickname}</h3>
                       </div>
                       <div className="min-w-8">
-                        <img src={player?.media_url} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
+                        <img src={player?.media_url || ''} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
                       </div>
                     </Link>
                   ))}
@@ -459,7 +459,7 @@ export const PublicMatchDetail = () => {
                   {data?.data?.away_team?.players?.map((player, index) => (
                     <div key={index} className="col-span-12 flex flex-row items-center">
                       <div className="min-w-8">
-                        <img src={player?.media_url} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
+                        <img src={player?.media_url || ''} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
                       </div>
                       <div className="ml-2 w-full">
                         <h2 className="text-[10px] text-left font-normal capitalize text-ellipsis line-clamp-1 w-full">{player?.name}</h2>
@@ -488,7 +488,7 @@ export const PublicMatchDetail = () => {
       </LayoutWrapper>
       <Modal
         open={modalKudos.open}
-        onCancel={() => {setModalKudos({open: false, matchUuid: "", playerUuid: "", playerName: ""})}}
+        onCancel={() => { setModalKudos({ open: false, matchUuid: "", playerUuid: "", playerName: "" }) }}
         footer={null}
 
         title={
@@ -505,7 +505,7 @@ export const PublicMatchDetail = () => {
           key={JSON.stringify(modalKudos)}
           matchUuid={modalKudos.matchUuid || ""}
           playerUuid={modalKudos.playerUuid || ""}
-          onClose={() => setModalKudos({open: false, matchUuid: "", playerUuid: "", playerName: ""})}
+          onClose={() => setModalKudos({ open: false, matchUuid: "", playerUuid: "", playerName: "" })}
         />
       </Modal>
     </>

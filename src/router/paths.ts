@@ -37,6 +37,9 @@ export const paths = {
         brackets: route(`/admin/tournaments/new/brackets/:id`, {
           id: stringParser
         }, {}),
+        group: route(`/admin/tournaments/new/group/:id`, {
+          id: stringParser
+        }, {}),
         points: route(`/admin/tournaments/new/points/:id`, {
           id: stringParser
         }, {}),

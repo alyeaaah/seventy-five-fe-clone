@@ -246,6 +246,79 @@ export const TournamentFormBrackets = (props: Props) => {
     }
   );
 
+  // Handler untuk save group
+  const actionUpdateGroup = () => {
+    if (!tournamentUuid || !groups || groups.length === 0) {
+      showNotification({
+        duration: 3000,
+        text: "No groups to save",
+        icon: "Info",
+        variant: "info",
+      });
+      return;
+    }
+
+    // Generate matches from groups
+    const groupMatches = generateGroupMatches(groups);
+    const body: TournamentMatchesPayload = {
+      tournament_uuid: tournamentUuid,
+      matches: []
+    };
+
+    groupMatches.forEach((match, idx) => {
+      const matchPayload: TournamentMatchPayload = {
+        id: !isNaN(Number(match.id)) ? +match.id : Number(`${data?.data?.id}${idx}`),
+        uuid: match.uuid ? match.uuid : faker.string.uuid(),
+        round: match.roundKey,
+        group: match.groupKey,
+        seed_index: match.seed_index,
+        home_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[0]?.alias || "") ? match.teams?.[0]?.uuid || "TBD" : match.teams?.[0]?.alias || "TBD",
+        away_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[1]?.alias || "") ? match.teams?.[1]?.uuid || "TBD" : match.teams?.[1]?.alias || "TBD",
+        home_group_index: match.teams?.[0]?.group_index !== undefined ? match.teams?.[0]?.group_index : null,
+        home_group_position: match.teams?.[0]?.group_position !== undefined ? match.teams?.[0]?.group_position : null,
+        away_group_index: match.teams?.[1]?.group_index !== undefined ? match.teams?.[1]?.group_index : null,
+        away_group_position: match.teams?.[1]?.group_position !== undefined ? match.teams?.[1]?.group_position : null,
+        court_field_uuid: match.court_field_uuid || "",
+        status: match.status || "SCHEDULED",
+        time: match.time,
+        updatedAt: match.updatedAt,
+        court: match.court,
+        tournament_uuid: tournamentUuid,
+        home_team_score: match.home_team_score || 0,
+        away_team_score: match.away_team_score || 0
+      };
+      body.matches.push(matchPayload);
+    });
+
+    actionUpdateMatches({
+      matches: body.matches,
+      tournament_uuid: tournamentUuid,
+    }, {
+      onSuccess: () => {
+        showNotification({
+          duration: 3000,
+          text: "Group stage saved successfully",
+          icon: "CheckSquare",
+          variant: "success",
+        });
+        queryClient.invalidateQueries({
+          queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsList"),
+        });
+        queryClient.invalidateQueries({
+          queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsDetail"),
+        });
+      },
+      onError: (e: any) => {
+        showNotification({
+          duration: 3000,
+          text: e?.message || "Failed to save group stage",
+          icon: "WashingMachine",
+          variant: "danger",
+        });
+      },
+    });
+  };
+
   const onSubmit = () => {
     const body: TournamentMatchesPayload = {
       tournament_uuid: tournamentUuid,
@@ -304,25 +377,24 @@ export const TournamentFormBrackets = (props: Props) => {
         <h2 className="mr-auto text-lg font-medium">{tournamentUuid ? "Edit" : "Add New"} Tournament</h2>
       </div>
       <Divider />
-      <TournamentSteps step={4} />
+      <TournamentSteps step={data?.data?.type === "ROUND ROBIN" ? 5 : 4} tournamentUuid={tournamentUuid} showGroup={data?.data?.type === "ROUND ROBIN"} tournamentType={data?.data?.type ?? undefined} />
       <div className="grid grid-cols-12 gap-4 ">
         {data?.data?.type === "ROUND ROBIN" && (
           <div className="col-span-12 lg:col-span-4 box h-fit p-4 grid grid-cols-12 gap-2">
             <div className="col-span-12">
-              <h2 className=" font-medium">Group Stage</h2>
+              <div className="flex flex-row items-center justify-between mb-2">
+                <h2 className="font-medium">Group Stage</h2>
+              </div>
               <Divider className="mb-0 " />
               <GroupStage
                 groups={groups || []}
                 className="w-full"
+                readOnly={true}
                 key={"groupStage" + groups.length}
-                onChange={(groups) => {
-                  setGroups(groups)
-                  generateRoundRobinMatches(groups);
-                }}
                 onClickGroup={(group) => {
                   setModalGroupMatches(group.groupKey)
                 }}
-              />;
+              />
             </div>
           </div>
         )}

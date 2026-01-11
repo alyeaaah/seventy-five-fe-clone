@@ -26,6 +26,13 @@ export const TournamentFormDone = () => {
       uuid: tournamentUuid
     }
   });
+  const { data: tournamentData } = TournamentsApiHooks.useGetTournamentsDetail({
+    params: {
+      uuid: tournamentUuid || 0
+    }
+  }, {
+    enabled: !!tournamentUuid
+  });
 
   return (
     <>
@@ -33,7 +40,7 @@ export const TournamentFormDone = () => {
         <h2 className="mr-auto text-lg font-medium">{tournamentUuid ? "Edit" : "Add New"} Tournament</h2>
       </div>
       <Divider />
-      <TournamentSteps step={5} />
+      <TournamentSteps step={tournamentData?.data?.type === "ROUND ROBIN" ? 6 : 5} tournamentUuid={tournamentUuid} showGroup={tournamentData?.data?.type === "ROUND ROBIN"} tournamentType={tournamentData?.data?.type} />
 
       <div className="grid grid-cols-12 gap-4 ">
         <div className="col-span-12 box h-fit p-4 grid grid-cols-12 ">

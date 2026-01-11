@@ -11,19 +11,34 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./utils/react-query";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { ToastProvider } from "./components/Toast/ToastProvider";
-import 'react-quill/dist/quill.snow.css';
+// react-quill CSS dipindah ke component level untuk lazy loading
 import { ConfigProvider } from "antd";
-import { antdThemeProvider } from "./utils/store/config";
+import { getAntdThemeProvider } from "./utils/store/config";
 import { clientEnv } from "@/env";
+import { useAppSelector } from "./stores/hooks";
+import { selectDarkMode } from "./stores/darkModeSlice";
+
+// Wrapper component untuk ConfigProvider yang reactive terhadap dark mode
+function AntdConfigProvider({ children }: { children: React.ReactNode }) {
+  const isDarkMode = useAppSelector(selectDarkMode);
+  const theme = getAntdThemeProvider(isDarkMode);
+
+  return (
+    <ConfigProvider theme={theme}>
+      {children}
+    </ConfigProvider>
+  );
+}
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter basename={clientEnv.BASENAME}>
       <Provider store={store}>
         <JotaiProvider store={jotaiStore}>
           <ToastProvider>
-            <ConfigProvider theme={antdThemeProvider}>
+            <AntdConfigProvider>
               <Router />
-            </ConfigProvider>
+            </AntdConfigProvider>
           </ToastProvider>
           <LoadingOverlay />
         </JotaiProvider>

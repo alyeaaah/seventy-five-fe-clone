@@ -76,14 +76,14 @@ export const FriendlyMatchFormPlayers = (props: Props) => {
         setValue("players", data.data.players.map((player) => ({
           uuid: player.uuid,
           player_uuid: player.player_uuid,
-          player_name: player.player_name,
-          media_url: player.media_url,
-          team_uuid: player.team_uuid,
-          team_name: player.team_name,
-          team_alias: player.team_alias,
+          player_name: player.player_name || "",
+          media_url: player.media_url || "",
+          team_uuid: player.team_uuid || "",
+          team_name: player.team_name || "",
+          team_alias: player.team_alias || "",
           isDeleted: false
         })));
-        
+
         setTeamNames(initTeamNames(data.data.players));
         calculateTournamentRounds(data?.data?.players?.length)
       }
@@ -102,7 +102,7 @@ export const FriendlyMatchFormPlayers = (props: Props) => {
       retry: false
     }
   );
-  
+
   const methods = useForm({
     mode: "onChange",
     defaultValues: {
@@ -145,7 +145,7 @@ export const FriendlyMatchFormPlayers = (props: Props) => {
       team_name: teamNames[Math.floor(idx / 2)].team_name,
       team_alias: teamNames[Math.floor(idx / 2)].team_alias,
     }));
-    
+
     const existingPlayers = data?.data?.players || [];
     const removedPlayers = existingPlayers.filter(player => !values.players.find(p => p.player_uuid === player.player_uuid)).map(player => ({
       ...player,
@@ -167,7 +167,7 @@ export const FriendlyMatchFormPlayers = (props: Props) => {
           icon: "CheckSquare2",
           variant: "success",
         });
-        navigate(paths.administrator.customMatch.friendlyMatch.edit.points({  friendlyMatchUuid }).$);
+        navigate(paths.administrator.customMatch.friendlyMatch.edit.points({ friendlyMatchUuid }).$);
       },
       onError: (e: any) => {
         showNotification({
@@ -347,7 +347,7 @@ export const FriendlyMatchFormPlayers = (props: Props) => {
                             return;
                           } else {
                             calculateTournamentRounds(currentPlayers.length + 1);
-                            if (currentPlayers.length % 2 === 0) { 
+                            if (currentPlayers.length % 2 === 0) {
                               // new team
                               // check teams length
                               if (teamNames.length <= currentPlayers.length / 2) {

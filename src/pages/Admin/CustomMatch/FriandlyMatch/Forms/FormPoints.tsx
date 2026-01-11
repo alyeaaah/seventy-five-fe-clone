@@ -53,7 +53,10 @@ export const FriendlyMatchFormPoints = (props: Props) => {
           level: data.data.level || "",
           level_uuid: data.data.level_uuid,
           court_uuid: data.data.court_uuid,
-          rules: data?.data?.rules || [{
+          rules: data?.data?.rules?.map(rule => ({
+            uuid: rule.uuid || "",
+            description: rule.description,
+          })) || [{
             uuid: "",
             description: "",
           }],
@@ -70,8 +73,8 @@ export const FriendlyMatchFormPoints = (props: Props) => {
         uuid: selectedPointConfig || data?.data?.point_config_uuid || 0
       }
     }, {
-      enabled: (!!friendlyMatchUuid && !!data?.data?.point_config_uuid) || !!selectedPointConfig
-    }
+    enabled: (!!friendlyMatchUuid && !!data?.data?.point_config_uuid) || !!selectedPointConfig
+  }
   );
 
 
@@ -81,8 +84,8 @@ export const FriendlyMatchFormPoints = (props: Props) => {
         round: roundInfo.rounds
       }
     }, {
-      enabled: !!friendlyMatchUuid && roundInfo.rounds > 0
-    }
+    enabled: !!friendlyMatchUuid && roundInfo.rounds > 0
+  }
   );
 
   const { data: participants } = TournamentsApiHooks.useGetTournamentParticipants({

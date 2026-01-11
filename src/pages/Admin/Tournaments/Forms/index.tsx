@@ -24,6 +24,7 @@ import moment from "moment";
 import { LevelsApiHooks } from "../../MasterData/Levels/api";
 import dayjs from "dayjs";
 import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { isHtmlEmpty } from "@/utils/helper";
 import TournamentSteps from "../Components/TournamentSteps";
 import { CourtsApiHooks } from "../../Courts/api";
@@ -94,7 +95,10 @@ export const TournamentForm = (props: Props) => {
           league_id: data.data.league_id || "",
           court_uuid: data.data.court_uuid,
           total_group: data.data.total_group || 0,
-          rules: data?.data?.rules || [{
+          rules: data?.data?.rules?.map(rule => ({
+            uuid: rule.uuid || "",
+            description: rule.description,
+          })) || [{
             uuid: "",
             description: "",
           }],
@@ -230,7 +234,7 @@ export const TournamentForm = (props: Props) => {
         <h2 className="mr-auto text-lg font-medium">{tournamentUuid ? "Edit" : "Add New"} Tournament</h2>
       </div>
       <Divider />
-      <TournamentSteps step={1} />
+      <TournamentSteps step={1} tournamentUuid={tournamentUuid} showGroup={data?.data?.type === "ROUND ROBIN"} tournamentType={data?.data?.type} />
       <FormProvider {...methods} key={location.pathname + "_form"}>
         <form onSubmit={handleSubmit(onSubmit)} className="relative">
           <div className="grid grid-cols-12 gap-4 ">

@@ -1,42 +1,57 @@
-// src/components/animations/FadeAnimation.tsx
-import { CSSTransition } from 'react-transition-group';
-import { ReactNode, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { HTMLAttributes, useEffect, useRef, useState } from "react";
 
-type FadeAnimationProps = {
-  children: ReactNode;
-  className?: string;
-  timeout?: number;
+interface FadeAnimationProps extends HTMLAttributes<HTMLDivElement> {
   direction?: "up" | "down";
-};
+  children: React.ReactNode;
+}
 
-export const FadeAnimation = ({
+export const FadeAnimation: React.FC<FadeAnimationProps> = ({
+  className = "",
+  direction = "up",
   children,
-  className = '',
-  timeout = 500,
-  direction = "down",
   ...props
-}: FadeAnimationProps) => {
-
-  const [show, setShow] = useState(false);
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setShow(true); // Trigger animation on mount
-    return () => setShow(false);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+      }
+    );
+
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+
+    return () => {
+      if (elementRef.current) {
+        observer.unobserve(elementRef.current);
+      }
+    };
   }, []);
 
-  const location = useLocation();
-  return(
-  <CSSTransition
-    {...props}
-    key={location.key}
-    in={show} // Always true for route changes
-    timeout={timeout}
-    classNames={direction === "up" ? "fade-flex-up" : "fade-flex-down"} // Using modified class names
-    unmountOnExit
-  >
-    <div className={`fade-animation-container ${className}`}>
+  const directionClass = direction === "up" ? "fade-flex-up" : "fade-flex-down";
+  const animationClass = isVisible
+    ? `${directionClass}-enter-active`
+    : `${directionClass}-enter`;
+
+  return (
+    <div
+      ref={elementRef}
+      className={`fade-animation-container ${animationClass} ${className}`}
+      {...props}
+    >
       {children}
     </div>
-  </CSSTransition>
-)};
+  );
+};
+

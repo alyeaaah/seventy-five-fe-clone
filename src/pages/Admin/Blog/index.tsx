@@ -185,12 +185,12 @@ export default function BlogPosts() {
             </div>
           }
           <div className="h-20"></div>
-          <div className="col-span-12  mt-[-20px] z-10 rounded-t-xl bg-white px-3 py-2 cursor-pointer absolute bottom-0" onClick={() => navigate(paths.administrator.blog.detail({ id: record.uuid }).$)}>
-            <h3 className="text-lg font-bold text-emerald-800 line-clamp-2 text-ellipsis">{record.title}</h3>
-            <p className="text-ellipsis line-clamp-2 break-after-all text-gray-500 text-xs h-8" dangerouslySetInnerHTML={{ __html: decodeURIComponent(record.content) }}></p>
+          <div className="col-span-12  mt-[-20px] z-10 rounded-t-xl bg-white dark:bg-darkmode-600 px-3 py-2 cursor-pointer absolute bottom-0" onClick={() => navigate(paths.administrator.blog.detail({ id: record.uuid }).$)}>
+            <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 line-clamp-2 text-ellipsis">{record.title}</h3>
+            <p className="text-ellipsis line-clamp-2 break-after-all text-gray-500 dark:text-slate-400 text-xs h-8" dangerouslySetInnerHTML={{ __html: decodeURIComponent(record.content) }}></p>
             <div className="flex flex-row justify-between mt-2">
-              <span className="text-xs text-gray-500 flex flex-row items-center"><Lucide icon="User" className="h-4" />&nbsp;Author:&nbsp;{record.author}</span>
-              <span className="text-xs text-gray-500 flex flex-row items-center"><Lucide icon="Calendar" className="h-4" />&nbsp;{moment(record.createdAt).format('YYYY-MM-DD')}</span>
+              <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="User" className="h-4" />&nbsp;Author:&nbsp;{record.author}</span>
+              <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="Calendar" className="h-4" />&nbsp;{moment(record.createdAt).format('YYYY-MM-DD')}</span>
             </div>
           </div>
         </div>

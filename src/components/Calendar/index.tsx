@@ -1,14 +1,37 @@
-import "@/assets/css/vendors/full-calendar.css";
-import FullCalendar from "@fullcalendar/react";
-import interactionPlugin from "@fullcalendar/interaction";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import listPlugin from "@fullcalendar/list";
+import { lazy, Suspense } from "react";
+import LoadingIcon from "@/components/Base/LoadingIcon";
 import { CalendarOptions } from "@fullcalendar/core";
+
+// Lazy load FullCalendar component untuk code splitting
+const FullCalendarLazy = lazy(async () => {
+  // Import CSS dan plugins secara dinamis
+  await import("@/assets/css/vendors/full-calendar.css");
+  const [
+    { default: FullCalendar },
+    { default: interactionPlugin },
+    { default: dayGridPlugin },
+    { default: timeGridPlugin },
+    { default: listPlugin },
+  ] = await Promise.all([
+    import("@fullcalendar/react"),
+    import("@fullcalendar/interaction"),
+    import("@fullcalendar/daygrid"),
+    import("@fullcalendar/timegrid"),
+    import("@fullcalendar/list"),
+  ]);
+
+  return {
+    default: (props: any) => (
+      <FullCalendar
+        {...props}
+        plugins={[interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin]}
+      />
+    ),
+  };
+});
 
 function Main() {
   const options: CalendarOptions = {
-    plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
     droppable: true,
     headerToolbar: {
       left: "prev,next today",
@@ -66,7 +89,9 @@ function Main() {
 
   return (
     <div className="full-calendar">
-      <FullCalendar {...options} />
+      <Suspense fallback={<LoadingIcon icon="puff" />}>
+        <FullCalendarLazy {...options} />
+      </Suspense>
     </div>
   );
 }

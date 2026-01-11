@@ -13,9 +13,9 @@ import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import moment from "moment";
 import 'react-quill/dist/quill.snow.css';
 import Image from "@/components/Image";
-import { DraggableBracket } from "@/components/Bracket";
+import { DraggableBracket } from "@/components/TournamentDrawing/Bracket";
 import { PointConfigurationsApiHooks } from "@/pages/Admin/PointConfig/api";
-import { convertMatchToRound } from "@/components/Bracket/utils";
+import TournamentDrawingUtils from "@/components/TournamentDrawing/utils";
 import { DrawingTeams } from "@/components/DrawingTeams";
 import { Match } from "@/components/DrawingTeams/interface";
 import { useTournamentScore } from "../../MatchDetail/api/firestore";
@@ -25,7 +25,7 @@ export const FriendlyMatchDetail = () => {
   const { friendlyMatchUuid } = queryParams;
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const navigate = useNavigate();
-  
+
   const { data } = TournamentsApiHooks.useGetTournamentsDetail({
     params: {
       uuid: friendlyMatchUuid || 0
@@ -40,11 +40,11 @@ export const FriendlyMatchDetail = () => {
         uuid: data?.data?.point_config_uuid || 0
       }
     }, {
-      enabled: (!!friendlyMatchUuid && !!data?.data?.point_config_uuid)
-    }
+    enabled: (!!friendlyMatchUuid && !!data?.data?.point_config_uuid)
+  }
   );
 
-  const { data:matches } = TournamentsApiHooks.useGetTournamentMatches({
+  const { data: matches } = TournamentsApiHooks.useGetTournamentMatches({
     queries: {
       tournament_uuid: friendlyMatchUuid || ""
     }
@@ -69,13 +69,13 @@ export const FriendlyMatchDetail = () => {
         <h2 className="mr-auto text-lg font-medium">{data?.data?.name || "Tournament"}</h2>
       </div>
       <Divider />
-      
+
       <div className="grid grid-cols-12 gap-4 ">
         <div className="col-span-12 sm:col-span-6 box p-4">
           <div className="grid grid-cols-12 gap-2">
             <div className="col-span-12">
               <h2 className=" font-medium">Friendly Match Information</h2>
-              <Divider className="mb-0"/>
+              <Divider className="mb-0" />
             </div>
             <div className="col-span-12 grid grid-cols-12 gap-2 pl-2">
               <div className="col-span-12 sm:col-span-8 grid grid-cols-12 gap-2">
@@ -98,7 +98,7 @@ export const FriendlyMatchDetail = () => {
               <div className="col-span-12 sm:col-span-4 flex justify-end">
                 <Image src={data?.data?.media_url} className="max-h-52 object-fit" />
               </div>
-            </div> 
+            </div>
           </div>
         </div>
         <div className="col-span-12 sm:col-span-6 box p-4 ">
@@ -109,7 +109,7 @@ export const FriendlyMatchDetail = () => {
             </div>
             <div className="col-span-12 grid grid-cols-12 h-fit">
               {data?.data?.rules?.map((rule, index) => (
-                <div className="col-span-12 grid grid-cols-12 gap-2" key={index+"_rule"} >
+                <div className="col-span-12 grid grid-cols-12 gap-2" key={index + "_rule"} >
                   <div className="col-span-2 sm:col-span-1 text-right pr-2 ">
                     <Button type="button" size="sm" variant="outline-success" >
                       {index + 1}
@@ -135,7 +135,7 @@ export const FriendlyMatchDetail = () => {
             <DrawingTeams
               key={matches?.data?.length || 0}
               data={(matches?.data || []) as Match[]}
-              onMatchClicked={(data) => { 
+              onMatchClicked={(data) => {
                 navigate(paths.administrator.customMatch.detail({ matchUuid: data.uuid || "" }).$)
               }}
               draggable={false}
@@ -151,22 +151,22 @@ export const FriendlyMatchDetail = () => {
               <h2 className=" font-medium">Point Configuration</h2>
               <Divider className="mb-2" />
             </div>
-            <div className="col-span-12 h-fit bg-slate-100 rounded-2xl">
-              <div key={"title"} className="grid grid-cols-8 gap-8 font-semibold bg-slate-100 p-2 rounded-2xl ">
+            <div className="col-span-12 h-fit bg-slate-100 dark:bg-darkmode-800 rounded-2xl">
+              <div key={"title"} className="grid grid-cols-8 gap-8 font-semibold bg-slate-100 dark:bg-darkmode-800 p-2 rounded-2xl ">
                 <div className="col-span-2 text-end">Round</div>
                 <div className="col-span-3 flex justify-center">Win</div>
                 <div className="col-span-3 flex justify-center">Lose</div>
               </div>
               {detailPointConfig?.data?.points?.map((p, i) => {
-                  if (i > 0) return null;
-                  return (
-                    <div key={i} className={`grid grid-cols-8 gap-8 p-3 col-span-12 rounded-lg text-xs sm:text-base ${i%2 == 0 ? 'bg-slate-50' : ''}`}>
-                      <div className="col-span-2 flex justify-end"><span className="hidden sm:block mr-1">Round</span> {p.round}</div>
-                      <div className="col-span-3 text-ellipsis line-clamp-1 flex justify-center">{p.win_point} Point</div>
-                      <div className="col-span-3 text-ellipsis line-clamp-1 flex justify-center">{p.lose_point} Point</div>
-                    </div>
-                  );
-                })}
+                if (i > 0) return null;
+                return (
+                  <div key={i} className={`grid grid-cols-8 gap-8 p-3 col-span-12 rounded-lg text-xs sm:text-base ${i % 2 == 0 ? 'bg-slate-50 dark:bg-darkmode-700' : ''}`}>
+                    <div className="col-span-2 flex justify-end"><span className="hidden sm:block mr-1">Round</span> {p.round}</div>
+                    <div className="col-span-3 text-ellipsis line-clamp-1 flex justify-center">{p.win_point} Point</div>
+                    <div className="col-span-3 text-ellipsis line-clamp-1 flex justify-center">{p.lose_point} Point</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

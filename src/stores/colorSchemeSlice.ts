@@ -40,12 +40,6 @@ export const colorSchemeSlice = createSlice({
 
 export const { setColorScheme } = colorSchemeSlice.actions;
 
-export const selectColorScheme = (state: RootState) => {
-  if (localStorage.getItem("colorScheme") === null) {
-    localStorage.setItem("colorScheme", "theme-1");
-  }
-
-  return state.colorScheme.value;
-};
+export const selectColorScheme = (state: RootState) => state.colorScheme.value;
 
 export default colorSchemeSlice.reducer;

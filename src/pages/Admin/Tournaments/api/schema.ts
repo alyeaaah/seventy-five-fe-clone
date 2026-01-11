@@ -149,6 +149,17 @@ export const tournamentSponsorSchema =z.object({
   is_delete: z.boolean().default(false),
 });
 
+export const tournamentGroupPayloadSchema = z.object({
+  uuid: z.string().nullish(),
+  name: z.string().nullish(),
+  players: z.array(z.object({
+    uuid: z.string(),
+    name: z.string().nullish(),
+  })).nullish(),
+});
+
+export type TournamentGroupPayloadData = z.infer<typeof tournamentGroupPayloadSchema>;
+
 export type TournamentRounds = {
   teams: number;
   byes: number;

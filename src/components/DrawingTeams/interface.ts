@@ -1,5 +1,5 @@
 import { MatchScoreFirestore } from "@/pages/Admin/MatchDetail/api/schema";
-import { Team } from "../Bracket/interfaces";
+import { ITeam } from "../TournamentDrawing/interfaces";
 
 export interface Match {
   id?: number;
@@ -7,8 +7,8 @@ export interface Match {
   tournament_uuid?: string;
   home_team_uuid: string;
   away_team_uuid: string;
-  home_team: Team;
-  away_team: Team;
+  home_team: ITeam;
+  away_team: ITeam;
   home_team_score?: number;
   away_team_score?: number;
   round?: number;

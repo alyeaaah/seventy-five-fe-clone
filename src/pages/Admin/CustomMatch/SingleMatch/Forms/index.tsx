@@ -22,6 +22,7 @@ import Litepicker from "@/components/Base/Litepicker";
 import moment from "moment";
 import dayjs from "dayjs";
 import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { imageResizer, isHtmlEmpty } from "@/utils/helper";
 import { LevelsApiHooks } from "@/pages/Admin/MasterData/Levels/api";
 import { CourtsApiHooks } from "@/pages/Admin/Courts/api";

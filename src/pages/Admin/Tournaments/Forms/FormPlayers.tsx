@@ -11,8 +11,9 @@ import { useToast } from "@/components/Toast/ToastContext";
 import {
   Divider, AutoComplete
 } from "antd";
+import { Dialog } from "@/components/Base/Headless";
 import styles from "../index.module.scss";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { paths } from "@/router/paths";
 import Lucide from "@/components/Base/Lucide";
@@ -32,6 +33,7 @@ interface Props {
 
 export const TournamentFormPlayers = (props: Props) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const queryParams = useRouteParams(paths.administrator.tournaments.new.players);
   const { id: tournamentUuid } = queryParams;
   const { showNotification } = useToast();
@@ -40,16 +42,14 @@ export const TournamentFormPlayers = (props: Props) => {
   const [playerKeyword, setPlayerKeyword] = useState<string>("");
   const [playerLevel, setPlayerLevel] = useState<string>("");
   const [roundInfo, setRoundInfo] = useState<TournamentRounds>({ byes: 0, rounds: 0, teams: 0, nextPowerOf2: 0 });
+  const [availablePlayersPage, setAvailablePlayersPage] = useState<number>(1);
+  const [showInfoModal, setShowInfoModal] = useState<boolean>(false);
   const { data: levelData } = LevelsApiHooks.useGetLevelsList();
   const { data: tournamentData } = TournamentsApiHooks.useGetTournamentsDetail({
     params: {
       uuid: tournamentUuid || 0
     }
   }, {
-    onSuccess: (data) => {
-      if (data) {
-      }
-    },
     enabled: !!tournamentUuid
   });
   const { data } = TournamentsApiHooks.useGetTournamentParticipants({
@@ -62,11 +62,11 @@ export const TournamentFormPlayers = (props: Props) => {
         setValue("players", data.data.players.map((player) => ({
           uuid: player.uuid,
           player_uuid: player.player_uuid,
-          player_name: player.player_name,
-          media_url: player.media_url,
-          team_uuid: player.team_uuid,
-          team_name: player.team_name,
-          team_alias: player.team_alias,
+          player_name: player.player_name ?? undefined,
+          media_url: player.media_url ?? undefined,
+          team_uuid: player.team_uuid ?? undefined,
+          team_name: player.team_name ?? undefined,
+          team_alias: player.team_alias ?? undefined,
           isDeleted: false
         })));
         // get team names from data.data.players, and group by team.name
@@ -81,7 +81,8 @@ export const TournamentFormPlayers = (props: Props) => {
         ).values()];
 
         setTeamNames(uniqueTeams);
-        TournamentDrawingUtils.calculateTournamentRounds(data?.data?.players?.length)
+        const rounds = TournamentDrawingUtils.calculateTournamentRounds(data?.data?.players?.length || 0);
+        setRoundInfo(rounds);
       }
     },
     refetchOnMount: "always",
@@ -129,6 +130,151 @@ export const TournamentFormPlayers = (props: Props) => {
   }
   );
 
+  // Available players list for left sidebar
+  const { data: availablePlayersData } = PlayersApiHooks.useGetPlayersList(
+    {
+      queries: {
+        level: tournamentData?.data.strict_level ? tournamentData?.data.level_uuid : (playerLevel || undefined),
+        limit: 20,
+        page: availablePlayersPage
+      }
+    }
+  );
+
+  // Handler untuk menambahkan player dari sidebar
+  const handleAddPlayer = (player: { uuid?: string; name?: string | null; media_url?: string | null }, currentPlayersOverride?: any[], currentTeamNamesOverride?: any[]) => {
+    if (!player.uuid) return { players: currentPlayersOverride || getValues("players"), teamNames: currentTeamNamesOverride || teamNames };
+    const currentPlayers = currentPlayersOverride || getValues("players");
+    const currentTeamNames = currentTeamNamesOverride || teamNames;
+
+    if (currentPlayers.some(p => p.player_uuid === player.uuid)) {
+      return { players: currentPlayers, teamNames: currentTeamNames };
+    }
+
+    const rounds = TournamentDrawingUtils.calculateTournamentRounds(currentPlayers.length + 1);
+    if (!currentPlayersOverride) {
+      setRoundInfo(rounds);
+    }
+
+    let updatedPlayers: any[];
+    let updatedTeamNames = [...currentTeamNames];
+
+    if (currentPlayers.length % 2 === 0) {
+      // new team
+      if (currentTeamNames.length <= currentPlayers.length / 2) {
+        const newTeamName = {
+          team_uuid: "",
+          team_name: `Team ${currentTeamNames.length + 1}`,
+          team_alias: faker.word.noun({
+            length: { min: 4, max: 12 }
+          })
+        };
+        updatedTeamNames.push(newTeamName);
+        updatedPlayers = [
+          ...currentPlayers,
+          {
+            uuid: "",
+            player_uuid: player.uuid,
+            player_name: player.name || undefined,
+            media_url: player.media_url || "",
+            team_uuid: newTeamName.team_uuid,
+            team_name: newTeamName.team_name,
+            team_alias: newTeamName.team_alias,
+            isDeleted: false
+          }
+        ];
+      } else {
+        const newTeamName = currentTeamNames[Math.floor(currentPlayers.length / 2)];
+        updatedPlayers = [
+          ...currentPlayers,
+          {
+            uuid: "",
+            player_uuid: player.uuid,
+            player_name: player.name || undefined,
+            media_url: player.media_url || "",
+            team_uuid: newTeamName.team_uuid,
+            team_name: newTeamName.team_name,
+            team_alias: newTeamName.team_alias,
+            isDeleted: false
+          }
+        ];
+      }
+    } else {
+      const newTeamName = currentTeamNames[Math.floor(currentPlayers.length / 2)];
+      updatedPlayers = [
+        ...currentPlayers,
+        {
+          uuid: "",
+          player_uuid: player.uuid,
+          player_name: player.name || undefined,
+          media_url: player.media_url || "",
+          team_uuid: newTeamName.team_uuid,
+          team_name: newTeamName.team_name,
+          team_alias: newTeamName.team_alias,
+          isDeleted: false
+        }
+      ];
+    }
+
+    // Update state only if not using override (single player add)
+    if (!currentPlayersOverride) {
+      if (updatedTeamNames.length > teamNames.length) {
+        setTeamNames(updatedTeamNames);
+      }
+      setValue("players", updatedPlayers);
+    }
+
+    return { players: updatedPlayers, teamNames: updatedTeamNames };
+  };
+
+  // Handler untuk menambahkan semua available players
+  const handleAddAllPlayers = () => {
+    const currentPlayers = getValues("players");
+    const availablePlayers = availablePlayersData?.data || [];
+    const playersToAdd = availablePlayers.filter(
+      player => player.uuid && !currentPlayers.some(p => p.player_uuid === player.uuid)
+    );
+
+    if (playersToAdd.length === 0) {
+      showNotification({
+        duration: 3000,
+        text: "All available participants have been added",
+        icon: "Info",
+        variant: "info",
+      });
+      return;
+    }
+    console.log(playersToAdd);
+
+    // Build players array synchronously by passing current state to each call
+    let updatedPlayers = [...currentPlayers];
+    let updatedTeamNames = [...teamNames];
+
+    for (const player of playersToAdd) {
+      // Use handleAddPlayer with current state override to work synchronously
+      const result = handleAddPlayer(player, updatedPlayers, updatedTeamNames);
+      if (result && result.players.length > updatedPlayers.length) {
+        updatedPlayers = result.players;
+        updatedTeamNames = result.teamNames;
+      }
+    }
+
+    // Update state once after all players are processed
+    if (updatedTeamNames.length > teamNames.length) {
+      setTeamNames(updatedTeamNames);
+    }
+    const finalRounds = TournamentDrawingUtils.calculateTournamentRounds(updatedPlayers.length);
+    setRoundInfo(finalRounds);
+    setValue("players", updatedPlayers);
+
+    showNotification({
+      duration: 3000,
+      text: `${playersToAdd.length} participant(s) added successfully`,
+      icon: "CheckSquare2",
+      variant: "success",
+    });
+  };
+
   const onSubmit: SubmitHandler<any> = (values: TournamentParticipants) => {
     values.players = values.players.map((player, idx) => ({
       uuid: player.uuid || "",
@@ -141,7 +287,7 @@ export const TournamentFormPlayers = (props: Props) => {
     }));
 
     const existingPlayers = data?.data?.players || [];
-    const removedPlayers = existingPlayers.filter(player => !values.players.find(p => p.player_uuid === player.player_uuid)).map(player => ({
+    const removedPlayers = existingPlayers.filter(player => !values.players.some(p => p.player_uuid === player.player_uuid)).map(player => ({
       ...player,
       isDeleted: true
     }));
@@ -179,14 +325,129 @@ export const TournamentFormPlayers = (props: Props) => {
         <h2 className="mr-auto text-lg font-medium">{tournamentUuid ? "Edit" : "Add New"} Tournament</h2>
       </div>
       <Divider />
-      <TournamentSteps step={2} />
+      <TournamentSteps step={2} tournamentUuid={tournamentUuid} showGroup={tournamentData?.data?.type === "ROUND ROBIN"} tournamentType={tournamentData?.data?.type} />
       <FormProvider {...methods} key={location.pathname + "_form"}>
         <form onSubmit={handleSubmit(onSubmit)} className="relative">
           <div className="grid grid-cols-12 gap-4 ">
-            <div className="sm:col-span-3 hidden sm:flex"></div>
-            <div className="col-span-12 sm:col-span-6 box h-fit p-4 grid grid-cols-12 ">
+            {/* Available Players Sidebar */}
+            <div className="col-span-12 lg:col-span-6 box h-fit p-4">
               <div className="col-span-12">
-                <h2 className=" font-medium">Participants</h2>
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="font-medium">Available Participants</h2>
+                  <Button
+                    type="button"
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={handleAddAllPlayers}
+                    className="flex items-center"
+                  >
+                    <Lucide icon="Plus" className="w-4 h-4 mr-1" />
+                    Add All
+                  </Button>
+                </div>
+                <Divider className="mb-3" />
+              </div>
+              <div className="max-h-[600px] overflow-y-auto">
+                {availablePlayersData?.data?.map((player) => {
+                  const playerAdded = watch('players').some(p => p.player_uuid === player.uuid);
+                  return (
+                    <div
+                      key={player.uuid}
+                      className={`w-full flex items-center p-2 mb-2 rounded-lg transition-colors ${playerAdded
+                        ? 'bg-slate-100 dark:bg-darkmode-400 opacity-60'
+                        : 'bg-slate-50 dark:bg-darkmode-500'
+                        }`}
+                    >
+                      <Image
+                        src={player.media_url || ""}
+                        alt={player.name}
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full mr-2 flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center">
+                          <span className="font-medium text-sm truncate">{player.name}</span>
+                          {playerAdded && (
+                            <Lucide icon="Check" className="w-4 h-4 ml-2 text-success flex-shrink-0" />
+                          )}
+                        </div>
+                        {player.nickname && (
+                          <span className="text-xs text-slate-500 dark:text-slate-400 italic truncate block">
+                            {player.nickname}
+                          </span>
+                        )}
+                        <span className="text-xs text-slate-500 dark:text-slate-400 truncate block">
+                          {player.city} | {player.level}
+                        </span>
+                      </div>
+                      {playerAdded ? (
+                        <div className="ml-2 flex-shrink-0 text-xs text-slate-500 dark:text-slate-400">
+                          Added
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!player.uuid) return;
+                            handleAddPlayer(player);
+                          }}
+                          className="flex items-center ml-2 flex-shrink-0"
+                        >
+                          <Lucide icon="Plus" className="w-3 h-3 mr-1" />
+                          Add Player
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+                {availablePlayersData?.data?.length === 0 && (
+                  <div className="text-center text-slate-500 dark:text-slate-400 py-8">
+                    No players available
+                  </div>
+                )}
+              </div>
+              {availablePlayersData && availablePlayersData.totalRecords > 20 && (
+                <div className="flex justify-between items-center mt-4 pt-4 border-t dark:border-darkmode-300">
+                  <Button
+                    type="button"
+                    variant="outline-secondary"
+                    size="sm"
+                    disabled={availablePlayersPage === 1}
+                    onClick={() => setAvailablePlayersPage(prev => Math.max(1, prev - 1))}
+                  >
+                    <Lucide icon="ChevronLeft" className="w-4 h-4" />
+                  </Button>
+                  <span className="text-sm text-slate-600 dark:text-slate-300">
+                    Page {availablePlayersPage} of {Math.ceil((availablePlayersData.totalRecords || 0) / 20)}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline-secondary"
+                    size="sm"
+                    disabled={availablePlayersPage >= Math.ceil((availablePlayersData.totalRecords || 0) / 20)}
+                    onClick={() => setAvailablePlayersPage(prev => prev + 1)}
+                  >
+                    <Lucide icon="ChevronRight" className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="col-span-12 lg:col-span-6 box h-fit p-4 grid grid-cols-12 ">
+              <div className="col-span-12">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-medium">Participants</h2>
+                  <Button
+                    type="button"
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => setShowInfoModal(true)}
+                    className="flex items-center"
+                  >
+                    <Lucide icon="Info" className="w-4 h-4" />
+                  </Button>
+                </div>
                 <Divider className="mb-0 " />
               </div>
               <div className="col-span-12">
@@ -238,8 +499,6 @@ export const TournamentFormPlayers = (props: Props) => {
                             <span className="ml-2 capitalize">
                               {teamNames[Math.floor(index / 2)]?.team_name}
                               {" "}{teamNames[Math.floor(index / 2)]?.team_alias}
-                              {/* {record.team_name}
-                              {" "}{record.team_alias} */}
                             </span>
                           </div>
                         ),
@@ -276,7 +535,7 @@ export const TournamentFormPlayers = (props: Props) => {
                   className={styles.customTableStyle}
                 />
               </div>
-              <div className="col-span-12 sm:col-span-8 mb-2 mt-2 flex flex-row items-center">
+              <div className="col-span-12 sm:col-span-8 mb-2 mt-2 flex flex-row items-center lg:hidden">
                 <Controller
                   name="players"
                   key="players"
@@ -288,7 +547,7 @@ export const TournamentFormPlayers = (props: Props) => {
                         suffixIcon={<Lucide icon="Search" />}
                         value={playerKeyword}
                         options={playerData?.data?.map(player => {
-                          const playerAdded = watch('players').filter(p => player.uuid === p.player_uuid).length > 0;
+                          const playerAdded = watch('players').some(p => player.uuid === p.player_uuid);
                           return {
                             value: player.uuid,
                             label: (
@@ -321,7 +580,8 @@ export const TournamentFormPlayers = (props: Props) => {
                           if (currentPlayers.length > 0 && currentPlayers.map(player => player.player_uuid).includes(value)) {
                             return;
                           } else {
-                            TournamentDrawingUtils.calculateTournamentRounds(currentPlayers.length + 1);
+                            const rounds = TournamentDrawingUtils.calculateTournamentRounds(currentPlayers.length + 1);
+                            setRoundInfo(rounds);
                             if (currentPlayers.length % 2 === 0) {
                               // new team
                               // check teams length
@@ -393,9 +653,6 @@ export const TournamentFormPlayers = (props: Props) => {
                                 ]
                               );
                             }
-                            const teamIndex = Math.ceil(currentPlayers.length / 2);
-                            if (teamIndex < teamNames.length) {
-                            }
                             setPlayerKeyword("");
                           }
                         }}
@@ -416,7 +673,7 @@ export const TournamentFormPlayers = (props: Props) => {
                   }
                 />
               </div>
-              <div className="col-span-12 sm:col-span-4 mb-2 mt-2 flex flex-row items-center pl-4">
+              <div className="col-span-12 sm:col-span-4 mb-2 mt-2 flex flex-row items-center pl-4 lg:hidden">
                 <FormSelect
                   name="level_uuid"
                   disabled={tournamentData?.data?.strict_level}
@@ -432,30 +689,6 @@ export const TournamentFormPlayers = (props: Props) => {
                     </option>
                   ))}
                 </FormSelect>
-              </div>
-            </div>
-            <div className="col-span-12 sm:col-span-3 box h-fit p-4 grid grid-cols-12  gap-2">
-              <div className="col-span-12">
-                <h2 className=" font-medium">Information</h2>
-                <Divider className="mb-0 mt-1" />
-              </div>
-              <div className="col-span-4">
-                Total Round
-              </div>
-              <div className="col-span-8">
-                : {roundInfo?.rounds}
-              </div>
-              <div className="col-span-4">
-                Byes
-              </div>
-              <div className="col-span-8">
-                : {roundInfo?.byes}
-              </div>
-              <div className="col-span-4">
-                Total Team
-              </div>
-              <div className="col-span-8">
-                : {roundInfo?.teams}
               </div>
             </div>
           </div>
@@ -512,6 +745,56 @@ export const TournamentFormPlayers = (props: Props) => {
         refId={modalAlert?.refId}
         buttons={modalAlert?.buttons}
       />
+      {/* Information Modal */}
+      <Dialog
+        open={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+        size="sm"
+      >
+        <Dialog.Panel>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">Tournament Information</h3>
+              <button
+                type="button"
+                onClick={() => setShowInfoModal(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              >
+                <Lucide icon="X" className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-12 gap-4 py-4">
+              <div className="col-span-5 font-medium text-slate-600 dark:text-slate-300">
+                Total Round
+              </div>
+              <div className="col-span-7 text-slate-800 dark:text-slate-200">
+                : {roundInfo?.rounds || 0}
+              </div>
+              <div className="col-span-5 font-medium text-slate-600 dark:text-slate-300">
+                Byes
+              </div>
+              <div className="col-span-7 text-slate-800 dark:text-slate-200">
+                : {roundInfo?.byes || 0}
+              </div>
+              <div className="col-span-5 font-medium text-slate-600 dark:text-slate-300">
+                Total Team
+              </div>
+              <div className="col-span-7 text-slate-800 dark:text-slate-200">
+                : {roundInfo?.teams || 0}
+              </div>
+            </div>
+            <div className="flex justify-end pt-4 border-t dark:border-darkmode-300">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => setShowInfoModal(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </Dialog.Panel>
+      </Dialog>
     </>
   )
 }

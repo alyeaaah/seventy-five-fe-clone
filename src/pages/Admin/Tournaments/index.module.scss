@@ -18,3 +18,11 @@
 .teamsTableRow:nth-child(4n+4) td {
   background-color: #dff5e1 !important;
 }
+
+// Dark mode support
+:global(.dark) {
+  .teamsTableRow:nth-child(4n+3) td,
+  .teamsTableRow:nth-child(4n+4) td {
+    background-color: rgb(53, 69, 103) !important;
+  }
+}

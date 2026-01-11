@@ -12,15 +12,12 @@ export const profileChecker = ({ uuid, name, skills, height }: { uuid?: string |
   const isNameComplete = name ? name.length > 2 : false;
   const isSkillsComplete = skills ? Object.values(skills).every((value) => value > 0) : false;
   const isHeightComplete = height ? height > 100 : false;
-  console.log(isNameComplete, isSkillsComplete, isHeightComplete);
+  
   if (isNameComplete && isSkillsComplete && isHeightComplete) {
-    console.log("COMPLETE");  
     return "COMPLETE";
   } else if (!isSkillsComplete && !isHeightComplete) {
-    console.log("UPDATE");
     return "UPDATE";
   } else {
-    console.log("INCOMPLETE");
     return "INCOMPLETE";
   }
 }

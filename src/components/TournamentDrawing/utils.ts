@@ -13,7 +13,7 @@ const calculateTournamentRounds = (totalPlayers: number): TournamentRounds => {
       nextPowerOf2,
     };
   }
-const convertMatchToRound = (matches: IMatch[]): IRound[] => {
+const convertMatchToRound = (matches: any[]): IRound[] => {
   const round: IRound[] = [];
   let seedIndex = 0;
   matches.map(match => {
@@ -27,8 +27,26 @@ const convertMatchToRound = (matches: IMatch[]): IRound[] => {
         index: match.roundKey + 1
       })
     }
-    round[match.roundKey].seeds.push({
+    // Transform the match to include teams property if it doesn't exist
+    const transformedMatch: IMatch = {
       ...match,
+      teams: match.teams || [
+        {
+          uuid: match.home_team?.uuid || '',
+          name: match.home_team?.name || '',
+          alias: match.home_team?.alias || '',
+          players: match.home_team?.players || []
+        },
+        {
+          uuid: match.away_team?.uuid || '',
+          name: match.away_team?.name || '',
+          alias: match.away_team?.alias || '',
+          players: match.away_team?.players || []
+        }
+      ]
+    };
+    round[match.roundKey].seeds.push({
+      ...transformedMatch,
       seed_index: seedIndex
     })
     seedIndex++;

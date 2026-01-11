@@ -45,7 +45,7 @@ export const tournamentSchema = z.object({
   type: z.string(),
   start_date: z.string(),
   end_date: z.string(),
-  point_config_uuid: z.string(),
+  point_config_uuid: z.string().nullish(),
 });
 
 export const courtFieldSchema = z.object({

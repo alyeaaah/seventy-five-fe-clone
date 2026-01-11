@@ -42,7 +42,7 @@ export const CustomMatchPage = () => {
     level: "",
     search: "",
   });
-  
+
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const { showNotification } = useToast();
   const { mutate: actionDeleteFriendlyMatch } = TournamentsApiHooks.useDeleteTournament({
@@ -244,10 +244,10 @@ export const CustomMatchPage = () => {
                 }
 
                 {
-                  record.status == "PUBLISHED" &&
+                  record.status == "DRAFT" &&
                   <Tippy
                     as="div"
-                      className="flex items-center justify-center dark:border-darkmode-400 text-slate-400 absolute bottom-2 right-[calc(50%-16px)]"
+                    className="flex items-center justify-center dark:border-darkmode-400 text-slate-400 absolute bottom-2 right-[calc(50%-16px)]"
                     content="Unpublish"
                   >
                     <Button
@@ -264,22 +264,22 @@ export const CustomMatchPage = () => {
                 }
               </div>
             }
-            <div className="col-span-9 rounded-t-xl bg-white px-3 py-2 cursor-pointer" onClick={() => navigate(paths.administrator.customMatch.friendlyMatch.detail({ friendlyMatchUuid: record.uuid || "" }).$)}>
+            <div className="col-span-9 rounded-t-xl bg-white dark:bg-darkmode-600 px-3 py-2 cursor-pointer" onClick={() => navigate(paths.administrator.customMatch.friendlyMatch.detail({ friendlyMatchUuid: record.uuid || "" }).$)}>
               <div className="flex items-center min-h-14 max-h-14">
-                <h3 className="text-lg font-bold text-emerald-800 text-ellipsis line-clamp-2">{record.name}</h3>
+                <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 text-ellipsis line-clamp-2">{record.name}</h3>
               </div>
               <div className="flex flex-row justify-between mt-2">
-                <span className="text-xs text-gray-500 flex flex-row items-center"><Lucide icon="MapPin" className="h-4 w-4" />{record.court}</span>
-                <div className="border border-emerald-800 rounded-xl text-xs px-2">{record.status}</div>
+                <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="MapPin" className="h-4 w-4" />{record.court}</span>
+                <div className="border border-emerald-800 dark:border-emerald-400 rounded-xl text-xs px-2 dark:text-emerald-400">{record.status}</div>
               </div>
               <div className="flex flex-row justify-between items-end">
                 <div className="flex flex-col">
                   <div className="flex flex-row justify-between mt-2">
-                    <span className="text-xs text-gray-500 flex flex-row items-center"><Lucide icon="Calendar" className="h-4 w-4" />&nbsp;<span className="text-ellipsis line-clamp-1">{moment(record.createdAt).format('ddd, DD MMM YYYY')}</span></span>
+                    <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="Calendar" className="h-4 w-4" />&nbsp;<span className="text-ellipsis line-clamp-1">{moment(record.createdAt).format('ddd, DD MMM YYYY')}</span></span>
                   </div>
                   <div className="flex flex-row justify-between mt-2">
-                    <span className="text-xs text-gray-500 flex flex-row items-center"><Lucide icon="Clock" className="h-4 w-4" />&nbsp;{moment(record.createdAt).format('hh:mm')}</span>
-                    <span className="text-xs text-gray-500 flex flex-row items-center mr-1"><Lucide icon="User" className="h-4 w-4" />{record.player_count || "0"}</span>
+                    <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="Clock" className="h-4 w-4" />&nbsp;{moment(record.createdAt).format('hh:mm')}</span>
+                    <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center mr-1"><Lucide icon="User" className="h-4 w-4" />{record.player_count || "0"}</span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-end items-en">
@@ -335,8 +335,8 @@ export const CustomMatchPage = () => {
           {record.home_team && (
             <div className="flex flex-col w-full">
               <div className="flex flex-row items-center ">
-                <span className="text-sm font-bold text-emerald-800">{record.home_team.name} </span>
-                <span className="text-xs border rounded-md border-emerald-800 text-emerald-800 px-1 capitalize ml-1 ">{record.home_team.alias} </span>
+                <span className="text-sm font-bold text-emerald-800 dark:text-emerald-400">{record.home_team.name} </span>
+                <span className="text-xs border rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 px-1 capitalize ml-1 ">{record.home_team.alias} </span>
               </div>
               {record.home_team.players?.map((player) => (
                 <div className="flex flex-row items-center">
@@ -347,13 +347,13 @@ export const CustomMatchPage = () => {
             </div>
           )}
           <div className="flex my-2">
-            <IconVS className="w-16 h-6 text-emerald-800"/>
+            <IconVS className="w-16 h-6 text-emerald-800 dark:text-emerald-400" />
           </div>
           {record.away_team && (
             <div className="flex flex-col w-full">
               <div className="flex flex-row items-center justify-end">
-                <span className="text-xs border rounded-md border-emerald-800 text-emerald-800 px-1 capitalize mr-1 ">{record.away_team.alias} </span>
-                <span className="text-sm font-bold text-emerald-800">{record.away_team.name} </span>
+                <span className="text-xs border rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 px-1 capitalize mr-1 ">{record.away_team.alias} </span>
+                <span className="text-sm font-bold text-emerald-800 dark:text-emerald-400">{record.away_team.name} </span>
               </div>
               {record.away_team.players?.map((player) => (
                 <div className="flex flex-row items-center justify-end">
@@ -438,7 +438,7 @@ export const CustomMatchPage = () => {
         </div>
         <div className="flex sm:flex-row flex-col sm:w-auto w-full">
           <Button variant="primary" className="mr-2 shadow-md sm:flex hidden" onClick={() => navigate(paths.administrator.customMatch.friendlyMatch.new)} >
-            <Lucide icon="PlusCircle"/>&nbsp;New Friendly Match
+            <Lucide icon="PlusCircle" />&nbsp;New Friendly Match
           </Button>
           <div className="flex flex-col sm:flex-row sm:items-end xl:items-start">
             <form
@@ -496,7 +496,7 @@ export const CustomMatchPage = () => {
             bordered={false}
             components={{
               body: {
-                wrapper: ({ children }: { children: ReactNode }) => <tbody className="thumbnail-grid-body bg-[#F1F5F9]">{children}</tbody>,
+                wrapper: ({ children }: { children: ReactNode }) => <tbody className="thumbnail-grid-body bg-slate-100 dark:bg-darkmode-800">{children}</tbody>,
                 row: ({ children }: { children: ReactNode }) => <tr className="thumbnail-grid-row">{children}</tr>,
                 cell: ({ children }: { children: ReactNode }) => <td className="thumbnail-grid-cell">{children}</td>,
               },
@@ -520,10 +520,10 @@ export const CustomMatchPage = () => {
         <h2 className="mr-auto text-lg font-medium">Custom Match</h2>
         <div className="flex">
           <Button variant="primary" className="mr-2 shadow-md" onClick={() => navigate(paths.administrator.customMatch.new)} >
-            <Lucide icon="PlusCircle"/>&nbsp;
+            <Lucide icon="PlusCircle" />&nbsp;
             Create New Match
           </Button>
-          
+
         </div>
       </div>
       {/* BEGIN: HTML Table Data */}
@@ -594,26 +594,26 @@ export const CustomMatchPage = () => {
             expandable={screens.xs ? {
               expandedRowRender: (record) => {
                 return (
-                    <div className="flex justify-stretch">
-                      <Button
-                        className="flex items-center w-full"
-                        variant="outline-success"
-                        onClick={() => {
-                          navigate(paths.administrator.customMatch.edit({ customMatchUuid: record.uuid || "" }).$);
-                        }}
-                      >
-                        <Lucide icon="Pencil" className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        className="flex items-center ml-2 w-full"
-                        variant="outline-danger"
-                        onClick={() => {
-                          handleDeleteCustomMatch(record.uuid || "");
-                        }}
-                      >
-                        <Lucide icon="Trash" className="w-4 h-4" />
-                      </Button>
-                    </div>
+                  <div className="flex justify-stretch">
+                    <Button
+                      className="flex items-center w-full"
+                      variant="outline-success"
+                      onClick={() => {
+                        navigate(paths.administrator.customMatch.edit({ customMatchUuid: record.uuid || "" }).$);
+                      }}
+                    >
+                      <Lucide icon="Pencil" className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      className="flex items-center ml-2 w-full"
+                      variant="outline-danger"
+                      onClick={() => {
+                        handleDeleteCustomMatch(record.uuid || "");
+                      }}
+                    >
+                      <Lucide icon="Trash" className="w-4 h-4" />
+                    </Button>
+                  </div>
                 )
               },
               rowExpandable: (record) => !!record.uuid, // Only expand rows with an address
@@ -625,7 +625,7 @@ export const CustomMatchPage = () => {
       {/* END: HTML Table Data */}
       {/* END: Custom Matches */}
       <Confirmation
-        open={!!modalAlert?.open} 
+        open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
         icon={modalAlert?.icon || "Info"}
         title={modalAlert?.title || ""}

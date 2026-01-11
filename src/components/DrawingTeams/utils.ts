@@ -1,9 +1,9 @@
 import { CourtField } from "@/pages/Admin/Courts/api/schema";
-import { Team } from "../Bracket/interfaces";
+import { ITeam } from "../TournamentDrawing/interfaces";
 import { Match } from "./interface";
 import { generateSchedules } from "@/utils/helper";
 
-export const generateInitialMatches = (teams: Team[], tournamentUuid: string, startDate: Date, endDate: Date, courtOptions: CourtField[]): Match[]  => {
+export const generateInitialMatches = (teams: ITeam[], tournamentUuid: string, startDate: Date, endDate: Date, courtOptions: CourtField[]): Match[]  => {
   const matches: Match[] = [];
   const now = new Date().toISOString();
   const schedules = generateSchedules(courtOptions, startDate, endDate, Math.ceil(teams.length / 2));

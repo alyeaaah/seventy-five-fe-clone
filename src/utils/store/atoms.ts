@@ -6,8 +6,8 @@ import { userData } from "@/pages/Login/api/schema";
 import { CartProduct } from "../schema";
 import { PlayerAddress } from "@/pages/Admin/Players/api/schema";
 
-// Cookie storage that handles string|null
-const cookieStorage = {
+// Shared cookie storage implementation (digunakan di atoms dan stores)
+export const cookieStorage = {
   getItem: (key: string): string | null => {
     return Cookies.get(key) ?? null;
   },
@@ -20,6 +20,14 @@ const cookieStorage = {
   },
   removeItem: (key: string): void => {
     Cookies.remove(key);
+  },
+  getItemJSON: <T>(key: string, defaultValue?: T): T | null => {
+    try {
+      const item = cookieStorage.getItem(key);
+      return item ? (JSON.parse(item) as T) : (defaultValue ?? null);
+    } catch {
+      return defaultValue ?? null;
+    }
   },
 };
 
@@ -55,7 +63,7 @@ export const tempAddressAtom = atomWithStorage<PlayerAddress | null>(
   createJSONStorage(() => cookieStorage),
   { getOnInit: true },
 );
-userAtom.debugLabel = "userAtom";
+tempAddressAtom.debugLabel = "tempAddressAtom";
 
 export const cartAtom = atomWithStorage<CartProduct[]>(
   "cart",

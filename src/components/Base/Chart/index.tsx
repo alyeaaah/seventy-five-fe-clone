@@ -1,5 +1,34 @@
 import { createRef, useEffect, useRef } from "react";
-import ChartJs, { ChartConfiguration } from "chart.js/auto";
+import {
+  Chart as ChartJs,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ChartConfiguration,
+  DoughnutController,
+} from "chart.js";
+
+// Register only the components we need (tree-shaking optimization)
+ChartJs.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  DoughnutController
+);
 
 export interface ChartElement extends HTMLCanvasElement {
   instance: ChartJs;

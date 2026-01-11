@@ -1,11 +1,11 @@
 import { useDrag, useDrop } from "react-dnd";
-import { Team } from "../Bracket/interfaces";
+import { ITeam } from "../TournamentDrawing/interfaces";
 import Image from "@/components/Image";
 
 export const DraggableTeam: React.FC<{
-  team: Team;
+  team: ITeam;
   isAway?: boolean;
-  onDrop: (draggedTeam: Team, targetTeam: Team,) => void;
+  onDrop: (draggedTeam: ITeam, targetTeam: ITeam,) => void;
   onClick?: () => void;
   draggable?: boolean;
 }> = ({ team, onDrop, onClick, isAway, draggable }) => {
@@ -19,7 +19,7 @@ export const DraggableTeam: React.FC<{
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'TEAM',
-    drop: (item: { team: Team }) => {
+    drop: (item: { team: ITeam }) => {
       if (item.team.uuid !== team.uuid) {
         onDrop(item.team, team);
       }
@@ -30,7 +30,7 @@ export const DraggableTeam: React.FC<{
   }));
 
   const ref = (node: HTMLDivElement | null) => {
-    if (node) { 
+    if (node) {
       drag(drop(node));
     }
   };
@@ -56,7 +56,7 @@ export const DraggableTeam: React.FC<{
             <div key={index} className={`flex items-center ${isAway ? 'justify-end' : 'justify-start'}`}>
               {isAway && <div className="mr-1">{player.name}</div>}
               <div className="w-6 h-6 bg-emerald-800 rounded-full overflow-hidden ">
-                <Image src={player.media_url} width={40} height={40} className="object-cover w-full h-full rounded-full"/>
+                <Image src={player.media_url} width={40} height={40} className="object-cover w-full h-full rounded-full" />
               </div>
               {!isAway && <div className="ml-1">{player.name}</div>}
             </div>

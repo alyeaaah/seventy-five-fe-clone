@@ -12,7 +12,6 @@ export const GroupMatchesModal = ({ isOpen, onClose, matches, onMatchesClick }: 
   return (
     <Modal
       open={isOpen}
-      onClose={onClose}
       onCancel={onClose}
       title={`Group ${String.fromCharCode(65 + groupKey)} Matches`}
       width={screens.md ? "60vw" : "90%"}

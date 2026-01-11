@@ -2,7 +2,7 @@ import { makeEndpoint } from "@zodios/core";
 import { z } from "zod";
 import { generalReportSchema } from "./schema";
 import { playerSchemaList } from "../../Players/api/schema";
-import { tournamentSchema } from "@/pages/Players/Matches/api/schema";
+import { tournamentsSchema } from "../../Tournaments/api/schema";
 
 
 
@@ -36,7 +36,7 @@ const UpcomingTournamentsApi = makeEndpoint({
   response: z
     .object({
       message: z.string(),
-      data: z.array(tournamentSchema),
+      data: z.array(tournamentsSchema),
     })
 });
 

@@ -182,12 +182,12 @@ export function Merchandise() {
               />
             </div>
           }
-          <div className="col-span-12  z-10 rounded-t-xl bg-white py-2 cursor-pointer" onClick={() => navigate(paths.administrator.merchandise.detail({ id: record.uuid }).$)}>
-            <h3 className="text-lg font-bold text-emerald-800 line-clamp-2 text-ellipsis">{record.name}</h3>
-            <p className="text-ellipsis line-clamp-2 break-after-all text-gray-500 text-xs h-8" dangerouslySetInnerHTML={{ __html: decodeURIComponent(record.description) }}></p>
+          <div className="col-span-12  z-10 rounded-t-xl bg-white dark:bg-darkmode-600 py-2 cursor-pointer" onClick={() => navigate(paths.administrator.merchandise.detail({ id: record.uuid }).$)}>
+            <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 line-clamp-2 text-ellipsis">{record.name}</h3>
+            <p className="text-ellipsis line-clamp-2 break-after-all text-gray-500 dark:text-slate-400 text-xs h-8" dangerouslySetInnerHTML={{ __html: decodeURIComponent(record.description) }}></p>
             <div className="flex flex-row justify-between mt-2">
-              <span className="text-sm text-gray-500 flex flex-row items-center"><Lucide icon="Box" className="h-4" />&nbsp;Stock:&nbsp;{record.details.reduce((acc, detail) => acc + detail.quantity, 0)}</span>
-              <span className="text-base font-bold text-emerald-800 flex flex-row items-center tracking-tight">
+              <span className="text-sm text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="Box" className="h-4" />&nbsp;Stock:&nbsp;{record.details.reduce((acc, detail) => acc + detail.quantity, 0)}</span>
+              <span className="text-base font-bold text-emerald-800 dark:text-emerald-400 flex flex-row items-center tracking-tight">
                 Rp {(record.details.sort((a, b) => a.price - b.price)[0].price).toLocaleString("id")}
                 {record.details.length > 1 && record.details.sort((a, b) => a.price - b.price)[0].price !== record.details.sort((a, b) => b.price - a.price)[0].price &&
                   <> - Rp {(record.details.sort((a, b) => b.price - a.price)[0].price).toLocaleString("id")}</>}

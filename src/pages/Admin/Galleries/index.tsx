@@ -120,9 +120,9 @@ export default function Galleries() {
               />
             </div>
           }
-          <div className="col-span-12  mt-[-20px] z-10 rounded-t-xl bg-white p-4 cursor-pointer" onClick={() => navigate(paths.administrator.galleries.detail({ id: record.uuid }).$)}>
-            <h3 className="text-lg font-bold text-emerald-800">{record.name}</h3>
-            <p className="text-ellipsis line-clamp-2 break-after-all text-gray-500 text-xs h-8">{record.description}</p>
+          <div className="col-span-12  mt-[-20px] z-10 rounded-t-xl bg-white dark:bg-darkmode-600 p-4 cursor-pointer" onClick={() => navigate(paths.administrator.galleries.detail({ id: record.uuid }).$)}>
+            <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-400">{record.name}</h3>
+            <p className="text-ellipsis line-clamp-2 break-after-all text-gray-500 dark:text-slate-400 text-xs h-8">{record.description}</p>
           </div>
         </div>
       ),

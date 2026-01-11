@@ -1,72 +1,101 @@
 import { Outlet, useLocation, useRoutes } from "react-router-dom";
-import DashboardAdministrator from "@/pages/Admin/DashboardAdministrator";
-import { LandingPage } from "../pages/Public/LandingPage";
-import Login from "../pages/Login";
-import { Register } from "../pages/Register";
-import ErrorPage from "../pages/ErrorPage";
-
+import { lazy, Suspense } from "react";
 import Layout from "../themes";
 import { ProtectedRoute } from "./protectedRoute";
 import { paths } from "./paths";
-import Tags from "@/pages/Admin/MasterData/Tags";
-import Levels from "@/pages/Admin/MasterData/Levels";
-import Kudos from "@/pages/Admin/MasterData/Kudos";
-import Categories from "@/pages/Admin/MasterData/Categories";
-import Sponsors from "@/pages/Admin/MasterData/Sponsors";
-import Courts from "@/pages/Admin/Courts";
-import { CourtsNew } from "@/pages/Admin/Courts/New";
-import { Transition } from "react-transition-group";
-import Players from "@/pages/Admin/Players";
-import { PlayerForm } from "@/pages/Admin/Players/Forms";
-import Tournaments from "@/pages/Admin/Tournaments";
-import { TournamentForm } from "@/pages/Admin/Tournaments/Forms";
-import { TournamentFormPlayers } from "@/pages/Admin/Tournaments/Forms/FormPlayers";
-import { TournamentFormPoints } from "@/pages/Admin/Tournaments/Forms/FormPoints";
-import PointConfigurations from "@/pages/Admin/PointConfig";
-import { PointConfigurationsForm } from "@/pages/Admin/PointConfig/New";
-import { TournamentFormBrackets } from "@/pages/Admin/Tournaments/Forms/FormBrackets";
-import { TournamentDetail } from "@/pages/Admin/Tournaments/detail";
-import Galleries from "@/pages/Admin/Galleries";
-import { GalleriesNew } from "@/pages/Admin/Galleries/New";
-import { GalleriesDetail } from "@/pages/Admin/Galleries/Detail";
-import { BlogPostsDetail } from "@/pages/Admin/Blog/Detail";
-import { BlogPostsNew } from "@/pages/Admin/Blog/New";
-import BlogPosts from "@/pages/Admin/Blog";
-import { Merchandise } from "@/pages/Admin/Merchandise";
-import { MerchandiseNew } from "@/pages/Admin/Merchandise/New";
-import { MerchandiseDetail } from "@/pages/Admin/Merchandise/Detail";
-import { PlayerHome } from "@/pages/Players/Home";
-import { PlayerMatches } from "@/pages/Players/Matches";
-import { PlayerProfile } from "@/pages/Players/Profile";
-import { MatchDetail } from "@/pages/Admin/MatchDetail";
-import { CustomMatchPage } from "@/pages/Admin/CustomMatch";
-import { FriendlyMatchForm } from "@/pages/Admin/CustomMatch/FriandlyMatch/Forms";
-import { FriendlyMatchFormPlayers } from "@/pages/Admin/CustomMatch/FriandlyMatch/Forms/FormPlayers";
-import { FriendlyMatchFormPoints } from "@/pages/Admin/CustomMatch/FriandlyMatch/Forms/FormPoints";
-import { FriendlyMatchFormSchedule } from "@/pages/Admin/CustomMatch/FriandlyMatch/Forms/FormSchedule";
-import { FriendlyMatchDetail } from "@/pages/Admin/CustomMatch/FriandlyMatch/detail";
-import { CustomMatchForm } from "@/pages/Admin/CustomMatch/SingleMatch/Forms";
-import { PublicGalleries } from "@/pages/Public/Galleries";
-import { PublicHeader } from "@/pages/Public/LandingPage/components/HeaderLandingPage";
-import { Layout as LayoutAntd } from "antd";
-import { PublicLayout } from "./PublicLayout";
-import { PublicNews } from "@/pages/Public/Blog";
-import { PublicTournament } from "@/pages/Public/Tournament";
-import { TournamentFormDone } from "@/pages/Admin/Tournaments/Forms/FormDone";
-import { PublicChallenger } from "@/pages/Public/Challenger";
-import { PublicMatchDetail } from "@/pages/Public/Match";
-import { PublicPlayer } from "@/pages/Public/Player";
-import { PublicNewsDetail } from "@/pages/Public/Blog/detail";
-import { PublicGalleriesDetail } from "@/pages/Public/Galleries/detail";
-import { PublicShopCart } from "@/pages/Public/Shop/Cart";
-import { PublicShopCheckout } from "@/pages/Public/Shop/Cart/checkout";
-import { PublicShop } from "@/pages/Public/Shop";
-import { PublicShopDetail } from "@/pages/Public/Shop/detail";
-import { PlayerOrderHistory } from "@/pages/Players/OrderHistory";
-import { PlayerOrderDetail } from "@/pages/Players/OrderHistory/detail";
-import { Orders } from "@/pages/Admin/Orders";
-import Leagues from "@/pages/Admin/MasterData/League";
-import { PublicStandingPage } from "@/pages/Public/Tournament/StandingPage";
+import LoadingOverlay from "@/components/LoadingOverlay";
+
+// Lazy load semua pages untuk code splitting
+const DashboardAdministrator = lazy(() => import("@/pages/Admin/DashboardAdministrator"));
+const LandingPage = lazy(() => import("../pages/Public/LandingPage").then(m => ({ default: m.LandingPage })));
+const Login = lazy(() => import("../pages/Login"));
+const Register = lazy(() => import("../pages/Register").then(m => ({ default: m.Register })));
+const ErrorPage = lazy(() => import("../pages/ErrorPage"));
+
+// Admin Master Data
+const Tags = lazy(() => import("@/pages/Admin/MasterData/Tags"));
+const Levels = lazy(() => import("@/pages/Admin/MasterData/Levels"));
+const Kudos = lazy(() => import("@/pages/Admin/MasterData/Kudos"));
+const Categories = lazy(() => import("@/pages/Admin/MasterData/Categories"));
+const Sponsors = lazy(() => import("@/pages/Admin/MasterData/Sponsors"));
+const Leagues = lazy(() => import("@/pages/Admin/MasterData/League"));
+
+// Admin Courts
+const Courts = lazy(() => import("@/pages/Admin/Courts"));
+const CourtsNew = lazy(() => import("@/pages/Admin/Courts/New").then(m => ({ default: m.CourtsNew })));
+
+// Admin Players
+const Players = lazy(() => import("@/pages/Admin/Players"));
+const PlayerForm = lazy(() => import("@/pages/Admin/Players/Forms").then(m => ({ default: m.PlayerForm })));
+
+// Admin Tournaments
+const Tournaments = lazy(() => import("@/pages/Admin/Tournaments"));
+const TournamentForm = lazy(() => import("@/pages/Admin/Tournaments/Forms").then(m => ({ default: m.TournamentForm })));
+const TournamentFormPlayers = lazy(() => import("@/pages/Admin/Tournaments/Forms/FormPlayers").then(m => ({ default: m.TournamentFormPlayers })));
+const TournamentFormPoints = lazy(() => import("@/pages/Admin/Tournaments/Forms/FormPoints").then(m => ({ default: m.TournamentFormPoints })));
+const TournamentFormBrackets = lazy(() => import("@/pages/Admin/Tournaments/Forms/FormBrackets").then(m => ({ default: m.TournamentFormBrackets })));
+const TournamentFormGroup = lazy(() => import("@/pages/Admin/Tournaments/Forms/FormGroup").then(m => ({ default: m.TournamentFormGroup })));
+const TournamentFormDone = lazy(() => import("@/pages/Admin/Tournaments/Forms/FormDone").then(m => ({ default: m.TournamentFormDone })));
+const TournamentDetail = lazy(() => import("@/pages/Admin/Tournaments/detail").then(m => ({ default: m.TournamentDetail })));
+
+// Admin Point Config
+const PointConfigurations = lazy(() => import("@/pages/Admin/PointConfig"));
+const PointConfigurationsForm = lazy(() => import("@/pages/Admin/PointConfig/New").then(m => ({ default: m.PointConfigurationsForm })));
+
+// Admin Galleries
+const Galleries = lazy(() => import("@/pages/Admin/Galleries"));
+const GalleriesNew = lazy(() => import("@/pages/Admin/Galleries/New").then(m => ({ default: m.GalleriesNew })));
+const GalleriesDetail = lazy(() => import("@/pages/Admin/Galleries/Detail").then(m => ({ default: m.GalleriesDetail })));
+
+// Admin Blog
+const BlogPosts = lazy(() => import("@/pages/Admin/Blog"));
+const BlogPostsNew = lazy(() => import("@/pages/Admin/Blog/New").then(m => ({ default: m.BlogPostsNew })));
+const BlogPostsDetail = lazy(() => import("@/pages/Admin/Blog/Detail").then(m => ({ default: m.BlogPostsDetail })));
+
+// Admin Merchandise
+const Merchandise = lazy(() => import("@/pages/Admin/Merchandise").then(m => ({ default: m.Merchandise })));
+const MerchandiseNew = lazy(() => import("@/pages/Admin/Merchandise/New").then(m => ({ default: m.MerchandiseNew })));
+const MerchandiseDetail = lazy(() => import("@/pages/Admin/Merchandise/Detail").then(m => ({ default: m.MerchandiseDetail })));
+
+// Admin Match
+const MatchDetail = lazy(() => import("@/pages/Admin/MatchDetail").then(m => ({ default: m.MatchDetail })));
+const CustomMatchPage = lazy(() => import("@/pages/Admin/CustomMatch").then(m => ({ default: m.CustomMatchPage })));
+const CustomMatchForm = lazy(() => import("@/pages/Admin/CustomMatch/SingleMatch/Forms").then(m => ({ default: m.CustomMatchForm })));
+const FriendlyMatchForm = lazy(() => import("@/pages/Admin/CustomMatch/FriandlyMatch/Forms").then(m => ({ default: m.FriendlyMatchForm })));
+const FriendlyMatchFormPlayers = lazy(() => import("@/pages/Admin/CustomMatch/FriandlyMatch/Forms/FormPlayers").then(m => ({ default: m.FriendlyMatchFormPlayers })));
+const FriendlyMatchFormPoints = lazy(() => import("@/pages/Admin/CustomMatch/FriandlyMatch/Forms/FormPoints").then(m => ({ default: m.FriendlyMatchFormPoints })));
+const FriendlyMatchFormSchedule = lazy(() => import("@/pages/Admin/CustomMatch/FriandlyMatch/Forms/FormSchedule").then(m => ({ default: m.FriendlyMatchFormSchedule })));
+const FriendlyMatchDetail = lazy(() => import("@/pages/Admin/CustomMatch/FriandlyMatch/detail").then(m => ({ default: m.FriendlyMatchDetail })));
+
+// Admin Orders
+const Orders = lazy(() => import("@/pages/Admin/Orders").then(m => ({ default: m.Orders })));
+
+// Player Pages
+const PlayerHome = lazy(() => import("@/pages/Players/Home").then(m => ({ default: m.PlayerHome })));
+const PlayerMatches = lazy(() => import("@/pages/Players/Matches").then(m => ({ default: m.PlayerMatches })));
+const PlayerProfile = lazy(() => import("@/pages/Players/Profile").then(m => ({ default: m.PlayerProfile })));
+const PlayerOrderHistory = lazy(() => import("@/pages/Players/OrderHistory").then(m => ({ default: m.PlayerOrderHistory })));
+const PlayerOrderDetail = lazy(() => import("@/pages/Players/OrderHistory/detail").then(m => ({ default: m.PlayerOrderDetail })));
+
+// Public Pages
+const PublicGalleries = lazy(() => import("@/pages/Public/Galleries").then(m => ({ default: m.PublicGalleries })));
+const PublicGalleriesDetail = lazy(() => import("@/pages/Public/Galleries/detail").then(m => ({ default: m.PublicGalleriesDetail })));
+const PublicNews = lazy(() => import("@/pages/Public/Blog").then(m => ({ default: m.PublicNews })));
+const PublicNewsDetail = lazy(() => import("@/pages/Public/Blog/detail").then(m => ({ default: m.PublicNewsDetail })));
+const PublicTournament = lazy(() => import("@/pages/Public/Tournament").then(m => ({ default: m.PublicTournament })));
+const PublicStandingPage = lazy(() => import("@/pages/Public/Tournament/StandingPage").then(m => ({ default: m.PublicStandingPage })));
+const PublicChallenger = lazy(() => import("@/pages/Public/Challenger").then(m => ({ default: m.PublicChallenger })));
+const PublicMatchDetail = lazy(() => import("@/pages/Public/Match").then(m => ({ default: m.PublicMatchDetail })));
+const PublicPlayer = lazy(() => import("@/pages/Public/Player").then(m => ({ default: m.PublicPlayer })));
+const PublicShop = lazy(() => import("@/pages/Public/Shop").then(m => ({ default: m.PublicShop })));
+const PublicShopDetail = lazy(() => import("@/pages/Public/Shop/detail").then(m => ({ default: m.PublicShopDetail })));
+const PublicShopCart = lazy(() => import("@/pages/Public/Shop/Cart").then(m => ({ default: m.PublicShopCart })));
+const PublicShopCheckout = lazy(() => import("@/pages/Public/Shop/Cart/checkout").then(m => ({ default: m.PublicShopCheckout })));
+
+const PublicLayout = lazy(() => import("./PublicLayout").then(m => ({ default: m.PublicLayout })));
+
+// Loading component untuk Suspense
+const PageLoader = () => <LoadingOverlay />;
 
 // Add this component
 function GeneralLayout() {
@@ -76,32 +105,59 @@ function GeneralLayout() {
     </>
   );
 }
+
+// Wrapper untuk lazy loaded components dengan Suspense
+const LazyWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<PageLoader />}>{children}</Suspense>
+);
+
+
 function Router() {
   const location = useLocation();
   const routes = [
     {
       path: paths.landingPage,
-      element: <PublicLayout key={location.pathname} />,
+      element: (
+        <LazyWrapper>
+          <PublicLayout key={location.pathname} />
+        </LazyWrapper>
+      ),
       children: [{
         path: "",
         index: true,
-        element: <LandingPage />,
+        element: (
+          <LazyWrapper>
+            <LandingPage />
+          </LazyWrapper>
+        ),
       },
       {
         children: [
           {
             path: paths.tournament.match.template,
-            element: <PublicMatchDetail />
+            element: (
+              <LazyWrapper>
+                <PublicMatchDetail />
+              </LazyWrapper>
+            )
           },
           {
             index: true,
             path: paths.tournament.index.template,
-            element: <PublicTournament />,
+            element: (
+              <LazyWrapper>
+                <PublicTournament />
+              </LazyWrapper>
+            ),
           },
           {
             index: true,
             path: paths.tournament.standings.template,
-            element: <PublicStandingPage />,
+            element: (
+              <LazyWrapper>
+                <PublicStandingPage />
+              </LazyWrapper>
+            ),
           },
         ],
       },
@@ -110,11 +166,19 @@ function Router() {
           {
             index: true,
             path: paths.challenger.index.template,
-            element: <PublicChallenger />,
+            element: (
+              <LazyWrapper>
+                <PublicChallenger />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.challenger.match.template,
-            element: <PublicMatchDetail />
+            element: (
+              <LazyWrapper>
+                <PublicMatchDetail />
+              </LazyWrapper>
+            )
           }
         ],
       },
@@ -123,11 +187,19 @@ function Router() {
           {
             index: true,
             path: paths.challenger.index.template,
-            element: <PublicChallenger />,
+            element: (
+              <LazyWrapper>
+                <PublicChallenger />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.challenger.match.template,
-            element: <PublicMatchDetail />
+            element: (
+              <LazyWrapper>
+                <PublicMatchDetail />
+              </LazyWrapper>
+            )
           }
         ],
       },
@@ -135,7 +207,11 @@ function Router() {
         children: [
           {
             path: paths.players.info.template,
-            element: <PublicPlayer />
+            element: (
+              <LazyWrapper>
+                <PublicPlayer />
+              </LazyWrapper>
+            )
           },
         ],
       },
@@ -143,15 +219,27 @@ function Router() {
         children: [
           {
             path: paths.galleries.detail.template,
-            element: <PublicGalleriesDetail />,
+            element: (
+              <LazyWrapper>
+                <PublicGalleriesDetail />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.galleries.tags.template,
-            element: <PublicGalleries />,
+            element: (
+              <LazyWrapper>
+                <PublicGalleries />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.galleries.index,
-            element: <PublicGalleries />,
+            element: (
+              <LazyWrapper>
+                <PublicGalleries />
+              </LazyWrapper>
+            ),
           },
         ]
       },
@@ -159,15 +247,27 @@ function Router() {
         children: [
           {
             path: paths.news.index,
-            element: <PublicNews />,
+            element: (
+              <LazyWrapper>
+                <PublicNews />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.news.detail.template,
-            element: <PublicNewsDetail />,
+            element: (
+              <LazyWrapper>
+                <PublicNewsDetail />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.news.tags.template,
-            element: <PublicNews />,
+            element: (
+              <LazyWrapper>
+                <PublicNews />
+              </LazyWrapper>
+            ),
           },
         ],
       },
@@ -175,19 +275,35 @@ function Router() {
         children: [
           {
             path: paths.shop.index,
-            element: <PublicShop />,
+            element: (
+              <LazyWrapper>
+                <PublicShop />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.shop.detail.template,
-            element: <PublicShopDetail />,
+            element: (
+              <LazyWrapper>
+                <PublicShopDetail />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.shop.cart,
-            element: <PublicShopCart />,
+            element: (
+              <LazyWrapper>
+                <PublicShopCart />
+              </LazyWrapper>
+            ),
           },
           {
             path: paths.shop.checkout,
-            element: <PublicShopCheckout />,
+            element: (
+              <LazyWrapper>
+                <PublicShopCheckout />
+              </LazyWrapper>
+            ),
           },
 
         ]
@@ -205,39 +321,75 @@ function Router() {
         {
           // index: true,
           path: paths.administrator.dashboard,
-          element: <DashboardAdministrator />,
+          element: (
+            <LazyWrapper>
+              <DashboardAdministrator />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.masterData.tags,
-          element: <Tags />,
+          element: (
+            <LazyWrapper>
+              <Tags />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.masterData.categories,
-          element: <Categories />,
+          element: (
+            <LazyWrapper>
+              <Categories />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.masterData.sponsors,
-          element: <Sponsors />,
+          element: (
+            <LazyWrapper>
+              <Sponsors />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.masterData.levels,
-          element: <Levels />,
+          element: (
+            <LazyWrapper>
+              <Levels />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.masterData.leagues,
-          element: <Leagues />,
+          element: (
+            <LazyWrapper>
+              <Leagues />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.masterData.pointConfig,
-          element: <PointConfigurations />,
+          element: (
+            <LazyWrapper>
+              <PointConfigurations />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.masterData.pointConfigForm.template,
-          element: <PointConfigurationsForm />,
+          element: (
+            <LazyWrapper>
+              <PointConfigurationsForm />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.masterData.kudos,
-          element: <Kudos />,
+          element: (
+            <LazyWrapper>
+              <Kudos />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.administrator.courts.index,
@@ -245,15 +397,27 @@ function Router() {
           children: [
             {
               index: true,  // This will match /admin/courts
-              element: <Courts />,
+              element: (
+                <LazyWrapper>
+                  <Courts />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.courts.new,
-              element: <CourtsNew />,
+              element: (
+                <LazyWrapper>
+                  <CourtsNew />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.courts.edit.template,
-              element: <CourtsNew />,
+              element: (
+                <LazyWrapper>
+                  <CourtsNew />
+                </LazyWrapper>
+              ),
             },
           ]
         },
@@ -263,15 +427,27 @@ function Router() {
           children: [
             {
               index: true,  // This will match /admin/courts
-              element: <Players />,
+              element: (
+                <LazyWrapper>
+                  <Players />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.players.new,
-              element: <PlayerForm />,
+              element: (
+                <LazyWrapper>
+                  <PlayerForm />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.players.edit.template,
-              element: <PlayerForm />,
+              element: (
+                <LazyWrapper>
+                  <PlayerForm />
+                </LazyWrapper>
+              ),
             },
           ]
         },
@@ -281,39 +457,83 @@ function Router() {
           children: [
             {
               index: true,  // This will match /admin/courts
-              element: <Tournaments />,
+              element: (
+                <LazyWrapper>
+                  <Tournaments />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.tournaments.detail.template,
-              element: <TournamentDetail />,
+              element: (
+                <LazyWrapper>
+                  <TournamentDetail />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.tournaments.match.template,
-              element: <MatchDetail />,
+              element: (
+                <LazyWrapper>
+                  <MatchDetail />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.tournaments.new.players.template,
-              element: <TournamentFormPlayers />,
+              element: (
+                <LazyWrapper>
+                  <TournamentFormPlayers />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: paths.administrator.tournaments.new.group.template,
+              element: (
+                <LazyWrapper>
+                  <TournamentFormGroup />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.tournaments.new.brackets.template,
-              element: <TournamentFormBrackets />,
+              element: (
+                <LazyWrapper>
+                  <TournamentFormBrackets />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.tournaments.new.done.template,
-              element: <TournamentFormDone />,
+              element: (
+                <LazyWrapper>
+                  <TournamentFormDone />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.tournaments.new.points.template,
-              element: <TournamentFormPoints />,
+              element: (
+                <LazyWrapper>
+                  <TournamentFormPoints />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.tournaments.edit.template,
-              element: <TournamentForm />,
+              element: (
+                <LazyWrapper>
+                  <TournamentForm />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.tournaments.new.index,
-              element: <TournamentForm />,
+              element: (
+                <LazyWrapper>
+                  <TournamentForm />
+                </LazyWrapper>
+              ),
             },
           ]
         },
@@ -323,19 +543,35 @@ function Router() {
           children: [
             {
               index: true,
-              element: <CustomMatchPage />,
+              element: (
+                <LazyWrapper>
+                  <CustomMatchPage />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.customMatch.detail.template,
-              element: <MatchDetail />,
+              element: (
+                <LazyWrapper>
+                  <MatchDetail />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.customMatch.new,
-              element: <CustomMatchForm />,
+              element: (
+                <LazyWrapper>
+                  <CustomMatchForm />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.customMatch.edit.template,
-              element: <CustomMatchForm />,
+              element: (
+                <LazyWrapper>
+                  <CustomMatchForm />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.customMatch.friendlyMatch.index,
@@ -343,27 +579,51 @@ function Router() {
               children: [
                 {
                   path: paths.administrator.customMatch.friendlyMatch.detail.template,
-                  element: <FriendlyMatchDetail />,
+                  element: (
+                    <LazyWrapper>
+                      <FriendlyMatchDetail />
+                    </LazyWrapper>
+                  ),
                 },
                 {
                   path: paths.administrator.customMatch.friendlyMatch.new,
-                  element: <FriendlyMatchForm />,
+                  element: (
+                    <LazyWrapper>
+                      <FriendlyMatchForm />
+                    </LazyWrapper>
+                  ),
                 },
                 {
                   path: paths.administrator.customMatch.friendlyMatch.edit.index.template,
-                  element: <FriendlyMatchForm />,
+                  element: (
+                    <LazyWrapper>
+                      <FriendlyMatchForm />
+                    </LazyWrapper>
+                  ),
                 },
                 {
                   path: paths.administrator.customMatch.friendlyMatch.edit.players.template,
-                  element: <FriendlyMatchFormPlayers />,
+                  element: (
+                    <LazyWrapper>
+                      <FriendlyMatchFormPlayers />
+                    </LazyWrapper>
+                  ),
                 },
                 {
                   path: paths.administrator.customMatch.friendlyMatch.edit.points.template,
-                  element: <FriendlyMatchFormPoints />,
+                  element: (
+                    <LazyWrapper>
+                      <FriendlyMatchFormPoints />
+                    </LazyWrapper>
+                  ),
                 },
                 {
                   path: paths.administrator.customMatch.friendlyMatch.edit.schedule.template,
-                  element: <FriendlyMatchFormSchedule />,
+                  element: (
+                    <LazyWrapper>
+                      <FriendlyMatchFormSchedule />
+                    </LazyWrapper>
+                  ),
                 },
               ]
             },
@@ -375,19 +635,35 @@ function Router() {
           children: [
             {
               index: true,  // This will match /admin/courts
-              element: <Galleries />,
+              element: (
+                <LazyWrapper>
+                  <Galleries />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.galleries.detail.template,
-              element: <GalleriesDetail />,
+              element: (
+                <LazyWrapper>
+                  <GalleriesDetail />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.galleries.edit.template,
-              element: <GalleriesNew />,
+              element: (
+                <LazyWrapper>
+                  <GalleriesNew />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.galleries.new.index,
-              element: <GalleriesNew />,
+              element: (
+                <LazyWrapper>
+                  <GalleriesNew />
+                </LazyWrapper>
+              ),
             },
           ]
         },
@@ -397,19 +673,35 @@ function Router() {
           children: [
             {
               index: true,  // This will match /admin/courts
-              element: <BlogPosts />,
+              element: (
+                <LazyWrapper>
+                  <BlogPosts />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.blog.detail.template,
-              element: <BlogPostsDetail />,
+              element: (
+                <LazyWrapper>
+                  <BlogPostsDetail />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.blog.edit.template,
-              element: <BlogPostsNew />,
+              element: (
+                <LazyWrapper>
+                  <BlogPostsNew />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.blog.new.index,
-              element: <BlogPostsNew />,
+              element: (
+                <LazyWrapper>
+                  <BlogPostsNew />
+                </LazyWrapper>
+              ),
             },
           ]
         },
@@ -419,19 +711,35 @@ function Router() {
           children: [
             {
               index: true,  // This will match /admin/courts
-              element: <BlogPosts />,
+              element: (
+                <LazyWrapper>
+                  <BlogPosts />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.blog.detail.template,
-              element: <BlogPostsDetail />,
+              element: (
+                <LazyWrapper>
+                  <BlogPostsDetail />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.blog.edit.template,
-              element: <BlogPostsNew />,
+              element: (
+                <LazyWrapper>
+                  <BlogPostsNew />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.blog.new.index,
-              element: <BlogPostsNew />,
+              element: (
+                <LazyWrapper>
+                  <BlogPostsNew />
+                </LazyWrapper>
+              ),
             },
           ]
         },
@@ -441,19 +749,35 @@ function Router() {
           children: [
             {
               index: true,  // This will match /admin/courts
-              element: <Merchandise />,
+              element: (
+                <LazyWrapper>
+                  <Merchandise />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.merchandise.detail.template,
-              element: <MerchandiseDetail />,
+              element: (
+                <LazyWrapper>
+                  <MerchandiseDetail />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.merchandise.edit.template,
-              element: <MerchandiseNew />,
+              element: (
+                <LazyWrapper>
+                  <MerchandiseNew />
+                </LazyWrapper>
+              ),
             },
             {
               path: paths.administrator.merchandise.new,
-              element: <MerchandiseNew />,
+              element: (
+                <LazyWrapper>
+                  <MerchandiseNew />
+                </LazyWrapper>
+              ),
             },
           ]
         },
@@ -463,7 +787,11 @@ function Router() {
           children: [
             {
               index: true,  // This will match /admin/courts
-              element: <Orders />,
+              element: (
+                <LazyWrapper>
+                  <Orders />
+                </LazyWrapper>
+              ),
             },
           ]
         },
@@ -479,41 +807,77 @@ function Router() {
         {
           index: true,
           path: paths.player.home,
-          element: <PlayerHome />,
+          element: (
+            <LazyWrapper>
+              <PlayerHome />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.player.matches.index,
-          element: <PlayerMatches />,
+          element: (
+            <LazyWrapper>
+              <PlayerMatches />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.player.orders.index,
-          element: <PlayerOrderHistory />,
+          element: (
+            <LazyWrapper>
+              <PlayerOrderHistory />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.player.orders.detail.template,
-          element: <PlayerOrderDetail />,
+          element: (
+            <LazyWrapper>
+              <PlayerOrderDetail />
+            </LazyWrapper>
+          ),
         },
         {
           path: paths.player.profile.index,
-          element: <PlayerProfile />,
+          element: (
+            <LazyWrapper>
+              <PlayerProfile />
+            </LazyWrapper>
+          ),
         },
       ],
     },
     {
       path: paths.login,
-      element: <Login />,
+      element: (
+        <LazyWrapper>
+          <Login />
+        </LazyWrapper>
+      ),
     },
     {
       path: "/register",
-      element: <Register />,
+      element: (
+        <LazyWrapper>
+          <Register />
+        </LazyWrapper>
+      ),
     },
     {
       path: "/error-page",
-      element: <ErrorPage />,
+      element: (
+        <LazyWrapper>
+          <ErrorPage />
+        </LazyWrapper>
+      ),
     },
     {
       path: "*",
-      element: <ErrorPage />,
+      element: (
+        <LazyWrapper>
+          <ErrorPage />
+        </LazyWrapper>
+      ),
     },
   ];
 

@@ -3,7 +3,6 @@ import { RootState } from "./store";
 import { type Themes } from "@/stores/themeSlice";
 import { icons } from "@/components/Base/Lucide";
 import sideMenu from "@/main/side-menu";
-import simpleMenu from "@/main/simple-menu";
 import topMenu from "@/main/top-menu";
 
 export interface Menu {
@@ -30,15 +29,8 @@ export const menuSlice = createSlice({
 });
 
 export const selectMenu = (layout: Themes["layout"]) => (state: RootState) => {
-  if (layout == "top-menu") {
-    return topMenu;
-  }
-
-  if (layout == "simple-menu") {
-    return simpleMenu;
-  }
-
-  return sideMenu;
+  // Hanya support side-menu dan top-menu (simple-menu sudah dihapus)
+  return layout === "top-menu" ? topMenu : sideMenu;
 };
 
 export default menuSlice.reducer;

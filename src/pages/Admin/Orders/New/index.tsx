@@ -22,6 +22,7 @@ import { MerchProductPayload, merchProductPayloadSchema } from "../api/schema";
 import { TagsApiHooks } from "../../MasterData/Tags/api";
 import { useDebounce } from "ahooks";
 import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { isHtmlEmpty } from "@/utils/helper";
 import { productSizeValue, productUnitValue } from "@/utils/faker";
 import { MerchProductsApiHooks } from "../../Merchandise/api";

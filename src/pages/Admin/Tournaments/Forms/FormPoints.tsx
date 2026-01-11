@@ -53,7 +53,10 @@ export const TournamentFormPoints = (props: Props) => {
           level: data.data.level || "",
           level_uuid: data.data.level_uuid,
           court_uuid: data.data.court_uuid,
-          rules: data?.data?.rules || [{
+          rules: data?.data?.rules?.map(rule => ({
+            uuid: rule.uuid || "",
+            description: rule.description,
+          })) || [{
             uuid: "",
             description: "",
           }],
@@ -70,8 +73,8 @@ export const TournamentFormPoints = (props: Props) => {
         uuid: selectedPointConfig || data?.data?.point_config_uuid || 0
       }
     }, {
-      enabled: (!!tournamentUuid && !!data?.data?.point_config_uuid) || !!selectedPointConfig
-    }
+    enabled: (!!tournamentUuid && !!data?.data?.point_config_uuid) || !!selectedPointConfig
+  }
   );
 
 
@@ -81,8 +84,8 @@ export const TournamentFormPoints = (props: Props) => {
         round: roundInfo.rounds
       }
     }, {
-      enabled: !!tournamentUuid && roundInfo.rounds > 0
-    }
+    enabled: !!tournamentUuid && roundInfo.rounds > 0
+  }
   );
 
   const { data: participants } = TournamentsApiHooks.useGetTournamentParticipants({
@@ -112,7 +115,10 @@ export const TournamentFormPoints = (props: Props) => {
           icon: "CheckSquare",
           variant: "success",
         });
-        navigate(paths.administrator.tournaments.new.brackets({ id: result.data.uuid || tournamentUuid }).$);
+        const nextPath = data?.data?.type === "ROUND ROBIN"
+          ? paths.administrator.tournaments.new.group({ id: result.data.uuid || tournamentUuid }).$
+          : paths.administrator.tournaments.new.brackets({ id: result.data.uuid || tournamentUuid }).$;
+        navigate(nextPath);
       },
       onError: (e: any) => {
         showNotification({
@@ -204,7 +210,7 @@ export const TournamentFormPoints = (props: Props) => {
         <h2 className="mr-auto text-lg font-medium">{tournamentUuid ? "Edit" : "Add New"} Tournament</h2>
       </div>
       <Divider />
-      <TournamentSteps step={3} />
+      <TournamentSteps step={3} tournamentUuid={tournamentUuid} showGroup={data?.data?.type === "ROUND ROBIN"} tournamentType={data?.data?.type} />
       <FormProvider {...methods} key={location.pathname + "_form"}>
         <form onSubmit={handleSubmit(onSubmit)} className="relative">
           <div className="grid grid-cols-12 gap-4 ">
@@ -337,7 +343,10 @@ export const TournamentFormPoints = (props: Props) => {
                   type="button"
                   variant="outline-secondary"
                   onClick={() => {
-                    navigate(paths.administrator.tournaments.new.brackets({ id: tournamentUuid }).$);
+                    const nextPath = data?.data?.type === "ROUND ROBIN"
+                      ? paths.administrator.tournaments.new.group({ id: tournamentUuid }).$
+                      : paths.administrator.tournaments.new.brackets({ id: tournamentUuid }).$;
+                    navigate(nextPath);
                     queryClient.invalidateQueries({
                       queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentParticipants"),
                     });

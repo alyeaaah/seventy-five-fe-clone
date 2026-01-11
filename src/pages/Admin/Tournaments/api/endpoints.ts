@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { tournamentMatchDetailSchema, tournamentMatchPayloadSchema, tournamentMatchSchema, tournamentParticipantsSchema, tournamentPointsSchema, tournamentSponsorSchema, tournamentsSchema, tournamentTeamsSchema } from "./schema";
+import { tournamentGroupPayloadSchema, tournamentMatchDetailSchema, tournamentMatchPayloadSchema, tournamentMatchSchema, tournamentParticipantsSchema, tournamentPointsSchema, tournamentSponsorSchema, tournamentsSchema, tournamentTeamsSchema } from "./schema";
 import { sponsorsSchema } from "../../MasterData/Sponsors/api/schema";
 
 const TournamentsListApi = makeEndpoint({
@@ -216,6 +216,20 @@ const TournamentsToggleFeaturedApi = makeEndpoint({
     })
 });
 
+const TournamentsUpdateGroupsApi = makeEndpoint({
+  alias: "updateTournamentGroups",
+  method: "post",
+  path: `/tournament/edit/groups/:uuid`,
+  parameters: parametersBuilder().addBody(z.object({
+    groups: z.array(tournamentGroupPayloadSchema),
+  })).build(),
+  response: z
+    .object({
+      message: z.string(),
+    })
+});
+
+
 export const endpoints = {
   TournamentsListApi,
   TournamentsCreateApi,
@@ -234,5 +248,6 @@ export const endpoints = {
   TournamentsMatchesApi,
   TournamentsToggleFeaturedApi,
   TournamentsSponsorsApi,
-  TournamentsSponsorsUpdateApi
+  TournamentsSponsorsUpdateApi,
+  TournamentsUpdateGroupsApi
 };

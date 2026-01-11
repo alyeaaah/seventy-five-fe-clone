@@ -1,4 +1,5 @@
 import Button from "@/components/Base/Button";
+import Lucide from "@/components/Base/Lucide";
 import Image from "@/components/Image";
 import { PublicBlogApiHooks } from "@/pages/Public/Blog/api";
 import { Typography } from "antd";
@@ -47,19 +48,27 @@ export const LatestNews = ({ className, dehydratedState }: LatestNewsProps) => {
               <ChevronRight />
           </Button>
         </Title>
-        <div className='grid grid-cols-12 gap-6 w-full line-clamp-2'>
-          {data?.data?.map((item, idx) => (
-            <Link key={idx} className='col-span-12 sm:col-span-6 2xl:col-span-4 flex flex-col mt-2' to={paths.news.detail({ uuid: item.uuid || "" }).$}>
-              <Image
-                src={item.galleries?.length ? item.galleries[0].link : undefined}
-                className='w-full aspect-video object-cover rounded-xl'
-              />
-              <div className=' tracking-tight py-1 text-emerald-800 px-2 font-semibold capitalize text-ellipsis line-clamp-2'>
-                {item.title}
-              </div>
-            </Link>
-          ))}
-        </div>
+        {!data?.data || data.data.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4">
+            <Lucide icon="Newspaper" className="h-16 w-16 text-emerald-800/60 mb-4" />
+            <h3 className="text-emerald-800 text-lg font-medium mb-2">No Latest News</h3>
+            <p className="text-emerald-800/80 text-sm text-center">There are currently no news updates available. Check back later!</p>
+          </div>
+        ) : (
+          <div className='grid grid-cols-12 gap-6 w-full line-clamp-2'>
+            {data?.data?.map((item, idx) => (
+              <Link key={idx} className='col-span-12 sm:col-span-6 2xl:col-span-4 flex flex-col mt-2' to={paths.news.detail({ uuid: item.uuid || "" }).$}>
+                <Image
+                  src={item.galleries?.length ? item.galleries[0].link : undefined}
+                  className='w-full aspect-video object-cover rounded-xl'
+                />
+                <div className=' tracking-tight py-1 text-emerald-800 px-2 font-semibold capitalize text-ellipsis line-clamp-2'>
+                  {item.title}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     // </SsrProvider>
   );

@@ -103,67 +103,77 @@ export const PublicTournament = () => {
                 Tournament
               </div>
             </div>
-            <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
-              <div className="col-span-12 sm:col-span-8">
-                <h2 className="text-2xl font-bold relative pb-2">
-                  {detailTournament?.data.name}
-                  <div className="w-8 bottom-0 absolute border-b-4 border-b-emerald-800"></div>
-                </h2>
-                <h4 className="text-sm font-light text-gray-500 py-4 " dangerouslySetInnerHTML={{ __html: detailTournament?.data.description || "" }}></h4>
-                <div className="grid grid-cols-3">
-                  <a className="col-span-2 md:col-span-1 text-gray-500 hover:text-emerald-800 text-[11px] font-light flex flex-row items-center" href={`https://www.google.com/maps/search/?api=1&query=${detailTournament?.data.court_info?.lat},${detailTournament?.data.court_info?.long}`} target="_blank" rel="noreferrer">
-                    <div className="h-full aspect-square p-2">
-                      <Lucide icon="MapPin" className="h-full w-full" />
+            {!detailTournament?.data ? (
+              <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
+                <div className="col-span-12 flex flex-col items-center justify-center py-12 px-4rounded-2xl">
+                  <Lucide icon="Trophy" className="h-16 w-16 text-emerald-800/60 mb-4" />
+                  <h3 className="text-emerald-800 text-lg font-medium mb-2">No Tournament Available</h3>
+                  <p className="text-emerald-800/80 text-sm text-center">Please come back later once the tournament is available.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
+                <div className="col-span-12 sm:col-span-8">
+                  <h2 className="text-2xl font-bold relative pb-2">
+                    {detailTournament?.data.name}
+                    <div className="w-8 bottom-0 absolute border-b-4 border-b-emerald-800"></div>
+                  </h2>
+                  <h4 className="text-sm font-light text-gray-500 py-4 " dangerouslySetInnerHTML={{ __html: detailTournament?.data.description || "" }}></h4>
+                  <div className="grid grid-cols-3">
+                    <a className="col-span-2 md:col-span-1 text-gray-500 hover:text-emerald-800 text-[11px] font-light flex flex-row items-center" href={`https://www.google.com/maps/search/?api=1&query=${detailTournament?.data.court_info?.lat},${detailTournament?.data.court_info?.long}`} target="_blank" rel="noreferrer">
+                      <div className="h-full aspect-square p-2">
+                        <Lucide icon="MapPin" className="h-full w-full" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm">{detailTournament?.data.court_info?.name}</span>
+                        <span className="text-xs font-normal">{detailTournament?.data.court_info?.address}</span>
+                        <span className="text-xs font-light">{detailTournament?.data.court_info?.city}</span>
+                      </div>
+                    </a>
+                    <div className="col-span-2 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
+                      <div className="h-full aspect-square p-2">
+                        <Lucide icon="Calendar" className="h-full w-full" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm">{moment(detailTournament?.data.start_date).format('DD MMM')} -  {moment(detailTournament?.data.end_date).format('DD MMM YYYY')}</span>
+                        <span className="text-xs font-semibold text-emerald-800">{moment(detailTournament?.data.start_date).format('HH:mm')} - {moment(detailTournament?.data.end_date).format('HH:mm')}</span>
+                        <span className="text-xs font-normal">GMT +7</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-sm">{detailTournament?.data.court_info?.name}</span>
-                      <span className="text-xs font-normal">{detailTournament?.data.court_info?.address}</span>
-                      <span className="text-xs font-light">{detailTournament?.data.court_info?.city}</span>
-                    </div>
-                  </a>
-                  <div className="col-span-2 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
-                    <div className="h-full aspect-square p-2">
-                      <Lucide icon="Calendar" className="h-full w-full" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-sm">{moment(detailTournament?.data.start_date).format('DD MMM')} -  {moment(detailTournament?.data.end_date).format('DD MMM YYYY')}</span>
-                      <span className="text-xs font-semibold text-emerald-800">{moment(detailTournament?.data.start_date).format('HH:mm')} - {moment(detailTournament?.data.end_date).format('HH:mm')}</span>
-                      <span className="text-xs font-normal">GMT +7</span>
-                    </div>
-                  </div>
-                  <div className="col-span-2 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
-                    <div className="h-full aspect-square p-2">
-                      <Lucide icon="GitPullRequest" className="h-full w-full" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-sm">Level</span>
-                      <span className="text-xs text-emerald-800 font-semibold">{detailTournament?.data.level}</span>
+                    <div className="col-span-2 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
+                      <div className="h-full aspect-square p-2">
+                        <Lucide icon="GitPullRequest" className="h-full w-full" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm">Level</span>
+                        <span className="text-xs text-emerald-800 font-semibold">{detailTournament?.data.level}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-span-12 sm:col-span-4">
-                <img src={imageResizerDimension(detailTournament?.data.media_url || '', 420, "h")} className="flex w-full object-cover aspect-square rounded-xl border" />
-              </div>
-              <div className="col-span-12 text-emerald-800 flex flex-row my-4">
-                <IconLogoAlt className="h-10 w-20" />
-                <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
-                  <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
-                  <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>MATCHES
+                <div className="col-span-12 sm:col-span-4">
+                  <img src={imageResizerDimension(detailTournament?.data.media_url || '', 420, "h")} className="flex w-full object-cover aspect-square rounded-xl border" />
+                </div>
+                <div className="col-span-12 text-emerald-800 flex flex-row my-4">
+                  <IconLogoAlt className="h-10 w-20" />
+                  <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
+                    <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
+                    <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>MATCHES
+                  </div>
+                </div>
+                <div className="col-span-12 h-fit overflow-x-scroll">
+                  <DraggableBracket
+                    rounds={TournamentDrawingUtils.convertMatchToRound(tournamentMatches?.data || [])}
+                    readOnly
+                    className=""
+                    setRounds={() => null}
+                    onSeedClick={(seed) => {
+                      navigate(paths.tournament.match({ matchUuid: seed.uuid }).$)
+                    }}
+                  />
                 </div>
               </div>
-              <div className="col-span-12 h-fit overflow-x-scroll">
-                <DraggableBracket
-                  rounds={TournamentDrawingUtils.convertMatchToRound(tournamentMatches?.data || [])}
-                  readOnly
-                  className=""
-                  setRounds={() => null}
-                  onSeedClick={(seed) => {
-                    navigate(paths.tournament.match({ matchUuid: seed.uuid }).$)
-                  }}
-                />
-              </div>
-            </div>
+            )}
           </div>
         </FadeAnimation>
         <FadeAnimation className="col-span-4 md:flex flex-col space-y-2 hidden" direction="down">
@@ -184,27 +194,29 @@ export const PublicTournament = () => {
             </div>
           ))}
         </FadeAnimation>
-        <FadeAnimation className="col-span-12 ">
-          <div className="col-span-12 text-emerald-800 flex flex-row my-4">
-            <IconLogoAlt className="h-10 w-20" />
-            <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
-              <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
-              <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>Sponsors
-            </div>
-          </div>
-          <div className="col-span-12 grid grid-cols-12 gap-6 sm:gap-8 mt-2 rounded-xl overflow-x-scroll">
-            {tournamentSponsors?.data?.map((image, index) => (
-              <div key={index} className="flex flex-col col-span-4 sm:col-span-2 rounded-xl">
-                <div className="relative w-full flex">
-                  <img
-                    src={imageResizerDimension(image.media_url, 300, "h")}
-                    className="flex h-full w-full object-contain aspect-square rounded-xl hover:scale-110 transition-all duration-700"
-                  />
-                </div>
+        {detailTournament?.data && (
+          <FadeAnimation className="col-span-12 ">
+            <div className="col-span-12 text-emerald-800 flex flex-row my-4">
+              <IconLogoAlt className="h-10 w-20" />
+              <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
+                <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
+                <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>Sponsors
               </div>
-            ))}
-          </div>
-        </FadeAnimation>
+            </div>
+            <div className="col-span-12 grid grid-cols-12 gap-6 sm:gap-8 mt-2 rounded-xl overflow-x-scroll">
+              {tournamentSponsors?.data?.map((image, index) => (
+                <div key={index} className="flex flex-col col-span-4 sm:col-span-2 rounded-xl">
+                  <div className="relative w-full flex">
+                    <img
+                      src={imageResizerDimension(image.media_url, 300, "h")}
+                      className="flex h-full w-full object-contain aspect-square rounded-xl hover:scale-110 transition-all duration-700"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </FadeAnimation>
+        )}
         {/* <PartnersComponent className="col-span-12 mb-8" /> */}
       </LayoutWrapper>
     </>
