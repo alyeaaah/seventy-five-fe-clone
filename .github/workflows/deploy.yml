@@ -50,7 +50,7 @@ jobs:
 
       - name: Deploy frontend (React app) via rsync over SSH
         run: |
-          rsync -avz -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
+          rsync -avz --no-group -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
             ./dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_DEST }}
 
       - name: Cleanup
