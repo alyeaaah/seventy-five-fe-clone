@@ -48,7 +48,7 @@ export const PublicGalleries = () => {
       <LayoutWrapper className="grid grid-cols-12 gap-4 sm:gap-8 mt-4 sm:mt-8 min-h-[calc(100vh-300px)]">
         <FadeAnimation className="md:col-span-8 col-span-12 grid grid-cols-12 gap-0" direction="up">
           <div className="col-span-12 mb-0 bg-gray-100 rounded-t-xl">
-            <Carousel
+            {data?.data && <Carousel
               ref={sliderRef}
               className="w-full aspect-video rounded-xl overflow-hidden flex justify-center items-center mb-0"
               slidesToScroll={1}
@@ -73,6 +73,7 @@ export const PublicGalleries = () => {
                 </div>
               ))}
             </Carousel>
+            }
           </div>
           <div className="col-span-12 grid grid-cols-7 md:gap-2 gap-1 md:p-4 py-2 bg-gray-100 rounded-b-xl">
             {data?.data?.map((image, index) => (
@@ -94,15 +95,25 @@ export const PublicGalleries = () => {
               </div>
               <div className="flex flex-row !overflow-x-scroll scrollbar-hidden !w-full gap-4 pt-4 px-4 z-[4] relative">
                 <div className="flex min-w-48"></div>
-                {data?.data?.map((image, index) => (
-                  <div key={index} className="flex flex-col min-w-40 aspect-square shadow-lg border-4 border-[#EBCE56] box-shadow-[0_0_10px_0_rgba(0,0,0,0.1)] overflow-hidden rounded-2xl">
-                    <img
-                      src={imageResizerDimension(image.link, 220, "h")}
-                      className="flex h-full w-full object-cover aspect-square"
-                      onClick={() => navigate(paths.galleries.detail({ id: image.uuid || "" }).$)}
-                    />
+                {(data?.data?.length ?? 0) > 0 ? (
+                  data?.data?.map((image, index) => (
+                    <div key={index} className="flex flex-col min-w-40 aspect-square shadow-lg border-4 border-[#EBCE56] box-shadow-[0_0_10px_0_rgba(0,0,0,0.1)] overflow-hidden rounded-2xl">
+                      <img
+                        src={imageResizerDimension(image.link, 220, "h")}
+                        className="flex h-full w-full object-cover aspect-square"
+                        onClick={() => navigate(paths.galleries.detail({ id: image.uuid || "" }).$)}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className="min-w-80 w-full flex items-center justify-center py-8 pr-4">
+                    <div className="flex flex-col items-center justify-center rounded-2xl px-6 py-4 text-center border border-white/20 bg-white/10 backdrop-blur">
+                      <Lucide icon="Image" className="w-8 h-8 text-white" />
+                      <div className="mt-2 text-white font-semibold">No gallery yet</div>
+                      <div className="text-xs text-white/80 mt-1">Please check back later.</div>
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -128,21 +139,31 @@ export const PublicGalleries = () => {
         <FadeAnimation className="col-span-12">
           <span className="text-emerald-800 font-semibold text-xl uppercase flex py-4">Seventy <span className="font-bold">&nbsp;Five's&nbsp;</span> Albums</span>
           <div className="col-span-12 grid grid-cols-12 gap-6 sm:gap-8 mt-2 rounded-xl">
-            {albumsData?.data?.map((image, index) => (
-              <Link key={index} to={paths.galleries.detail({ id: image.uuid || "" }).$} className="flex flex-col col-span-12 sm:col-span-2 rounded-xl items-center">
-                <AlbumImages
-                  className="w-full"
-                  image1={image.media?.link || ""}
-                  image2={image.galleries?.[0].link || ""}
-                  image3={image.galleries?.[1].link || ""}
-                />
-                <div className="flex flex-col w-full justify-center">
-                  <h3 className="text-sm font-semibold text-emerald-800 text-ellipsis line-clamp-2 capitalize mt-2">{image.name}</h3>
-                  <span className="text-gray-500 text-[11px] font-light flex flex-row">{moment(image.createdAt).format('DD MMM YYYY')}</span>
-                  <span className="text-gray-500 text-[11px] font-light flex flex-row">{moment(image.createdAt ? image.createdAt : '').format('DD MMM YYYY')} By {image.createdAt}</span>
+            {(albumsData?.data?.length ?? 0) > 0 ? (
+              albumsData?.data?.map((image, index) => (
+                <Link key={index} to={paths.galleries.detail({ id: image.uuid || "" }).$} className="flex flex-col col-span-12 sm:col-span-2 rounded-xl items-center">
+                  <AlbumImages
+                    className="w-full"
+                    image1={image.media?.link || ""}
+                    image2={image.galleries?.[0].link || ""}
+                    image3={image.galleries?.[1].link || ""}
+                  />
+                  <div className="flex flex-col w-full justify-center">
+                    <h3 className="text-sm font-semibold text-emerald-800 text-ellipsis line-clamp-2 capitalize mt-2">{image.name}</h3>
+                    <span className="text-gray-500 text-[11px] font-light flex flex-row">{moment(image.createdAt).format('DD MMM YYYY')}</span>
+                    <span className="text-gray-500 text-[11px] font-light flex flex-row">{moment(image.createdAt ? image.createdAt : '').format('DD MMM YYYY')} By {image.createdAt}</span>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-12 w-full flex items-center justify-center py-12">
+                <div className="flex flex-col items-center justify-center rounded-2xl bg-gray-50 border border-emerald-800/10 px-6 py-6 text-center w-full">
+                  <Lucide icon="Image" className="w-10 h-10 text-emerald-800" />
+                  <div className="mt-2 text-emerald-800 font-semibold">No albums available</div>
+                  <div className="text-xs text-gray-500 mt-1">Please check back later.</div>
                 </div>
-              </Link>
-            ))}
+              </div>
+            )}
           </div>
         </FadeAnimation>
         {/* <PartnersComponent className="col-span-12 mb-8" /> */}

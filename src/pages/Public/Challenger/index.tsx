@@ -49,46 +49,56 @@ export const PublicChallenger = () => {
             </div>
             <div className="col-span-12 flex flex-row overflow-x-scroll gap-2 mt-4 rounded-xl px-4 z-[2] relative scrollbar-hidden">
               <div className="flex min-w-48 h-full z-10"></div>
-              {upcomingMatch?.data?.map((match, idx) => (
-                <Link key={idx} className='z-10 min-w-80' to={paths.challenger.match({ matchUuid: match.uuid || "" }).$}>
-                  <div className='flex flex-col justify-center items-center shadow-md rounded-3xl bg-white mr-0 lg:mr-2 px-2'>
-                    <div className='flex flex-row justify-center items-center my-2 text-gray-500 text-xs'>
-                      <Lucide icon='MapPin' className='w-6 h-4' /> {match.court_field?.court?.name && `${match.court_field?.court?.name} - ${match.court_field?.name}`}
-                    </div>
-                    <div className="flex flex-row bg-emerald-800 rounded-full justify-between p-1 w-full h-12">
-                      <NestedImage players={match.home_team?.players?.map((player) => ({
-                        media_url: player.media_url,
-                        name: player.name,
-                        uuid: player.uuid
-                      })) || []} />
-                      <div className='flex flex-row text-white items-center'>
-                        <IconVS className="w-16 h-8" />
+              {(upcomingMatch?.data?.length ?? 0) > 0 ? (
+                upcomingMatch?.data?.map((match, idx) => (
+                  <Link key={idx} className='z-10 min-w-80' to={paths.challenger.match({ matchUuid: match.uuid || "" }).$}>
+                    <div className='flex flex-col justify-center items-center shadow-md rounded-3xl bg-white mr-0 lg:mr-2 px-2'>
+                      <div className='flex flex-row justify-center items-center my-2 text-gray-500 text-xs'>
+                        <Lucide icon='MapPin' className='w-6 h-4' /> {match.court_field?.court?.name && `${match.court_field?.court?.name} - ${match.court_field?.name}`}
                       </div>
-                      <NestedImage
-                        players={match.away_team?.players?.map((player) => ({
+                      <div className="flex flex-row bg-emerald-800 rounded-full justify-between p-1 w-full h-12">
+                        <NestedImage players={match.home_team?.players?.map((player) => ({
                           media_url: player.media_url,
                           name: player.name,
                           uuid: player.uuid
                         })) || []} />
-                    </div>
-                    <div className='flex flex-row justify-between px-2 py-1 capitalize w-full text-xs text-emerald-800'>
-                      <div className="flex flex-col justify-start">
-                        {match.home_team?.players?.map((player, idx) => (
-                          <span key={idx} className="line-clamp-1">{player.name}</span>
-                        ))}
+                        <div className='flex flex-row text-white items-center'>
+                          <IconVS className="w-16 h-8" />
+                        </div>
+                        <NestedImage
+                          players={match.away_team?.players?.map((player) => ({
+                            media_url: player.media_url,
+                            name: player.name,
+                            uuid: player.uuid
+                          })) || []} />
                       </div>
-                      <div className="flex flex-col justify-end">
-                        {match.away_team?.players?.map((player, idx) => (
-                          <span key={idx} className="text-end line-clamp-1">{player.name}</span>
-                        ))}
+                      <div className='flex flex-row justify-between px-2 py-1 capitalize w-full text-xs text-emerald-800'>
+                        <div className="flex flex-col justify-start">
+                          {match.home_team?.players?.map((player, idx) => (
+                            <span key={idx} className="line-clamp-1">{player.name}</span>
+                          ))}
+                        </div>
+                        <div className="flex flex-col justify-end">
+                          {match.away_team?.players?.map((player, idx) => (
+                            <span key={idx} className="text-end line-clamp-1">{player.name}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className='flex flex-row justify-center px-6 capitalize w-full text-xs py-2'>
+                        <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
                       </div>
                     </div>
-                    <div className='flex flex-row justify-center px-6 capitalize w-full text-xs py-2'>
-                      <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
-                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="z-10 min-w-80 w-full flex items-center justify-center py-8">
+                  <div className="flex flex-col items-center justify-center  rounded-3xl px-6 py-3 text-center">
+                    <Lucide icon="Calendar" className="w-8 h-8 text-white" />
+                    <div className="mt-2 text-white font-semibold">No upcoming matches</div>
+                    <div className="text-xs text-white mt-1">Please check back later.</div>
                   </div>
-                </Link>
-              ))}
+                </div>
+              )}
             </div>
           </div>
           <div className="col-span-12 grid grid-cols-12 gap-2 mt-4 h-max">
@@ -100,84 +110,94 @@ export const PublicChallenger = () => {
               </div>
             </div>
             <div className="col-span-12 flex flex-col gap-4">
-              {liveMatch?.data?.map((match, idx) => (
-                <Link key={idx} to={paths.challenger.match({ matchUuid: match.uuid || "" }).$} className='flex flex-col justify-center items-center shadow-md md:shadow-none rounded-3xl bg-white mr-0 lg:mr-2 px-2 relative border md:border-0'>
-                  {/* Desktop */}
-                  <div className='md:flex hidden flex-row justify-center overflow-hidden items-center mt-2 -mb-3 z-10 text-gray-500 text-xs border-emerald-800 rounded-full border'>
-                    <div className='flex flex-row justify-center capitalize text-xs font-semibold py-1 px-2 bg-white'>
+              {(liveMatch?.data?.length ?? 0) > 0 ? (
+                liveMatch?.data?.map((match, idx) => (
+                  <Link key={idx} to={paths.challenger.match({ matchUuid: match.uuid || "" }).$} className='flex flex-col justify-center items-center shadow-md md:shadow-none rounded-3xl bg-white mr-0 lg:mr-2 px-2 relative border md:border-0'>
+                    {/* Desktop */}
+                    <div className='md:flex hidden flex-row justify-center overflow-hidden items-center mt-2 -mb-3 z-10 text-gray-500 text-xs border-emerald-800 rounded-full border'>
+                      <div className='flex flex-row justify-center capitalize text-xs font-semibold py-1 px-2 bg-white'>
+                        <Lucide icon='MapPin' className='w-6 h-4' /> {match.court_field?.court?.name && `${match.court_field?.court?.name} - ${match.court_field?.name}`}
+                      </div>
+                      <div className='flex flex-row h-full bg-emerald-800 text-white font-semibold items-center py-1 px-2'>
+                        <Lucide icon='Calendar' className='w-6 h-4' />
+                        <span>{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
+                      </div>
+                    </div>
+                    <div className="hidden md:flex flex-row bg-gray-100 rounded-full justify-between p-2.5 w-full h-20 relative">
+                      <NestedImage
+                        players={match.home_team?.players?.map((player) => ({
+                          media_url: player.media_url,
+                          name: player.name,
+                          uuid: player.uuid
+                        })) || []} />
+                      <div className="flex flex-col w-full items-center justify-center mx-2">
+                        <div className='flex flex-row justify-between w-full text-emerald-800 items-center'>
+                          <div className="flex flex-col justify-start w-full">
+                            {match.home_team?.players?.map((player, idx) => (
+                              <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="line-clamp-1 w-fit">{player.name}</Link>
+                            ))}
+                          </div>
+                          <IconVS className="w-32 h-8 text-emerald-800" />
+                          <div className="flex flex-col justify-end items-end w-full">
+                            {match.away_team?.players?.map((player, idx) => (
+                              <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="text-end line-clamp-1 w-fit" >{player.name}</Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <NestedImage
+                        players={match.away_team?.players?.map((player) => ({
+                          media_url: player.media_url,
+                          name: player.name,
+                          uuid: player.uuid
+                        })) || []}
+                      />
+                    </div>
+                    {/* Mobile */}
+                    <div className='flex md:hidden flex-row justify-center items-center my-2 text-gray-500 text-xs'>
                       <Lucide icon='MapPin' className='w-6 h-4' /> {match.court_field?.court?.name && `${match.court_field?.court?.name} - ${match.court_field?.name}`}
                     </div>
-                    <div className='flex flex-row h-full bg-emerald-800 text-white font-semibold items-center py-1 px-2'>
-                      <Lucide icon='Calendar' className='w-6 h-4' />
-                      <span>{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
-                    </div>
-                  </div>
-                  <div className="hidden md:flex flex-row bg-gray-100 rounded-full justify-between p-2.5 w-full h-20 relative">
-                    <NestedImage
-                      players={match.home_team?.players?.map((player) => ({
+                    <div className="flex md:hidden bg-emerald-800 rounded-full justify-between p-1.5 h-14 w-full">
+                      <NestedImage players={match.home_team?.players?.map((player) => ({
                         media_url: player.media_url,
                         name: player.name,
                         uuid: player.uuid
                       })) || []} />
-                    <div className="flex flex-col w-full items-center justify-center mx-2">
-                      <div className='flex flex-row justify-between w-full text-emerald-800 items-center'>
-                        <div className="flex flex-col justify-start w-full">
-                          {match.home_team?.players?.map((player, idx) => (
-                            <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="line-clamp-1 w-fit">{player.name}</Link>
-                          ))}
-                        </div>
-                        <IconVS className="w-32 h-8 text-emerald-800" />
-                        <div className="flex flex-col justify-end items-end w-full">
-                          {match.away_team?.players?.map((player, idx) => (
-                            <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="text-end line-clamp-1 w-fit" >{player.name}</Link>
-                          ))}
-                        </div>
+                      <div className='flex flex-row text-white items-center'>
+                        <IconVS className="w-16 h-8" />
                       </div>
-                    </div>
-                    <NestedImage
-                      players={match.away_team?.players?.map((player) => ({
+                      <NestedImage players={match.away_team?.players?.map((player) => ({
                         media_url: player.media_url,
                         name: player.name,
                         uuid: player.uuid
-                      })) || []}
-                    />
-                  </div>
-                  {/* Mobile */}
-                  <div className='flex md:hidden flex-row justify-center items-center my-2 text-gray-500 text-xs'>
-                    <Lucide icon='MapPin' className='w-6 h-4' /> {match.court_field?.court?.name && `${match.court_field?.court?.name} - ${match.court_field?.name}`}
-                  </div>
-                  <div className="flex md:hidden bg-emerald-800 rounded-full justify-between p-1.5 h-14 w-full">
-                    <NestedImage players={match.home_team?.players?.map((player) => ({
-                      media_url: player.media_url,
-                      name: player.name,
-                      uuid: player.uuid
-                    })) || []} />
-                    <div className='flex flex-row text-white items-center'>
-                      <IconVS className="w-16 h-8" />
+                      })) || []} />
                     </div>
-                    <NestedImage players={match.away_team?.players?.map((player) => ({
-                      media_url: player.media_url,
-                      name: player.name,
-                      uuid: player.uuid
-                    })) || []} />
-                  </div>
-                  <div className='flex md:hidden flex-row justify-between px-2 py-1 capitalize w-full text-xs text-emerald-800 hover:text-emerald-800'>
-                    <div className="flex flex-col justify-start">
-                      {match.home_team?.players?.map((player, idx) => (
-                        <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="line-clamp-1 text-ellipsis overflow-hidden hover:text-emerald-800">{player.name}</Link>
-                      ))}
+                    <div className='flex md:hidden flex-row justify-between px-2 py-1 capitalize w-full text-xs text-emerald-800 hover:text-emerald-800'>
+                      <div className="flex flex-col justify-start">
+                        {match.home_team?.players?.map((player, idx) => (
+                          <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="line-clamp-1 text-ellipsis overflow-hidden hover:text-emerald-800">{player.name}</Link>
+                        ))}
+                      </div>
+                      <div className="flex  flex-col justify-end">
+                        {match.away_team?.players?.map((player, idx) => (
+                          <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="text-end line-clamp-1 text-ellipsis overflow-hidden hover:text-emerald-800">{player.name}</Link>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex  flex-col justify-end">
-                      {match.away_team?.players?.map((player, idx) => (
-                        <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="text-end line-clamp-1 text-ellipsis overflow-hidden hover:text-emerald-800">{player.name}</Link>
-                      ))}
+                    <div className='flex md:hidden flex-row justify-center px-6 capitalize w-full text-xs py-2'>
+                      <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
                     </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="w-full flex items-center justify-center py-10">
+                  <div className="flex flex-col items-center justify-center rounded-3xl bg-white px-6 py-5 text-center w-full">
+                    <Lucide icon="Calendar" className="w-8 h-8 text-emerald-800" />
+                    <div className="mt-2 text-emerald-800 font-semibold">Matches not available yet</div>
+                    <div className="text-xs text-gray-500 mt-1">Matches will appear here once they are available.</div>
                   </div>
-                  <div className='flex md:hidden flex-row justify-center px-6 capitalize w-full text-xs py-2'>
-                    <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
-                  </div>
-                </Link>
-              ))}
+                </div>
+              )}
 
             </div>
           </div>

@@ -46,6 +46,9 @@ export const PublicShop = () => {
       }
     }
   );
+
+  const featuredItemsList = featuredItems?.data ?? [];
+  const featuredItemsLoop = featuredItemsList.concat(featuredItemsList);
   return (
     <>
       <LayoutWrapper className="grid grid-cols-12 gap-4 sm:gap-8 mt-4 sm:mt-8 min-h-[calc(100vh-300px)] pb-8">
@@ -108,7 +111,7 @@ export const PublicShop = () => {
           </ReactVisibilitySensor>
           <div className="col-span-12 flex flex-col space-y-2 text-emerald-800 ">
             <div className="text-lg flex justify-between items-center rounded-lg">
-              <InputGroup className= {`rounded-lg border border-emerald-800 border-opacity-20 overflow-hidden w-full ${searchBox.focus ? "!border-emerald-800 border-opacity-100" : ""} ${searchBox.hasValue ? "border-emerald-950 border-opacity-100" : ""}`}>
+              <InputGroup className={`rounded-lg border border-emerald-800 border-opacity-20 overflow-hidden w-full ${searchBox.focus ? "!border-emerald-800 border-opacity-100" : ""} ${searchBox.hasValue ? "border-emerald-950 border-opacity-100" : ""}`}>
                 <FormInput
                   onChange={(e) => setKeyword(e.target.value)}
                   value={keyword}
@@ -131,34 +134,44 @@ export const PublicShop = () => {
         </FadeAnimation>
         <FadeAnimation className="col-span-12 md:col-span-9 grid grid-cols-12 gap-0" direction="up">
           <div className="col-span-12 grid grid-cols-12 gap-4 md:p-4 rounded-b-xl">
-            {(featuredItems?.data?.concat(featuredItems?.data || []))?.map((item, index) => (
-              <Link
-                key={index}
-                to={paths.shop.detail({ uuid: item.uuid || "" }).$}
-                className="flex flex-col col-span-12 md:col-span-3 overflow-hidden rounded-xl hover:border-emerald-800 md:border-white border-emerald-800 border group px-2 pt-2 relative">
-                <div className="aspect-square overflow-hidden">
-                  <img
-                    src={imageResizerDimension(item.image_cover, 220, "h")}
-                    className={`flex h-full w-full object-contain aspect-square rounded-xl`}
-                    onClick={() => sliderRef.current?.goTo(index)}
-                  />
-                </div>
-                <div className="h-32 md:h-20 mt-2"></div>
-                <div className="flex flex-col px-2 justify-center items-center h-32 absolute -bottom-10 left-0 right-0 rounded-md md:group-hover:-translate-y-12 -translate-y-12 md:translate-y-0 transition-all duration-500 overflow-hidden">
-                  <div className="backdrop-blur flex flex-col justify-center items-center w-full pt-2">
-                    <div className='h-1 mb-1 w-6 group-hover:animate-bounce bg-emerald-800'></div>
-                    <span className="text-emerald-800 font-semibold text-base leading-4 text-center my-1 h-8 flex items-center justify-center">{item.name}</span>
-                    <span className="text-emerald-800 font-medium text-xs border border-emerald-800 rounded pr-1"><span className="font-semibold text-white bg-emerald-800 px-1 text-center rounded">IDR</span>&nbsp;{priceRender(item.details.map(detail => detail.price))}</span>
+            {featuredItemsList.length > 0 ? (
+              featuredItemsLoop.map((item, index) => (
+                <Link
+                  key={index}
+                  to={paths.shop.detail({ uuid: item.uuid || "" }).$}
+                  className="flex flex-col col-span-12 md:col-span-3 overflow-hidden rounded-xl hover:border-emerald-800 md:border-white border-emerald-800 border group px-2 pt-2 relative">
+                  <div className="aspect-square overflow-hidden">
+                    <img
+                      src={imageResizerDimension(item.image_cover, 220, "h")}
+                      className={`flex h-full w-full object-contain aspect-square rounded-xl`}
+                      onClick={() => sliderRef.current?.goTo(index)}
+                    />
                   </div>
-                  <Button className="w-full mt-4 bg-emerald-800 rounded-lg !text-white" onClick={() => {
-                    setIsClicked(true);
-                    // navigate(paths.shop.detail({ uuid: item.uuid || "" }).$)
-                  }}>
-                    Add to Cart
-                  </Button>
+                  <div className="h-32 md:h-20 mt-2"></div>
+                  <div className="flex flex-col px-2 justify-center items-center h-32 absolute -bottom-10 left-0 right-0 rounded-md md:group-hover:-translate-y-12 -translate-y-12 md:translate-y-0 transition-all duration-500 overflow-hidden">
+                    <div className="backdrop-blur flex flex-col justify-center items-center w-full pt-2">
+                      <div className='h-1 mb-1 w-6 group-hover:animate-bounce bg-emerald-800'></div>
+                      <span className="text-emerald-800 font-semibold text-base leading-4 text-center my-1 h-8 flex items-center justify-center">{item.name}</span>
+                      <span className="text-emerald-800 font-medium text-xs border border-emerald-800 rounded pr-1"><span className="font-semibold text-white bg-emerald-800 px-1 text-center rounded">IDR</span>&nbsp;{priceRender(item.details.map(detail => detail.price))}</span>
+                    </div>
+                    <Button className="w-full mt-4 bg-emerald-800 rounded-lg !text-white" onClick={() => {
+                      setIsClicked(true);
+                      // navigate(paths.shop.detail({ uuid: item.uuid || "" }).$)
+                    }}>
+                      Add to Cart
+                    </Button>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-12 w-full flex items-center justify-center py-12">
+                <div className="flex flex-col items-center justify-center rounded-2xl bg-gray-50 border border-emerald-800/10 px-6 py-6 text-center w-full">
+                  <Lucide icon="ShoppingBag" className="w-10 h-10 text-emerald-800" />
+                  <div className="mt-2 text-emerald-800 font-semibold">No items available</div>
+                  <div className="text-xs text-gray-500 mt-1">Please check back later.</div>
                 </div>
-              </Link>
-            ))}
+              </div>
+            )}
           </div>
           <div className="col-span-12 my-14">
             {/* <span className="text-emerald-800 font-semibold text-xl py-4 flex">LATEST <span className="font-bold">&nbsp;GAME</span></span> */}
@@ -169,7 +182,7 @@ export const PublicShop = () => {
               <div className="flex flex-row overflow-scroll gap-4 mt-2 py-4 z-[0] relative">
                 <div className="min-h-40 max-h-40  min-w-fit mr-6 aspect-[1/4] flex-col flex opacity-0">
                 </div>
-                {(featuredItems?.data?.concat(featuredItems?.data || []))?.map((item, index) => (
+                {featuredItemsLoop.map((item, index) => (
                   <div key={index} className="flex flex-col h-40 min-w-40 max-w-40 shadow-lg p-2 bg-white overflow-hidden rounded-xl relative group">
                     <img src={item.image_cover} className="w-full aspect-square object-contain rounded-xl" />
                     <div className="flex flex-col p-2 justify-start items-center absolute group-hover:-translate-y-16 top-40 left-0 right-0 bg-white transition-all duration-500 aspect-square">
