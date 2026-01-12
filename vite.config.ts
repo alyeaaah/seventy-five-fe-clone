@@ -18,33 +18,9 @@ export default defineConfig(({ mode }) => {
 
     build: {
       outDir: "dist",
-      // Increase memory limit for large builds
-      target: 'es2015',
       commonjsOptions: {
         include: ["tailwind.config.js", "node_modules/**"],
       },
-      // Try to exclude problematic packages from bundling
-      rollupOptions: {
-        external: ['@faker-js/faker'],
-        output: {
-          manualChunks: {
-            // Vendor chunks untuk library besar
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'redux-vendor': ['@reduxjs/toolkit', 'react-redux', 'jotai'],
-            'ui-vendor': ['antd', '@headlessui/react'],
-            'chart-vendor': ['chart.js'],
-            'editor-vendor': ['@ckeditor/ckeditor5-build-classic', 'react-quill'],
-            'calendar-vendor': ['@fullcalendar/react', '@fullcalendar/core', '@fullcalendar/daygrid', '@fullcalendar/timegrid', '@fullcalendar/interaction', '@fullcalendar/list'],
-            'map-vendor': ['leaflet', 'react-leaflet', 'leaflet.markercluster'],
-            'form-vendor': ['react-hook-form', '@hookform/resolvers', 'yup', 'zod'],
-            'query-vendor': ['@tanstack/react-query', '@zodios/core', '@zodios/react'],
-          },
-        },
-      },
-      // Minification - use terser to avoid esbuild memory issues
-      minify: 'terser',
-      // Source maps untuk production (opsional, bisa di-disable untuk size lebih kecil)
-      sourcemap: false,
     },
     optimizeDeps: {
       include: ["tailwind-config"],
