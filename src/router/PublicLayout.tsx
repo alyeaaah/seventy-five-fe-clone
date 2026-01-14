@@ -8,6 +8,8 @@ import { Outlet } from "react-router-dom";
 
 export const PublicLayout = () => {
   const Helmet = HelmetBase as unknown as React.ComponentType<any>;
+  console.log(location.pathname, "pathname");
+  console.log("basename", clientEnv.BASENAME);
   return (
     <>
       <Layout className="min-h-screen bg-white text-white public-page">
