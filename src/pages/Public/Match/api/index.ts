@@ -13,7 +13,8 @@ export const PublicMatchApiClient = new Zodios(
     endpoints.matchDetailApi,
     endpoints.pointConfigApi,
     endpoints.getKudosListApi,
-    endpoints.giveKudosApi
+    endpoints.giveKudosApi,
+    endpoints.publicChallengerListApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

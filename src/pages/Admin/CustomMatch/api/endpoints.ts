@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { customMatchesPayloadSchema, customMatchPayloadSchema, matchesListSchema } from "./schema";
+import { customMatchesPayloadSchema, customMatchPayloadSchema, matchesListSchema, acceptChallengerPayloadSchema } from "./schema";
 
 const CustomMatchListApi = makeEndpoint({
   alias: "getCustomMatchList",
@@ -44,9 +44,20 @@ const CustomMatchDeleteApi = makeEndpoint({
     })
 });
 
+const AcceptChallengerApi = makeEndpoint({
+  alias: "acceptChallenger",
+  method: "post",
+  path: `/challenger/accept`,
+  parameters: parametersBuilder().addBody(acceptChallengerPayloadSchema).build(),
+  response: z.object({
+    status: z.string(),
+  }),
+});
+
 export const endpoints = {
   CustomMatchListApi,
   CustomMatchCreateApi,
   CustomMatchUpdateApi,
-  CustomMatchDeleteApi
+  CustomMatchDeleteApi,
+  AcceptChallengerApi
 };

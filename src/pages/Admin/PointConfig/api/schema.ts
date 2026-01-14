@@ -16,6 +16,7 @@ export const pointConfigurationsSchema = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   points: z.array(pointSchema).nullish(),
+  isDefault: z.number().nullish(),
 });
 export const pointConfigurationDetailSchema = z.object({
   uuid: z.string().optional(),

@@ -1,16 +1,16 @@
 
 import { useAtomValue } from "jotai";
+import { useState } from "react";
 import { userAtom } from "@/utils/store";
 import { IconLogo, IconVS } from "@/assets/images/icons";
 import moment from "moment";
 import { PlayerMatchApiHooks } from "./api";
+import { PublicMatchApiHooks } from "@/pages/Public/Match/api";
 import { Link } from "react-router-dom";
 import Lucide from "@/components/Base/Lucide";
 import { NestedImage } from "@/components/NestedImage";
-import { Upcoming } from "@/assets/images/illustrations/illustrations";
+import { AskForChallenger, Upcoming } from "@/assets/images/illustrations/illustrations";
 import { paths } from "@/router/paths";
-import { Divider } from "antd";
-import { PlayerMatch } from "../Home/components/PlayerMatch";
 import { PlayerMatchFull } from "../Home/components/PlayerMatchFull";
 import { PlayerRecentTournaments } from "../Home/components/PlayerRecentTournaments";
 import { PlayerTournaments } from "../Home/components/PlayerTournaments";
@@ -18,9 +18,15 @@ import { StandingsComponent } from "@/pages/Public/LandingPage/components/Standi
 import { FeaturedPlayer } from "@/pages/Public/LandingPage/components/FeaturedPlayerComponent";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 import { PlayerHomeApiHooks } from "../Home/api";
+import { Divider } from "antd";
+import { LoadingAnimation } from "@/components/LoadingAnimation";
+import Button from "@/components/Base/Button";
+import { ChallengerModal } from "./Challenger.modal";
+import Tippy from "@/components/Base/Tippy";
 
 export const PlayerMatches = () => {
   const userData = useAtomValue(userAtom);
+  const [isChallengerModalOpen, setIsChallengerModalOpen] = useState(false);
   const { data: upcomingMatches } = PlayerMatchApiHooks.useGetPlayerMatches({
     queries: {
       status: matchStatusEnum.Values.UPCOMING,
@@ -28,7 +34,7 @@ export const PlayerMatches = () => {
   });
   const { data: recentMatches } = PlayerMatchApiHooks.useGetPlayerMatches({
     queries: {
-      status: matchStatusEnum.Values.ENDED,
+      status: [matchStatusEnum.Values.ENDED, matchStatusEnum.Values.ONGOING]
     }
   });
   const { data: playerData } = PlayerHomeApiHooks.useGetPlayersDetail({
@@ -36,6 +42,17 @@ export const PlayerMatches = () => {
       uuid: userData?.uuid || ""
     }
   });
+
+  const { data: challengerList, isLoading: isChallengerListLoading } = PublicMatchApiHooks.useGetPublicChallengerList(
+    {
+      queries: {
+        player_uuid: userData?.uuid || "",
+      }
+    },
+    {
+      enabled: !!userData?.uuid,
+    }
+  );
   const { data: upcomingTournaments } = PlayerMatchApiHooks.useGetPlayerTournamentsUpcoming();
   const { data: joinedTournaments } = PlayerMatchApiHooks.useGetPlayerTournamentsJoined();
   return (
@@ -98,20 +115,115 @@ export const PlayerMatches = () => {
           </div>}
         </div>
       </div>
-      <div className="col-span-12 lg:col-span-12 xl:col-span-5 2xl:col-span-5 flex flex-col box ">
-        <div className="font-medium h-fit text-primary uppercase text-base px-4 pt-4">
-          <div className="w-full flex justify-between items-center">
-            <span>Recent <span className="font-bold">Matches</span></span>
+      <div className="col-span-12 lg:col-span-12 xl:col-span-5 2xl:col-span-5 flex flex-col gap-4">
+        <div className="flex flex-col box rounded-2xl overflow-hidden bg-emerald-800 p-4 h-fit gap-2">
+
+          <div className="flex flex-col lg:flex-row items-center justify-around border-[#EBCE56] border rounded-lg p-4">
+            <div className="h-24 aspect-[2/1] animate-pulse">
+              <AskForChallenger className="w-full h-full" />
+            </div>
+            <div className="flex flex-col text-[#EBCE56] items-center lg:items-start">
+              <span className="text-xl font-bold">Ready to play?</span>
+              <span className="font">Ask for a challenger now, get your points!</span>
+              <Button
+                variant="primary"
+                className="bg-[#EBCE56] text-emerald-800 mt-3 w-fit"
+                onClick={() => setIsChallengerModalOpen(true)}
+              >
+                Ask Challenger
+              </Button>
+            </div>
           </div>
-          <Divider className="mt-2 my-0" />
+          {
+            isChallengerListLoading &&
+            <LoadingAnimation light autoplay loop label="Loading..." className="py-2" />
+          }
+          {(!isChallengerListLoading && !!challengerList?.data?.length) && (
+            <div className="flex flex-col items-center justify-around gap-2">
+              {
+                challengerList?.data?.map((challenger) => (
+                  <div key={challenger.id} className="flex flex-col box w-full p-2">
+                    <div className="flex flex-row justify-between border-b mb-1 pb-1">
+                      <div className="flex flex-row gap-1 items-center w-full">
+                        <Lucide icon="Calendar" className="w-4 h-4" />
+                        <span>{moment(challenger.time).format('DD MMM YYYY HH:mm')}</span>
+                      </div>
+                      <div className="uppercase text-xs border font-medium rounded px-2 py-0.5 h-fit border-emerald-800 text-emerald-800">{challenger.status === "OPEN" ? "Requested" : challenger.status}</div>
+                      <Tippy
+                        className="w-full"
+                        content={challenger.court.name || ""}>
+                        <div className="flex flex-row gap-1 ml-1 items-center justify-end w-full">
+                          <Lucide icon="MapPin" className="w-4 h-4" />
+                          <span className="w-full text-ellipsis line-clamp-1">{challenger.court.name}</span>
+                        </div>
+                      </Tippy>
+                    </div>
+                    <div className="flex flex-row">
+                      {(() => {
+                        const challengerPlayers = [challenger.challengerA, challenger.challengerB].filter(
+                          (p): p is NonNullable<typeof challenger.challengerA> => !!p
+                        );
+                        const opponentPlayers = [challenger.opponentA, challenger.opponentB].filter(
+                          (p): p is NonNullable<typeof challenger.opponentA> => !!p
+                        );
+
+                        return (
+                          <div className="flex flex-col w-full">
+                            {challengerPlayers.map((player) => (
+                              <div key={player.uuid}>
+                                {player.uuid === userData?.uuid ? <span className="font-bold">You</span> : player.name}
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                      <IconVS className="h-12 min-w-16" />
+                      {(() => {
+                        const opponentPlayers = [challenger.opponentA, challenger.opponentB].filter(
+                          (p): p is NonNullable<typeof challenger.opponentA> => !!p
+                        );
+
+                        if (opponentPlayers.length === 0) {
+                          return (
+                            <div className="flex flex-row gap-2 items-center h-12 animate-pulse w-full justify-end">
+                              <Lucide icon="UserSearch" className="w-6 h-6" />
+                              <span>Waiting for opponent</span>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="flex flex-col w-full items-end">
+                            {opponentPlayers.map((player) => (
+                              <div key={player.uuid}>
+                                {player.uuid === userData?.uuid ? <span className="font-bold">You</span> : player.name}
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 p-4 justify-start">
-          {recentMatches?.data?.map((match, idx) => (
-            <PlayerMatchFull key={idx} match={match} playerUuid={userData?.uuid || ""} />
-          ))}
-          {recentMatches?.data?.length === 0 && <div className="col-span-12 flex flex-col items-center justify-center h-44">
-            <Lucide icon="RefreshCw" className="w-4 h-4 mr-2" /> No Recent Matches
-          </div>}
+        <div className="flex flex-col box col-span-2 flex-1">
+          <div className="font-medium h-fit text-primary uppercase text-base px-4 pt-4">
+            <div className="w-full flex justify-between items-center">
+              <span>Recent <span className="font-bold">Matches</span></span>
+            </div>
+            <Divider className="mt-2 my-0" />
+          </div>
+          <div className="flex flex-col gap-4 p-4 justify-start">
+            {recentMatches?.data?.map((match, idx) => (
+              <PlayerMatchFull key={idx} match={match} playerUuid={userData?.uuid || ""} />
+            ))}
+            {recentMatches?.data?.length === 0 && <div className="col-span-12 flex flex-col items-center justify-center h-44">
+              <Lucide icon="RefreshCw" className="w-4 h-4 mr-2" /> No Recent Matches
+            </div>}
+          </div>
         </div>
       </div>
       <div className="col-span-12 lg:col-span-12 xl:col-span-4 2xl:col-span-4 flex flex-col gap-3">
@@ -122,12 +234,17 @@ export const PlayerMatches = () => {
             </div>
           </div>
           <div className="col-span-12 flex flex-col gap-4 p-4 min-h-[30vh] h-fit">
-            {upcomingTournaments?.data?.map((tournament, idx) => (
+            {upcomingTournaments?.data?.length ? upcomingTournaments?.data?.map((tournament, idx) => (
               <PlayerTournaments key={idx} tournament={tournament} />
-            ))}
+            )) : (
+              <div className="flex flex-col items-center justify-center h-full flex-1 [text-shadow:0_0_4px_rgba(0,0,0,0.5)]">
+                <Lucide icon="Calendar" className="w-8 h-8 text-white" />
+                <span className="text-white mt-2">No Upcoming Tournaments</span>
+              </div>
+            )}
           </div>
         </div>
-        <div className="col-span-2  grid grid-cols-12 box h-fit">
+        <div className="col-span-2 flex-1  flex flex-col box">
           <div className="col-span-12 font-medium text-primary uppercase text-base px-4 pt-4">
             <div className="w-full flex justify-between items-center">
               <span>Recent <span className="font-bold">Tournaments</span></span>
@@ -135,9 +252,14 @@ export const PlayerMatches = () => {
             <Divider className="mt-2 my-0" />
           </div>
           <div className="col-span-12 flex flex-col gap-4 p-4 max-h-[60vh] overflow-scroll">
-            {joinedTournaments?.data?.map((tournament, idx) => (
+            {joinedTournaments?.data?.length ? joinedTournaments?.data?.map((tournament, idx) => (
               <PlayerRecentTournaments key={idx} tournament={tournament} playerUuid={userData?.uuid || ""} />
-            ))}
+            )) : (
+              <div className="flex flex-col items-center justify-center h-full">
+                <Lucide icon="Calendar" className="w-8 h-8 text-gray-400" />
+                <span className="text-gray-400 mt-2">No Recent Tournaments</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -150,6 +272,12 @@ export const PlayerMatches = () => {
           title="Double Mates"
           className="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3 p-0" />
       </div>
+
+      <ChallengerModal
+        open={isChallengerModalOpen}
+        onClose={() => setIsChallengerModalOpen(false)}
+        userUuid={userData?.uuid || ""}
+      />
     </div>
   );
 }

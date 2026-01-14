@@ -6,23 +6,40 @@ import { Divider } from "antd"
 import moment from "moment"
 import { HTMLAttributes } from "react"
 import { MatchSchema } from "../../Matches/api/schema"
+import Tippy from "@/components/Base/Tippy"
+import { LoadingAnimation } from "@/components/LoadingAnimation"
 interface ComponentProps extends HTMLAttributes<HTMLDivElement> {
   customProp?: string;
   match?: MatchSchema;
   playerUuid?: string;
 }
-export const PlayerMatchFull = ({className, match, playerUuid, ...props}: ComponentProps) => {
+export const PlayerMatchFull = ({ className, match, playerUuid, ...props }: ComponentProps) => {
   return (
 
     <div className={`box w-full inline-block mr-4 shadow-lg ${className}`} {...props}>
       <div className="px-4 pt-2 text-xs font-medium flex justify-between">
         {moment(match?.time).format('ddd, DD MMM YYYY hh:mm')}
-        <span className="capitalize flex flex-row items-center text-emerald-800">
+        <span className="capitalize flex flex-row items-center text-emerald-800 gap-2">
+          {match?.status === "ONGOING" &&
+            <Tippy
+              content="Ongoing"
+            >
+              <div className="text-xs h-4 flex items-center justify-center">
+                <LoadingAnimation loop={true} autoplay={false} animationClassName="w-8 h-5" />
+              </div>
+            </Tippy>
+          }
           {match?.tournament?.type === "tournament" && <Lucide icon="Network" className="h-4 w-4 mr-1" />}
-          {match?.tournament?.type === "FRIENDLY MATCH" && <Lucide icon="Swords" className="h-4 w-4 mr-1" />}
+          {(match?.tournament?.type === "FRIENDLY MATCH" || match?.category === "CHALLENGE") &&
+            <Tippy
+              content="Challenger"
+            >
+              <Lucide icon="Swords" className="h-4 w-4 mr-1" />
+            </Tippy>
+          }
           {match?.tournament?.name}
         </span>
-      </div>
+      </div >
       <Divider className="mt-2 mb-0" />
       <div className="px-4 py-2 relative overflow-hidden">
         <div className="flex flex-col space-y-2 lg:flex-row items-center justify-between">
@@ -36,7 +53,7 @@ export const PlayerMatchFull = ({className, match, playerUuid, ...props}: Compon
           </div>
           <div className="relative w-24 h-fit flex items-center justify-center">
             <IconVS className="z-[1] w-20 h-10 text-emerald-800 " />
-            <IconVS className="z-[0] w-20 h-10 text-warning absolute top-0.5 left-0.5"/>
+            <IconVS className="z-[0] w-20 h-10 text-warning absolute top-0.5 left-0.5" />
           </div>
           <div className="mt-2 z-10 w-full flex space-y-1 flex-col">
             {match?.away_team?.players?.map((player, idx) => (
@@ -61,6 +78,6 @@ export const PlayerMatchFull = ({className, match, playerUuid, ...props}: Compon
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }

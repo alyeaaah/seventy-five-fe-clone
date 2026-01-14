@@ -50,7 +50,7 @@ export const CustomMatchForm = (props: Props) => {
   const { customMatchUuid } = queryParams;
   const { showNotification } = useToast();
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
-  const [playerPicker, setPlayerPicker] = useState <PlayerPickerProps | undefined>(undefined);
+  const [playerPicker, setPlayerPicker] = useState<PlayerPickerProps | undefined>(undefined);
   const { data: levelData } = LevelsApiHooks.useGetLevelsList();
   const { data: courtData } = CourtsApiHooks.useGetCourtsList();
   const { data: pointConfigData } = PointConfigurationsApiHooks.useGetPointConfigurationsDropdown();
@@ -65,7 +65,7 @@ export const CustomMatchForm = (props: Props) => {
           matches: [{
             id: data.data.id || 0,
             uuid: data.data.uuid || "",
-            shortcode: data.data.shortcode || "G"+faker.string.alphanumeric({ length: 6, casing: "upper" }),
+            shortcode: data.data.shortcode || "G" + faker.string.alphanumeric({ length: 6, casing: "upper" }),
             home_team_uuid: data.data.home_team_uuid || "",
             away_team_uuid: data.data.away_team_uuid || "",
             home_team_score: data.data.home_team_score || 0,
@@ -114,7 +114,7 @@ export const CustomMatchForm = (props: Props) => {
     onSuccess: () => {
       showNotification({
         duration: 3000,
-        text: "Custom Match updated successfully",
+        text: "Challenge updated successfully",
         icon: "CheckSquare",
         variant: "success",
       });
@@ -125,17 +125,17 @@ export const CustomMatchForm = (props: Props) => {
     onError: (e: any) => {
       showNotification({
         duration: 3000,
-        text: e?.message || "Failed to update custom match",
+        text: e?.message || "Failed to update challenge",
         icon: "WashingMachine",
         variant: "danger",
       });
     },
   });
-  const { mutate: actionCreateCustomMatch } = CustomMatchApiHooks.useCreateCustomMatch({},{
+  const { mutate: actionCreateCustomMatch } = CustomMatchApiHooks.useCreateCustomMatch({}, {
     onSuccess: () => {
       showNotification({
         duration: 3000,
-        text: "Custom Match created successfully",
+        text: "Challenge created successfully",
         icon: "CheckSquare",
         variant: "success",
       });
@@ -146,7 +146,7 @@ export const CustomMatchForm = (props: Props) => {
     onError: (e: any) => {
       showNotification({
         duration: 3000,
-        text: e?.message || "Failed to create custom match",
+        text: e?.message || "Failed to create challenge",
         icon: "WashingMachine",
         variant: "danger",
       });
@@ -159,16 +159,16 @@ export const CustomMatchForm = (props: Props) => {
       matches: [{
         id: detailMatch?.data?.id || 0,
         uuid: customMatchUuid || "",
-        shortcode: detailMatch?.data?.shortcode || "G" +faker.string.alphanumeric({ length: 6, casing: "upper" }),
+        shortcode: detailMatch?.data?.shortcode || "G" + faker.string.alphanumeric({ length: 6, casing: "upper" }),
         home_team_uuid: detailMatch?.data?.home_team_uuid || "",
         home_team: detailMatch?.data?.home_team || {
           name: "Team A",
-          alias: faker.lorem.word({length:{max:9, min:4}}),
+          alias: faker.lorem.word({ length: { max: 9, min: 4 } }),
           players: [{
             uuid: "",
             name: "Choose Player 1",
             media_url: "",
-          },{
+          }, {
             uuid: "",
             name: "Choose Player 2",
             media_url: "",
@@ -177,7 +177,7 @@ export const CustomMatchForm = (props: Props) => {
         away_team_uuid: detailMatch?.data?.away_team_uuid || "",
         away_team: detailMatch?.data?.away_team || {
           name: "Team B",
-          alias: faker.lorem.word({length:{max:9, min:4}}),
+          alias: faker.lorem.word({ length: { max: 9, min: 4 } }),
           players: [{
             uuid: "",
             name: "Choose Player 1",
@@ -204,12 +204,12 @@ export const CustomMatchForm = (props: Props) => {
     resolver: zodResolver(customMatchesPayloadSchema),
   });
   const { control, formState, handleSubmit, setValue, watch, getValues } = methods;
-  
+
   const onSubmit: SubmitHandler<any> = (values: CustomMatchesPayload) => {
     if (customMatchUuid) {
       console.log(getValues("matches")[0]);
       console.log(values.matches[0]);
-      
+
       actionUpdateCustomMatch(values.matches[0] as CustomMatchPayload, {
         onSuccess: () => {
           methods.reset();
@@ -270,7 +270,7 @@ export const CustomMatchForm = (props: Props) => {
           media_url: "",
         }]
       },
-      away_team_uuid:  "",
+      away_team_uuid: "",
       away_team: {
         name: "Team B",
         alias: faker.lorem.word({ length: { max: 9, min: 4 } }),
@@ -287,7 +287,7 @@ export const CustomMatchForm = (props: Props) => {
       home_team_score: 0,
       away_team_score: 0,
       with_ad: false,
-      status:  "UPCOMING",
+      status: "UPCOMING",
       youtube_url: "",
       court_field_uuid: prevMatch.court_field_uuid || "",
       point_config_uuid: prevMatch.point_config_uuid || "",
@@ -316,7 +316,7 @@ export const CustomMatchForm = (props: Props) => {
   return (
     <>
       <div className="flex flex-row items-center mt-8 intro-y justify-between">
-        <h2 className="mr-auto text-lg font-medium">{customMatchUuid ? "Edit" : "Add New"} Custom Match</h2>
+        <h2 className="mr-auto text-lg font-medium">{customMatchUuid ? "Edit" : "Add New"} Challenger</h2>
       </div>
       <Divider />
       <FormProvider {...methods} key={location.pathname + "_form"}>
@@ -328,10 +328,10 @@ export const CustomMatchForm = (props: Props) => {
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-12 flex justify-between items-center">
                       <div className="flex flex-row items-center">
-                        <h2 className="font-medium mr-2">Custom Match #{index + 1}</h2>
-                        {watch("matches").length > 1 && <Button size="sm" variant="outline-danger" onClick={() => removeMatch(index)}><Lucide icon="Trash" className="h-4 w-4"/></Button>}
+                        <h2 className="font-medium mr-2">Challenger #{index + 1}</h2>
+                        {watch("matches").length > 1 && <Button size="sm" variant="outline-danger" onClick={() => removeMatch(index)}><Lucide icon="Trash" className="h-4 w-4" /></Button>}
                       </div>
-                        <div className="bg-lime-50 border border-lime-400 rounded-md text-xs font-medium px-2 py-1">{watch("matches")[index].shortcode}</div>
+                      <div className="bg-lime-50 border border-lime-400 rounded-md text-xs font-medium px-2 py-1">{watch("matches")[index].shortcode}</div>
                     </div>
                     <Divider className="mb-0 col-span-12 mt-0" />
                     <div className="col-span-12 sm:col-span-6 mb-2">
@@ -346,7 +346,7 @@ export const CustomMatchForm = (props: Props) => {
                               showTime={{
                                 format: 'HH:mm',
                                 minuteStep: 5,
-                                disabledHours: ()=>[1,2,3,4]
+                                disabledHours: () => [1, 2, 3, 4]
                               }}
                               showSecond={false}
                               className="flex"
@@ -372,36 +372,36 @@ export const CustomMatchForm = (props: Props) => {
                             control={control}
                             render={({ field, fieldState }) =>
                               <>
-                              <FormSelect
-                                id="validation-form-6"
-                                name={`matches.${index}.point_config_uuid`}
-                                value={field.value}
-                                className={clsx({
-                                  "border-danger": !!fieldState.error,
-                                  "sm:w-1/2 w-full": true
-                                })}
-                                onChange={(e) => {
-                                  field.onChange(e);
-                                  const pointConfig = pointConfigData?.data?.find((item) => item.uuid === e.target.value)?.points?.[0];
-                                  console.log(pointConfig);
-                                  
-                                  setValue(`matches.${index}.point_win`, pointConfig?.win_point || 0, { shouldValidate: true });
-                                  setValue(`matches.${index}.point_lose`, pointConfig?.lose_point || 0, { shouldValidate: true });
-                                }}
-                              >
-                                <option key={"choosePoint"} value="">Select Point</option>
-                                {pointConfigData?.data?.map((item) => (
-                                  <option key={item.uuid} value={item.uuid}>
-                                    {item.name}
-                                  </option>
-                                ))}
-                              </FormSelect>
-                              {!!fieldState.error && (
-                                <FormHelp className={"text-danger"}>
-                                  {fieldState.error.message || "Form is not valid"}
-                                </FormHelp>
-                              )}
-                            </>
+                                <FormSelect
+                                  id="validation-form-6"
+                                  name={`matches.${index}.point_config_uuid`}
+                                  value={field.value}
+                                  className={clsx({
+                                    "border-danger": !!fieldState.error,
+                                    "sm:w-1/2 w-full": true
+                                  })}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    const pointConfig = pointConfigData?.data?.find((item) => item.uuid === e.target.value)?.points?.[0];
+                                    console.log(pointConfig);
+
+                                    setValue(`matches.${index}.point_win`, pointConfig?.win_point || 0, { shouldValidate: true });
+                                    setValue(`matches.${index}.point_lose`, pointConfig?.lose_point || 0, { shouldValidate: true });
+                                  }}
+                                >
+                                  <option key={"choosePoint"} value="">Select Point</option>
+                                  {pointConfigData?.data?.map((item) => (
+                                    <option key={item.uuid} value={item.uuid}>
+                                      {item.name}
+                                    </option>
+                                  ))}
+                                </FormSelect>
+                                {!!fieldState.error && (
+                                  <FormHelp className={"text-danger"}>
+                                    {fieldState.error.message || "Form is not valid"}
+                                  </FormHelp>
+                                )}
+                              </>
                             }
                           />
                           <div className="sm:w-1/2 w-full h-full flex flex-row justify-around items-center text-sm font-medium mt-2 sm:mt-0">
@@ -456,7 +456,7 @@ export const CustomMatchForm = (props: Props) => {
                         render={({ field, fieldState }) =>
                           <>
                             <FormSelect
-                              
+
                               name={`matches.${index}.court_field_uuid`}
                               onChange={(e) => {
                                 field.onChange(e.target.value);
@@ -556,9 +556,9 @@ export const CustomMatchForm = (props: Props) => {
                                 <InputGroup
                                   className="mt-2 cursor-pointer"
                                   onClick={() => {
-                                    const disabledPlayers = ((getValues(`matches.${index}.home_team.players`).map((player) => player.uuid || "")).concat(getValues(`matches.${index}.away_team.players`).map((player) => player.uuid || ""))).filter(str=>str!="");
+                                    const disabledPlayers = ((getValues(`matches.${index}.home_team.players`).map((player) => player.uuid || "")).concat(getValues(`matches.${index}.away_team.players`).map((player) => player.uuid || ""))).filter(str => str != "");
                                     console.log("disabledPlayers", disabledPlayers);
-                                    
+
                                     setPlayerPicker({
                                       open: true,
                                       onClose: () => setPlayerPicker(undefined),

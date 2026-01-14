@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { matchSchema, tournamentsSchema } from "./schema";
+import { matchSchema, openChallengerPayloadSchema, openChallengerResponseSchema, tournamentsSchema } from "./schema";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 
 const playerMatchesApi = makeEndpoint({
@@ -9,7 +9,7 @@ const playerMatchesApi = makeEndpoint({
   path: `/match/player`,
   parameters: parametersBuilder().addQueries
     ({
-      status: matchStatusEnum.nullish(),
+      status: z.union([matchStatusEnum, z.array(matchStatusEnum)]).nullish(),
     }).build(),
   response: z.object({
     data: z.array(matchSchema),
@@ -34,8 +34,17 @@ const playerTournamentsUpcomingApi = makeEndpoint({
   })
 });
 
+const openChallengerApi = makeEndpoint({
+  alias: "openChallenger",
+  method: "post",
+  path: `/challenger/open`,
+  parameters: parametersBuilder().addBody(openChallengerPayloadSchema).build(),
+  response: openChallengerResponseSchema,
+});
+
 export const endpoints = {
   playerMatchesApi,
   playerTournamentsJoinedApi,
-  playerTournamentsUpcomingApi
+  playerTournamentsUpcomingApi,
+  openChallengerApi
 };

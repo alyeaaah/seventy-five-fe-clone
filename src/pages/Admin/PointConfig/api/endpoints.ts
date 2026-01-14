@@ -80,12 +80,23 @@ const PointConfigurationsDeleteApi = makeEndpoint({
     })
 });
 
+const PointConfigurationsSetDefaultApi = makeEndpoint({
+  alias: "setDefaultPointConfiguration",
+  method: "put",
+  path: `/point-config/:uuid/set-default`,
+  response: z
+    .object({
+      message: z.string().optional(),
+    })
+    .passthrough()
+});
+
 export const endpoints = {
   PointConfigurationsListApi,
   PointConfigurationsDropdownApi,
   PointConfigurationsCreateApi,
   PointConfigurationsUpdateApi,
   PointConfigurationsDeleteApi,
-  PointConfigurationsDetailApi
-  
+  PointConfigurationsDetailApi,
+  PointConfigurationsSetDefaultApi
 };

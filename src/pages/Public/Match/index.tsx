@@ -128,7 +128,7 @@ export const PublicMatchDetail = () => {
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 flex flex-col justify-center items-center">
                   <div className="text-xl font-bold capitalize">
-                    {!data?.data?.tournament_uuid && "Custom "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}
+                    {!data?.data?.tournament_uuid && "Challenger "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}
                   </div>
                   <div className="hidden sm:flex text-sm text-center text-emerald-800">
                     {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round}`}

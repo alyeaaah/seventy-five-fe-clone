@@ -72,6 +72,7 @@ export const matchSchema = z.object({
   youtube_url: z.string().nullish(),
   notes: z.string().nullish(),
   status: matchStatusSchema.nullish(),
+  category: z.string().nullish(),
   createdAt: z.string(),
   updatedAt: z.string(),
   id: z.number(),
@@ -160,7 +161,25 @@ export const tournamentsSchema = z.object({
   playerTeams: z.array(playerTeamSchema).nullish(),
 });
 
+export const openChallengerPayloadSchema = z.object({
+  court_field_uuid: z.string(),
+  time: z.string(),
+  point_config_uuid: z.string().nullish(),
+  with_ad: z.boolean().nullish(),
+  challengerA_uuid: z.string(),
+  challengerB_uuid: z.string(),
+  opponentA_uuid: z.string().optional(),
+  opponentB_uuid: z.string().optional(),
+});
+
+export const openChallengerResponseSchema = z.object({
+  status: z.string(),
+});
+
 export type MatchStatusEnum = z.infer<typeof matchStatusSchema>;
 export type MatchSchema = z.infer<typeof matchSchema>;
 
 export type TournamentsSchema = z.infer<typeof tournamentsSchema>;
+
+export type OpenChallengerPayload = z.infer<typeof openChallengerPayloadSchema>;
+export type OpenChallengerResponse = z.infer<typeof openChallengerResponseSchema>;

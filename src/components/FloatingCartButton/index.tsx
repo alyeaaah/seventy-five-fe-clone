@@ -9,7 +9,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   position?: "left" | "right";
   visible?: boolean;
 }
-export const FloatingCartButton = ({position="right", visible=true, className, ...props}: Props) => {
+export const FloatingCartButton = ({ position = "right", visible = true, className, ...props }: Props) => {
   const [open, setOpen] = useState(false);
   const { getCartQty, getCart, getCartSubtotal, removeFromCart } = useCart();
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ export const FloatingCartButton = ({position="right", visible=true, className, .
         open={open}
         icon={
           <div className="w-12 h-12 flex items-center justify-center relative text-white">
-            <Lucide icon="ShoppingCart" className="w-6 h-6" />
+            <Lucide icon="ShoppingCart" className="w-6 h-6 text-emerald-800" />
             {getCartQty() > 0 && <div className="absolute top-1 right-1 min-w-4 p-0.5 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-semibold leading-4">{getCartQty()}</div>}
           </div>
         }
@@ -36,35 +36,35 @@ export const FloatingCartButton = ({position="right", visible=true, className, .
                 <div className="text-start w-full">
                   <h3 className="text-lg font-semibold line-clamp-2 text-ellipsis">{cartItem.name}</h3>
                   <div className="space-y-1 ">
-                  {cartItem.details.map((detail, index) => (
-                    <div key={index} className="flex flex-row justify-between items-center border-b pb-1 last:border-b-0 last:pb-0">
-                      <div className="flex flex-col items-start justify-start w-full">
-                        <p className="text-xs text-gray-500 font-semibold block md:hidden">IDR {Intl.NumberFormat('id-ID').format(detail.price)}</p>
-                        <p className="text-sm text-gray-500"><span className="md:hidden">{detail.qty} {cartItem.unit}, </span>Variant: {detail.size}</p>
-                        <p className="text-sm text-gray-500 font-semibold md:block hidden">IDR {Intl.NumberFormat('id-ID').format(detail.price)}</p>
-                        <p className="text-[16px] text-emerald-800 font-semibold md:hidden block">IDR {Intl.NumberFormat('id-ID').format(detail.price * detail.qty)}</p>
-                      </div>
-                      <div className="md:min-w-24 hidden md:block">
-                        {detail.qty} {cartItem.unit}
-                      </div>
-                      <div className="md:min-w-36 text-end font-semibold text-lg mr-2 hidden md:block">
-                        IDR {Intl.NumberFormat('id-ID').format(detail.price * detail.qty)}
-                      </div>
-                      <div key={index} className="min-w-8 text-danger text-center h-full items-center justify-center cursor-pointer" onClick={() => removeFromCart(detail.uuid)}>
-                        <Lucide icon="Trash" className="w-4 h-4" />
-                      </div>
+                    {cartItem.details.map((detail, index) => (
+                      <div key={index} className="flex flex-row justify-between items-center border-b pb-1 last:border-b-0 last:pb-0">
+                        <div className="flex flex-col items-start justify-start w-full">
+                          <p className="text-xs text-gray-500 font-semibold block md:hidden">IDR {Intl.NumberFormat('id-ID').format(detail.price)}</p>
+                          <p className="text-sm text-gray-500"><span className="md:hidden">{detail.qty} {cartItem.unit}, </span>Variant: {detail.size}</p>
+                          <p className="text-sm text-gray-500 font-semibold md:block hidden">IDR {Intl.NumberFormat('id-ID').format(detail.price)}</p>
+                          <p className="text-[16px] text-emerald-800 font-semibold md:hidden block">IDR {Intl.NumberFormat('id-ID').format(detail.price * detail.qty)}</p>
+                        </div>
+                        <div className="md:min-w-24 hidden md:block">
+                          {detail.qty} {cartItem.unit}
+                        </div>
+                        <div className="md:min-w-36 text-end font-semibold text-lg mr-2 hidden md:block">
+                          IDR {Intl.NumberFormat('id-ID').format(detail.price * detail.qty)}
+                        </div>
+                        <div key={index} className="min-w-8 text-danger text-center h-full items-center justify-center cursor-pointer" onClick={() => removeFromCart(detail.uuid)}>
+                          <Lucide icon="Trash" className="w-4 h-4" />
+                        </div>
 
-                    </div>
-                  ))}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
           )) : (
-              <div className="flex flex-col items-center justify-center w-full p-4 m-2">
-                <Lucide icon="ShoppingCart" className="w-12 h-12 text-gray-500" />
-                <p className="text-sm font-semibold text-gray-500 mt-2">Your cart is empty</p>
-              </div>
+            <div className="flex flex-col items-center justify-center w-full p-4 m-2">
+              <Lucide icon="ShoppingCart" className="w-12 h-12 text-gray-500" />
+              <p className="text-sm font-semibold text-gray-500 mt-2">Your cart is empty</p>
+            </div>
           )}
         </div>
         {getCart()?.length > 0 && <div className="flex flex-col items-start justify-center w-full absolute bg-white bottom-0 rounded-xl p-2">

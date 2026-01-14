@@ -27,9 +27,20 @@ export const createAxiosInstance = () => {
         serialize: (params) => {
           const result = new URLSearchParams();
           Object.entries(params).forEach(([key, value]) => {
-            if (!["", null, undefined].includes(value)) {
-              result.append(key, value);
+            if (["", null, undefined].includes(value as any)) {
+              return;
             }
+
+            if (Array.isArray(value)) {
+              value.forEach((v) => {
+                if (!["", null, undefined].includes(v as any)) {
+                  result.append(key, String(v));
+                }
+              });
+              return;
+            }
+
+            result.append(key, String(value));
           });
           return result.toString();
         },
@@ -98,9 +109,20 @@ export function requestParamsSerializerInterceptor(
       serialize: (params) => {
         const result = new URLSearchParams();
         Object.entries(params).forEach(([key, value]) => {
-          if (!["", null, undefined].includes(value)) {
-            result.append(key, value);
+          if (["", null, undefined].includes(value as any)) {
+            return;
           }
+
+          if (Array.isArray(value)) {
+            value.forEach((v) => {
+              if (!["", null, undefined].includes(v as any)) {
+                result.append(key, String(v));
+              }
+            });
+            return;
+          }
+
+          result.append(key, String(value));
         });
         return result.toString();
       },

@@ -15,13 +15,12 @@ interface ComponentProps extends HTMLAttributes<HTMLDivElement> {
 }
 export const PlayerRecentTournaments = ({ className, tournament, playerUuid, ...props }: ComponentProps) => {
   const currentPlayer = tournament.playerTeams?.find((playerTeam) => playerTeam.player_uuid === playerUuid);
-  console.log(tournament, playerUuid);
   const partner = tournament.playerTeams?.find((playerTeam) => playerTeam.team_uuid === currentPlayer?.team_uuid && playerTeam.player_uuid !== playerUuid);
   return (
     <div className={`box w-full inline-block mr-4 shadow-lg min-h-32 rounded-xl  overflow-hidden ${className}`} {...props}>
       <Link to={paths.tournament.index({ uuid: tournament.uuid || "" }).$} className="flex flex-row  overflow-hidden">
         <div className="w-32">
-        <Image src={tournament.media_url} className="h-full w-full mr-1 object-cover" />
+          <Image src={tournament.media_url} className="h-full w-full mr-1 object-cover" />
         </div>
         <div className="flex flex-col w-full">
           <div className="px-4 pt-2 text-xs font-medium flex justify-between">

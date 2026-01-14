@@ -14,6 +14,7 @@ import Upcoming_ from '@/assets/images/illustrations/svg/upcoming.svg'
 import LatestGame_ from '@/assets/images/illustrations/svg/latest-game.svg'
 import SeventyFive_ from '@/assets/images/illustrations/svg/seventy-five.svg'
 import ErrorIllustration_ from '@/assets/images/error-illustration.svg'
+import AskForChallenger_ from '@/assets/images/illustrations/svg/ask-for-challenger.svg'
 
 export const Illustration = Illustration_ as unknown as Icon;
 export const TennisPlay = TennisPlay_ as unknown as Icon;
@@ -21,6 +22,7 @@ export const Upcoming = Upcoming_ as unknown as Icon;
 export const LatestGame = LatestGame_ as unknown as Icon;
 export const SeventyFive = SeventyFive_ as unknown as Icon;
 export const ErrorIllustration = ErrorIllustration_ as unknown as Icon;
+export const AskForChallenger = AskForChallenger_ as unknown as Icon;
 
 
 

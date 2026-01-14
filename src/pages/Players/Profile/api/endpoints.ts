@@ -1,8 +1,9 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { playersSchema } from "./schema";
-import { playerAddressPayloadSchema, playerAddressSchema } from "@/pages/Admin/Players/api/schema";
+
+import { playerAddressPayloadSchema, playerAddressSchema, playersSchema } from "@/pages/Admin/Players/api/schema";
 import { galleriesMediaSchema } from "@/pages/Admin/Galleries/api/schema";
+import { playersPartialSchema } from "../../Home/api/schema";
 
 const PlayersListApi = makeEndpoint({
   alias: "getPlayersList",
@@ -17,7 +18,7 @@ const PlayersListApi = makeEndpoint({
   }).build(),
   response: z
     .object({
-      data: z.array(playersSchema),
+      data: z.array(playersPartialSchema),
       currentPage: z.number(),
       totalRecords: z.number(),
       totalPages: z.number()

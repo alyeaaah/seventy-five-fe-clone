@@ -15,7 +15,8 @@ export const PointConfigurationsApiClient = new Zodios(
     endpoints.PointConfigurationsCreateApi,
     endpoints.PointConfigurationsUpdateApi,
     endpoints.PointConfigurationsDeleteApi,
-    endpoints.PointConfigurationsDetailApi
+    endpoints.PointConfigurationsDetailApi,
+    endpoints.PointConfigurationsSetDefaultApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

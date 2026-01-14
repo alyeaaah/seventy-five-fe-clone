@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { matchDetailSchema, matchStatusEnum } from "../../MatchDetail/api/schema";
 import { playersSchema } from "../../Players/api/schema";
+import { openChallengerPayloadSchema } from "@/pages/Players/Matches/api/schema";
 
 
 export const matchesListSchema = z.object({
@@ -41,6 +42,17 @@ export const customMatchPayloadSchema = matchDetailSchema.extend({
 export const customMatchesPayloadSchema = z.object({
   matches: z.array(customMatchPayloadSchema)
 });
+
+export const acceptChallengerPayloadSchema = openChallengerPayloadSchema.extend({
+  challenger_id: z.number(),
+  court_field_uuid: z.string().optional(),
+  challengerA_uuid: z.string(),
+  challengerB_uuid: z.string(),
+  opponentA_uuid: z.string().optional(),
+  opponentB_uuid: z.string().optional(),
+});
+
+export type AcceptChallengerPayload = z.infer<typeof acceptChallengerPayloadSchema>;
 
 export type MatchesList = z.infer<typeof matchesListSchema>;
 export type CustomMatchPayload = z.infer<typeof customMatchPayloadSchema>;

@@ -20,6 +20,12 @@ import { imageResizer } from "@/utils/helper";
 import { CustomMatchApiHooks } from "./api";
 import { MatchDetail } from "../MatchDetail/api/schema";
 import { IconVS } from "@/assets/images/icons";
+import { useAtomValue } from "jotai";
+import { userAtom } from "@/utils/store/atoms";
+import { PublicMatchApiHooks } from "@/pages/Public/Match/api";
+import { Divider } from "antd";
+import { ChallengerProcessModal } from "./ChallengerProcess.modal";
+import { PublicChallenger } from "@/pages/Public/Match/api/schema";
 
 export const CustomMatchPage = () => {
   const screens = useBreakpoint();
@@ -44,6 +50,10 @@ export const CustomMatchPage = () => {
   });
 
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
+  const [challengerProcessModal, setChallengerProcessModal] = useState<{
+    open: boolean;
+    challengerData: PublicChallenger | null;
+  }>({ open: false, challengerData: null });
   const { showNotification } = useToast();
   const { mutate: actionDeleteFriendlyMatch } = TournamentsApiHooks.useDeleteTournament({
     params: {
@@ -201,6 +211,14 @@ export const CustomMatchPage = () => {
     },
   });
 
+  const userData = useAtomValue(userAtom);
+  const { data: challengerList, isLoading: isChallengerListLoading } = PublicMatchApiHooks.useGetPublicChallengerList(
+    {},
+    {
+      enabled: !!userData?.uuid,
+    }
+  );
+
   const friendlyMatchColumnsAntd: ColumnsType<TournamentsPayload> = [
     {
       dataIndex: 'uuid',
@@ -335,8 +353,8 @@ export const CustomMatchPage = () => {
           {record.home_team && (
             <div className="flex flex-col w-full">
               <div className="flex flex-row items-center ">
-                <span className="text-sm font-bold text-emerald-800 dark:text-emerald-400">{record.home_team.name} </span>
-                <span className="text-xs border rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 px-1 capitalize ml-1 ">{record.home_team.alias} </span>
+                <span className="text-sm font-bold text-ellipsis line-clamp-1 text-emerald-800 dark:text-emerald-400">{record.home_team.name} </span>
+                {record.home_team.alias && <span className="text-xs border rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 px-1 capitalize ml-1 ">{record.home_team.alias} </span>}
               </div>
               {record.home_team.players?.map((player) => (
                 <div className="flex flex-row items-center">
@@ -352,8 +370,8 @@ export const CustomMatchPage = () => {
           {record.away_team && (
             <div className="flex flex-col w-full">
               <div className="flex flex-row items-center justify-end">
-                <span className="text-xs border rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 px-1 capitalize mr-1 ">{record.away_team.alias} </span>
-                <span className="text-sm font-bold text-emerald-800 dark:text-emerald-400">{record.away_team.name} </span>
+                {record.away_team.alias && <span className="text-xs border rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 px-1 capitalize mr-1 ">{record.away_team.alias} </span>}
+                <span className="text-sm font-bold text-ellipsis line-clamp-1 max-w-full text-emerald-800 dark:text-emerald-400 text-end">{record.away_team.name} </span>
               </div>
               {record.away_team.players?.map((player) => (
                 <div className="flex flex-row items-center justify-end">
@@ -428,96 +446,111 @@ export const CustomMatchPage = () => {
 
   return (
     <>
-      {/* BEGIN: Friendly Matches */}
-      <div className="flex flex-col sm:flex-row items-center mt-8 intro-y justify-between">
-        <div className="flex justify-start items-center w-full sm:w-auto">
-          <h2 className="text-lg font-medium">Friendly Matches</h2>
-          <Button variant="primary" className="ml-2 shadow-md flex sm:hidden" onClick={() => navigate(paths.administrator.customMatch.friendlyMatch.new)} >
-            <Lucide icon="PlusCircle" />
-          </Button>
-        </div>
-        <div className="flex sm:flex-row flex-col sm:w-auto w-full">
-          <Button variant="primary" className="mr-2 shadow-md sm:flex hidden" onClick={() => navigate(paths.administrator.customMatch.friendlyMatch.new)} >
-            <Lucide icon="PlusCircle" />&nbsp;New Friendly Match
-          </Button>
-          <div className="flex flex-col sm:flex-row sm:items-end xl:items-start">
-            <form
-              id="tabulator-html-filter-form"
-              className="sm:ml-auto flex-col sm:flex-row flex"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleFilter();
-              }}
-            >
-              <div className="items-center mt-2 sm:mr-4 xl:mt-0">
-                <FormInput
-                  id="tabulator-html-filter-value"
-                  value={filter.search}
-                  onChange={(e) => {
-                    setPage(1);
-                    setFilter({
-                      ...filter,
-                      search: e.target.value,
-                    });
-                    if (!e.target.value) {
-                      queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsList") });
-                    }
-                  }}
-                  type="text"
-                  className="mt-2 sm:w-40 2xl:w-full sm:mt-0"
-                  placeholder="Search..."
-                />
-              </div>
-              <div className="mt-2 xl:mt-0 md:w-16 sm:w-full">
-                <Button
-                  id="tabulator-html-filter-go"
-                  variant="primary"
-                  type="button"
-                  className="w-full flex align-middle"
-                  onClick={handleFilter}
-                >
-                  <Lucide icon="Search" className="h-full" />
-                </Button>
-              </div>
-            </form>
+      {/* BEGIN: Incoming Challenger Requests */}
+      {(!!challengerList?.data && !isChallengerListLoading) &&
+        <>
+          <div className="flex flex-row items-center mt-8 intro-y justify-between">
+            <h2 className="mr-auto text-lg font-medium">Incoming Challenger Requests</h2>
           </div>
-        </div>
-      </div>
-      {/* BEGIN: HTML Table Data */}
-      <div className="sm:p-5 py-4 intro-y ">
-        <div className="overflow-x-auto scrollbar-hidden">
-          <Table
-            className="table-grid"
-            dataSource={data?.data || []}
-            columns={friendlyMatchColumnsAntd}
-            rowKey={(d) => d.uuid || ""}
-            rowClassName={() => styles.customTableRow}
-            showHeader={false}
-            bordered={false}
-            components={{
-              body: {
-                wrapper: ({ children }: { children: ReactNode }) => <tbody className="thumbnail-grid-body bg-slate-100 dark:bg-darkmode-800">{children}</tbody>,
-                row: ({ children }: { children: ReactNode }) => <tr className="thumbnail-grid-row">{children}</tr>,
-                cell: ({ children }: { children: ReactNode }) => <td className="thumbnail-grid-cell">{children}</td>,
-              },
-            }}
-            pagination={{
-              total: data?.totalRecords,
-              defaultCurrent: page,
-              defaultPageSize: thumbnailBreakPoint(),
-              onChange: (page, limit) => {
-                setPage(page);
-              }
-            }}
-          />
-        </div>
-      </div>
+          {/* BEGIN: HTML Table Data */}
+          <div className="p-5 mt-2 intro-y box rounded-2xl">
+            <div className="overflow-x-auto scrollbar-hidden">
+              {isChallengerListLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-800"></div>
+                </div>
+              ) : challengerList && challengerList.data.length > 0 ? (
+                <div className="flex flex-row gap-4 overflow-x-auto pb-4">
+                  {challengerList.data?.map((challenger) => (
+                    <div key={challenger.id} className="flex-shrink-0 w-64 lg:w-80 bg-white dark:bg-darkmode-600 rounded-lg border border-slate-200 dark:border-darkmode-400 p-3 hover:border-emerald-800 ">
+                      <div className="flex flex-col relative gap-1">
+                        {/* Header with status */}
+                        <div className="flex justify-between items-start absolute top-1 right-1">
+                          <div className="flex flex-col">
+                            <div className="">
+                              {(() => {
+                                const getStatusColor = (status: string) => {
+                                  switch (status) {
+                                    case "OPEN": return "text-warning bg-warning/20 border-warning";
+                                    case "ACCEPTED": return "text-success bg-success/20 border-success";
+                                    case "REJECTED": return "text-danger bg-danger/20 border-danger";
+                                    case "COMPLETED": return "text-primary bg-primary/20 border-primary";
+                                    case "CANCELLED": return "text-slate-500 bg-slate-200 border-slate-500";
+                                    default: return "text-slate-500 bg-slate-200 border-slate-500";
+                                  }
+                                };
+                                return (
+                                  <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(challenger.status)}`}>
+                                    {challenger.status}
+                                  </span>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="absolute -bottom-3 -right-3 rounded-tl-md  p-2 flex flex-row gap-1.5">
+                          <Button className="rounded-full h-6 w-6 p-1 overflow-hidden bg-transparent border-danger dark:border-danger !border-1">
+                            <Lucide icon="X" className="text-danger w-full h-full" />
+                          </Button>
+                          <Button className="rounded-full h-6 w-6 p-1 border-none overflow-hidden bg-emerald-800" onClick={() => {
+                            setChallengerProcessModal({
+                              open: true,
+                              challengerData: challenger
+                            });
+                          }}>
+                            <Lucide icon="Check" className="text-white w-full h-full" />
+                          </Button>
+                        </div>
+
+                        {/* Challenger Info */}
+                        <div className="flex flex-col space-y-1">
+                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Challenger(s):</span>
+                          {[challenger.challengerA, challenger.challengerB]
+                            .filter((p): p is NonNullable<typeof challenger.challengerA> => !!p)
+                            .map((player) => (
+                              <div key={player.uuid} className="flex items-center space-x-2">
+                                {player.image_url && (
+                                  <img
+                                    src={player.image_url}
+                                    alt={player.name}
+                                    className="w-6 h-6 rounded-full object-cover"
+                                  />
+                                )}
+                                <span className="text-sm font-medium text-emerald-800 dark:text-emerald-400">{player.name}</span>
+                              </div>
+                            ))}
+                        </div>
+                        <Divider className="m-1" />
+                        {/* Court Info */}
+                        <div className="flex flex-row gap-1 items-center">
+                          <Lucide icon="MapPin" className="text-xs text-slate-500 dark:text-slate-400 h-4" />
+                          <span className="text-xs text-slate-700 dark:text-slate-300">{challenger.court?.name || 'N/A'}</span>
+                        </div>
+
+                        {/* Time Info */}
+                        <div className="flex flex-row gap-1 items-center">
+                          <Lucide icon="Calendar" className="text-xs text-slate-500 dark:text-slate-400  h-4" />
+                          <span className="text-xs text-slate-700 dark:text-slate-300">{moment(challenger.time).format("ddd, DD MMM YYYY hh:mm")}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex justify-center items-center py-8">
+                  <span className="text-slate-500 dark:text-slate-400">No incoming challenger requests</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      }
       {/* END: HTML Table Data */}
-      {/* END: Friendly Matches */}
+      {/* END: Incoming Challenger Requests */}
 
       {/* BEGIN: Custom Matches */}
       <div className="flex flex-row items-center mt-4 intro-y justify-between">
-        <h2 className="mr-auto text-lg font-medium">Custom Match</h2>
+        <h2 className="mr-auto text-lg font-medium">Challenger</h2>
         <div className="flex">
           <Button variant="primary" className="mr-2 shadow-md" onClick={() => navigate(paths.administrator.customMatch.new)} >
             <Lucide icon="PlusCircle" />&nbsp;
@@ -624,6 +657,95 @@ export const CustomMatchPage = () => {
       </div>
       {/* END: HTML Table Data */}
       {/* END: Custom Matches */}
+      <Divider />
+      {/* BEGIN: Friendly Matches */}
+      <div className="flex flex-col sm:flex-row items-center mt-8 intro-y justify-between">
+        <div className="flex justify-start items-center w-full sm:w-auto">
+          <h2 className="text-lg font-medium">Friendly Matches</h2>
+          <Button variant="primary" className="ml-2 shadow-md flex sm:hidden" onClick={() => navigate(paths.administrator.customMatch.friendlyMatch.new)} >
+            <Lucide icon="PlusCircle" />
+          </Button>
+        </div>
+        <div className="flex sm:flex-row flex-col sm:w-auto w-full">
+          <Button variant="primary" className="mr-2 shadow-md sm:flex hidden" onClick={() => navigate(paths.administrator.customMatch.friendlyMatch.new)} >
+            <Lucide icon="PlusCircle" />&nbsp;New Friendly Match
+          </Button>
+          <div className="flex flex-col sm:flex-row sm:items-end xl:items-start">
+            <form
+              id="tabulator-html-filter-form"
+              className="sm:ml-auto flex-col sm:flex-row flex"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleFilter();
+              }}
+            >
+              <div className="items-center mt-2 sm:mr-4 xl:mt-0">
+                <FormInput
+                  id="tabulator-html-filter-value"
+                  value={filter.search}
+                  onChange={(e) => {
+                    setPage(1);
+                    setFilter({
+                      ...filter,
+                      search: e.target.value,
+                    });
+                    if (!e.target.value) {
+                      queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsList") });
+                    }
+                  }}
+                  type="text"
+                  className="mt-2 sm:w-40 2xl:w-full sm:mt-0"
+                  placeholder="Search..."
+                />
+              </div>
+              <div className="mt-2 xl:mt-0 md:w-16 sm:w-full">
+                <Button
+                  id="tabulator-html-filter-go"
+                  variant="primary"
+                  type="button"
+                  className="w-full flex align-middle"
+                  onClick={handleFilter}
+                >
+                  <Lucide icon="Search" className="h-full" />
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {/* BEGIN: HTML Table Data */}
+      <div className="sm:p-5 py-4 intro-y ">
+        <div className="overflow-x-auto scrollbar-hidden">
+          <Table
+            className="table-grid"
+            dataSource={data?.data || []}
+            columns={friendlyMatchColumnsAntd}
+            rowKey={(d) => d.uuid || ""}
+            rowClassName={() => styles.customTableRow}
+            showHeader={false}
+            bordered={false}
+            components={{
+              body: {
+                wrapper: ({ children }: { children: ReactNode }) => <tbody className="thumbnail-grid-body bg-slate-100 dark:bg-darkmode-800">{children}</tbody>,
+                row: ({ children }: { children: ReactNode }) => <tr className="thumbnail-grid-row">{children}</tr>,
+                cell: ({ children }: { children: ReactNode }) => <td className="thumbnail-grid-cell">{children}</td>,
+              },
+            }}
+            pagination={{
+              total: data?.totalRecords,
+              defaultCurrent: page,
+              defaultPageSize: thumbnailBreakPoint(),
+              onChange: (page, limit) => {
+                setPage(page);
+              }
+            }}
+          />
+        </div>
+      </div>
+      {/* END: HTML Table Data */}
+      {/* END: Friendly Matches */}
+
+
       <Confirmation
         open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
@@ -632,6 +754,11 @@ export const CustomMatchPage = () => {
         description={modalAlert?.description || ""}
         refId={modalAlert?.refId}
         buttons={modalAlert?.buttons}
+      />
+      <ChallengerProcessModal
+        open={challengerProcessModal.open}
+        onClose={() => setChallengerProcessModal({ open: false, challengerData: null })}
+        challengerData={challengerProcessModal.challengerData}
       />
     </>
   );

@@ -689,14 +689,16 @@ export const MatchDetail = () => {
     <>
       <div className="hidden sm:flex flex-row items-center mt-8 intro-y justify-between">
         <div>
-          <h2 className="mr-auto text-lg font-bold capitalize flex items-center">
-            {data?.data?.home_team?.name} {data?.data?.home_team?.alias}
+          <h2 className="mr-auto text-lg font-bold capitalize flex items-center min-w-0">
+            <span className="truncate max-w-[45%]">{data?.data?.home_team?.name} {data?.data?.home_team?.alias}</span>
             <span className="border rounded-md border-emerald-800 text-emerald-800 font-medium text-xs px-1 py-0.5 mx-1">VS</span>
-            {data?.data?.away_team?.name} {data?.data?.away_team?.alias}
+            <span className="truncate max-w-[45%]">{data?.data?.away_team?.name} {data?.data?.away_team?.alias}</span>
           </h2>
           <h2 className="mr-auto text-xs mt-1">
-            <span className="text-xs font-normal mr-1 bg-emerald-800 text-white rounded-lg px-2 py-0.5">{!data?.data?.tournament_uuid && "Custom "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}</span>
-            {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round}`}
+            <span className="text-xs font-normal mr-1 bg-emerald-800 text-white rounded-lg px-2 py-0.5">{!data?.data?.tournament_uuid && "Challenger "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}</span>
+            <span className="inline-block align-bottom max-w-full truncate">
+              {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round}`}
+            </span>
           </h2>
         </div>
         <div className="flex">
@@ -708,7 +710,7 @@ export const MatchDetail = () => {
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12 flex flex-col justify-center items-center">
               <div className="text-xl font-bold capitalize">
-                {!data?.data?.tournament_uuid && "Custom "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}
+                {!data?.data?.tournament_uuid && "Challenger "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}
               </div>
               <div className="hidden sm:flex text-sm text-center text-emerald-800">
                 {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round}`}
@@ -865,9 +867,9 @@ export const MatchDetail = () => {
               </div>
               {/* END: Score Left Side */}
               <Divider className="col-span-12" />
-              <div className="col-span-12 flex flex-col items-end">
-                <h2 className="text-lg font-bold capitalize">{data?.data?.home_team?.name} </h2>
-                <h3 className="text-base font-normal capitalize">{data?.data?.home_team?.alias}</h3>
+              <div className="col-span-12 flex flex-col items-end w-full min-w-0">
+                <h2 className="text-lg font-bold capitalize w-full truncate">{data?.data?.home_team?.name} </h2>
+                <h3 className="text-base font-normal capitalize w-full truncate">{data?.data?.home_team?.alias}</h3>
               </div>
             </div>
             <div className="col-span-0 hidden sm:col-span-2 sm:flex flex-col justify-center items-center">
@@ -941,9 +943,9 @@ export const MatchDetail = () => {
               </div>
               {/* END: Score Right Side*/}
               <Divider className="col-span-12" />
-              <div className="col-span-12 flex flex-col items-start">
-                <h2 className="text-lg font-bold capitalize">{data?.data?.away_team?.name} </h2>
-                <h3 className="text-base font-normal capitalize">{data?.data?.away_team?.alias}</h3>
+              <div className="col-span-12 flex flex-col items-start w-full min-w-0">
+                <h2 className="text-lg font-bold capitalize w-full truncate">{data?.data?.away_team?.name} </h2>
+                <h3 className="text-base font-normal capitalize w-full truncate">{data?.data?.away_team?.alias}</h3>
               </div>
             </div>
             {/* END: Score */}
@@ -959,9 +961,9 @@ export const MatchDetail = () => {
                       }}
                     >
                       <div className="flex flex-row items-center">
-                        <div className="mr-2">
-                          <h2 className="text-sm text-right font-bold capitalize">{player?.name}</h2>
-                          <h3 className="text-xs text-right font-normal capitalize">{player?.nickname}</h3>
+                        <div className="mr-2 min-w-0 flex-1">
+                          <h2 className="text-sm text-right font-bold capitalize truncate">{player?.name}</h2>
+                          <h3 className="text-xs text-right font-normal capitalize truncate">{player?.nickname}</h3>
                         </div>
                         <div className="border rounded-lg p-0.5">
                           <Image src={player?.media_url || ''} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
@@ -1022,9 +1024,9 @@ export const MatchDetail = () => {
                         <div className="border rounded-lg p-0.5">
                           <Image src={player?.media_url || ''} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
                         </div>
-                        <div className="ml-2">
-                          <h2 className="text-sm text-left font-bold capitalize">{player?.name}</h2>
-                          <h3 className="text-xs text-left font-normal capitalize">{player?.nickname}</h3>
+                        <div className="ml-2 min-w-0 flex-1">
+                          <h2 className="text-sm text-left font-bold capitalize truncate">{player?.name}</h2>
+                          <h3 className="text-xs text-left font-normal capitalize truncate">{player?.nickname}</h3>
                         </div>
                       </div>
                     </div>
@@ -1157,15 +1159,15 @@ export const MatchDetail = () => {
               </div>
               <div className="col-span-4 sm:col-span-2 bg-slate-200 rounded-tl-lg"></div>
               <div className="py-2 col-span-4 sm:col-span-5 flex justify-center bg-slate-200">
-                <span className="text-sm font-medium capitalize">{data?.data?.home_team?.name}</span>
+                <span className="text-sm font-medium capitalize w-full truncate text-center">{data?.data?.home_team?.name}</span>
               </div>
               <div className="py-2 col-span-4 sm:col-span-5 flex justify-center bg-slate-200 rounded-tr-lg">
-                <span className="text-sm font-medium capitalize">{data?.data?.away_team?.name}</span>
+                <span className="text-sm font-medium capitalize w-full truncate text-center">{data?.data?.away_team?.name}</span>
               </div>
               {(scores || []).sort((a, b) => a.set - b.set).slice(0, -1).map((setScore, i) => (
                 <Fragment key={setScore.refId}>
                   <div className={`py-1 col-span-4 sm:col-span-2 flex justify-end items-center px-2 ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
-                    <span className="text-end font-medium capitalize text-slate-500 text-xs">Set {setScore.set}</span>
+                    <span className="text-end font-medium capitalize text-slate-500 text-xs">Game {setScore.set}</span>
                   </div>
                   <div className={`col-span-4 sm:col-span-5 flex justify-center items-center ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
                     <span className={`text-sm font-medium capitalize ${setScore.game_score_home > setScore.game_score_away || setScore.game_score_home == "AD" ? "text-success" : "text-danger"}`}>

@@ -1,16 +1,12 @@
 import { PlayerHomeApiHooks } from "./api";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/utils/store";
-import { Divider, Progress } from "antd";
+import { Divider } from "antd";
 import Lucide from "@/components/Base/Lucide";
-import { IconLogo, IconLogoAlt, IconMedal, IconPlayer, IconRacket, IconVS, IconXTwitter } from "@/assets/images/icons";
 import moment from "moment";
-import Button from "@/components/Base/Button";
 import { calculateAverage } from "@/utils/helper";
 import { faker } from "@faker-js/faker";
-import Image from "@/components/Image";
 import { PlayerMatch } from "./components/PlayerMatch";
-import { PlayerGallery } from "./components/PlayerGallery";
 import { OverallRating } from "./components/OverallRating";
 import { PlayerPointComponent } from "./components/PlayerPointComponent";
 import { PlayerMatchPlayedComponent } from "./components/PlayerMatchPlayedComponent";
@@ -23,7 +19,6 @@ import { ModalCompleteProfile } from "../Components/ModalCompleteProfile";
 import { PlayerMatchApiHooks } from "../Matches/api";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 import { PublicBlogApiHooks } from "@/pages/Public/Blog/api";
-import { LandingPageApiHooks } from "@/pages/Public/LandingPage/api";
 
 export const PlayerHome = () => {
   const userData = useAtomValue(userAtom);
@@ -46,8 +41,8 @@ export const PlayerHome = () => {
     queries: {
       limit: 6,
     }
-  }); 
-    
+  });
+
   const getAge = (birthdate: string) => {
     const birth = moment(birthdate);
     const now = moment();
@@ -75,11 +70,11 @@ export const PlayerHome = () => {
           </div>
           {
             data?.data?.socialMediaIg && <div className="flex flex-row mb-3">
-            <div className="w-6">
-              <Lucide icon="Instagram" />
-            </div>
-            <div className="w-max">{data?.data?.socialMediaIg ? "@"+data?.data?.socialMediaIg : "-"}</div>
-          </div>}
+              <div className="w-6">
+                <Lucide icon="Instagram" />
+              </div>
+              <div className="w-max">{data?.data?.socialMediaIg ? "@" + data?.data?.socialMediaIg : "-"}</div>
+            </div>}
         </div>
       </div>
       <div className="col-span-12 sm:col-span-4 lg:col-span-3 xl:col-span-3 2xl:col-span-2 grid grid-cols-12 h-fit max-w-full gap-y-4">
@@ -192,10 +187,10 @@ export const PlayerHome = () => {
         </div>
       </div>
       {/* <div className="col-span-12 p-4"> */}
-        <PartnersComponent className='col-span-12 grid grid-cols-12 gap-6 w-full my-6'/>
+      <PartnersComponent className='col-span-12 grid grid-cols-12 gap-6 w-full my-6' />
       {/* </div> */}
       <ModalCompleteProfile />
-      
+
     </div>
   );
 }

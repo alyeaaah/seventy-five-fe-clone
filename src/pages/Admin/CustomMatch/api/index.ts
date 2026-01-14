@@ -13,7 +13,8 @@ export const CustomMatchApiClient = new Zodios(
     endpoints.CustomMatchListApi,
     endpoints.CustomMatchCreateApi,
     endpoints.CustomMatchUpdateApi,
-    endpoints.CustomMatchDeleteApi
+    endpoints.CustomMatchDeleteApi,
+    endpoints.AcceptChallengerApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

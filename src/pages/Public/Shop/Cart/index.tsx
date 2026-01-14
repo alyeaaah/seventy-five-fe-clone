@@ -82,7 +82,6 @@ export const PublicShopCart = () => {
       subtotal: getCartSubtotal(),
       note: noteText,
     };
-    console.log(payload);
     const parsedPayload = checkoutPayloadSchema.parse(payload);
     checkoutMerch(parsedPayload);
   };

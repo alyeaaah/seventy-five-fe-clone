@@ -66,7 +66,7 @@ const menu: Array<Menu | "divider"> = [
   {
     icon: "SignpostBig",
     pathname: paths.administrator.customMatch.index,
-    title: "Custom Match",
+    title: "Challenger",
   },
   "divider",
   {

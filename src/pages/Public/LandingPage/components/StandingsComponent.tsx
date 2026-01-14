@@ -91,20 +91,15 @@ export const StandingsComponent = ({ className, league }: StandingsComponentProp
     </Carousel>
   );
 
-  const renderSingleLeague = () => (
-    <Carousel
-      autoplay
-      dots={false}
-      autoplaySpeed={15000}
+  const renderSingleLeague = (liga: PlayerLeagueData | null) => (
+    <div
       className="sm:aspect-[16/19]"
-      ref={sliderRef}
-      afterChange={(e) => setSelectedLeague(leagueList?.data?.[e]?.name || '')}
     >
-      <div className="flex flex-col justify-center items-center rounded-t-2xl h-20">
-        <Link to={paths.tournament.standings({ league: league?.name || '' }).$} className="flex flex-row justify-center items-center py-3">
+      <div className="flex flex-col justify-center items-center rounded-t-2xl h-20" style={{ backgroundColor: !!liga?.color_scheme ? `#${liga.color_scheme}` : sfColor.primary }}>
+        <Link to={paths.tournament.standings({ league: liga?.name || '' }).$} className="flex flex-row justify-center items-center py-3">
           <IconLogoAlt className="w-16 h-12 object-contain text-white mr-2" />
           <div className="flex flex-col">
-            <span className="text-white text-base font-bold uppercase">{moment().get('year')} {league?.name}</span>
+            <span className="text-white text-base font-bold uppercase">{moment().get('year')} {liga?.name}</span>
             <span className="text-white text-base font-bold uppercase">Rankings</span>
           </div>
         </Link>
@@ -128,7 +123,7 @@ export const StandingsComponent = ({ className, league }: StandingsComponentProp
           );
         })}
       </div>
-    </Carousel>
+    </div>
   );
 
   const renderEmptyState = () => (
@@ -152,7 +147,7 @@ export const StandingsComponent = ({ className, league }: StandingsComponentProp
 
   const renderContent = () => {
     if (league) {
-      return renderSingleLeague();
+      return renderSingleLeague(league);
     }
     if (isEmptyLeagueList) {
       return renderEmptyState();

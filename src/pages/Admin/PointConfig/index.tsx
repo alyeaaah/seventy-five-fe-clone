@@ -11,7 +11,7 @@ import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { useToast } from "@/components/Toast/ToastContext";
 import Table, { ColumnsType } from "antd/es/table";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import styles from "./index.module.scss";
 
@@ -44,6 +44,39 @@ function PointConfigurations() {
       });
     }
   });
+
+  const { mutate: actionSetDefaultPointConfiguration } = PointConfigurationsApiHooks.useSetDefaultPointConfiguration(
+    {
+      params: {
+        uuid: modalAlert?.refId || 0
+      }
+    },
+    {
+      onSuccess: () => {
+        showNotification({
+          duration: 3000,
+          text: "PointConfiguration set as default successfully",
+          icon: "Star",
+          variant: "success",
+        });
+        setModalAlert(undefined);
+        queryClient.invalidateQueries({
+          queryKey: PointConfigurationsApiHooks.getKeyByAlias("getPointConfigurationsList"),
+        });
+        queryClient.invalidateQueries({
+          queryKey: PointConfigurationsApiHooks.getKeyByAlias("getPointConfigurationsDropdown"),
+        });
+      },
+      onError: (e: any) => {
+        showNotification({
+          duration: 3000,
+          text: e?.message || "Failed to set default point configuration",
+          icon: "WashingMachine",
+          variant: "danger",
+        });
+      }
+    }
+  );
   const { data, isLoading, refetch } = PointConfigurationsApiHooks.useGetPointConfigurationsList(
     {
       queries: {
@@ -81,6 +114,31 @@ function PointConfigurations() {
     });
   };
 
+  const handleSetDefaultPointConfiguration = (refId: string) => {
+    setModalAlert({
+      open: true,
+      onClose: () => setModalAlert(undefined),
+      icon: "Star",
+      title: "Set as default?",
+      description: "This point configuration will be used as the default for new matches.",
+      refId: refId,
+      buttons: [
+        {
+          label: "Cancel",
+          onClick: () => setModalAlert(undefined),
+          variant: "secondary"
+        },
+        {
+          label: "Set Default",
+          onClick: () => {
+            actionSetDefaultPointConfiguration(undefined);
+          },
+          variant: "primary"
+        }
+      ]
+    });
+  };
+
   const tableColumnsAntd: ColumnsType<PointConfigurationsData> = [
     {
       title: "",
@@ -98,6 +156,16 @@ function PointConfigurations() {
       dataIndex: "name",
       align: "left",
       width: "80%",
+      render(value, record) {
+        return (
+          <div className="flex flex-row items-center min-w-0">
+            <span className="truncate">{value}</span>
+            {!!record.isDefault && (
+              <span className="ml-2 text-xs bg-emerald-800 text-white rounded-full px-2 py-0.5">Default</span>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "Round",
@@ -111,12 +179,32 @@ function PointConfigurations() {
       title: "",
       dataIndex: "uuid",
       responsive: ["md"],
-      align: "center",
+      align: "right",
       className: "rounded-r-xl",
       width: "20%",
       render(value, record, index) {
         return (
-          <div className="flex lg:justify-center items-center">
+          <div className="flex lg:justify-end items-center">
+            {!record.isDefault ? (
+              <Button
+                className="flex items-center mr-3 border-emerald-800"
+                variant="outline-success"
+                onClick={() => {
+                  handleSetDefaultPointConfiguration(record.uuid);
+                }}
+              >
+                <Lucide icon="Star" className="w-4 h-4 text-emerald-800" />
+              </Button>
+            ) :
+              <Button
+                className="flex items-center mr-3"
+                variant="primary"
+                onClick={() => {
+                }}
+              >
+                <Lucide icon="Star" className="w-4 h-4 text-white" />
+              </Button>
+            }
             <Button
               className="flex items-center mr-3"
               variant="primary"
@@ -224,6 +312,17 @@ function PointConfigurations() {
                   <p>Points: {record.totalRound}</p>
                   <p>Created: {moment(record.createdAt).format("Y-MM-DD HH:mm")}</p>
                   <div className="flex justify-end mt-2">
+                    {!record.isDefault && (
+                      <Button
+                        className="flex items-center mr-2"
+                        variant="outline-success"
+                        onClick={() => {
+                          handleSetDefaultPointConfiguration(record.uuid);
+                        }}
+                      >
+                        <Lucide icon="Star" className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button
                       className="flex items-center mr-2"
                       variant="outline-danger"
@@ -252,7 +351,7 @@ function PointConfigurations() {
         </div>
       </div>
       <Confirmation
-        open={!!modalAlert?.open} 
+        open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
         icon={modalAlert?.icon || "Info"}
         title={modalAlert?.title || ""}
