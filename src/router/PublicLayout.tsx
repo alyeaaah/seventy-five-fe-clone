@@ -2,10 +2,12 @@ import { clientEnv } from "@/env";
 import { FooterComponent } from "@/pages/Public/LandingPage/components/FooterComponent";
 import { PublicHeader } from "@/pages/Public/LandingPage/components/HeaderLandingPage";
 import { Layout } from "antd";
-import { Helmet } from "react-helmet";
+import { Helmet as HelmetBase } from "react-helmet";
+import React from "react";
 import { Outlet } from "react-router-dom";
 
 export const PublicLayout = () => {
+  const Helmet = HelmetBase as unknown as React.ComponentType<any>;
   return (
     <>
       <Layout className="min-h-screen bg-white text-white public-page">

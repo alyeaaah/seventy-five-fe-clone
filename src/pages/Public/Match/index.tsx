@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Lucide from "@/components/Base/Lucide";
 import moment from "moment";
 import { FadeAnimation } from "@/components/Animations";
-import { useRef, useState } from "react";
+import { useRef, useState, type ComponentType } from "react";
 import { CarouselRef } from "antd/es/carousel";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { paths } from "@/router/paths";
@@ -20,11 +20,12 @@ import { useAtomValue } from "jotai";
 import { userAtom } from "@/utils/store";
 import Button from "@/components/Base/Button";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
-import { Helmet } from "react-helmet";
+import { Helmet as HelmetBase } from "react-helmet";
 import Modal from "antd/es/modal/Modal";
 import { KudosModal } from "@/pages/Players/Components/KudosModal";
 
 export const PublicMatchDetail = () => {
+  const Helmet = HelmetBase as unknown as ComponentType<any>;
   const navigate = useNavigate();
   const queryParams = useRouteParams(paths.tournament.match);
   const { matchUuid } = queryParams;
