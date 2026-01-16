@@ -67,8 +67,15 @@ export const TournamentDetail = () => {
     <>
       <div className="flex flex-row items-center mt-8 intro-y justify-between">
         <h2 className="mr-auto text-lg font-medium">{data?.data?.name || "Tournament"}</h2>
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={() => navigate(paths.administrator.tournaments.edit({ tournament: tournamentUuid || "" }).$)}
+        >
+          Edit Tournament
+        </Button>
       </div>
-      <Divider />
+      <Divider className="my-4" />
 
       <div className="grid grid-cols-12 gap-4 ">
         <div className="col-span-12 sm:col-span-6 box p-4">

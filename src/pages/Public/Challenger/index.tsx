@@ -1,5 +1,4 @@
 import LayoutWrapper from "@/components/LayoutWrapper";
-import { FooterComponent } from "../LandingPage/components/FooterComponent";
 import { PublicTournamentApiHooks } from "./api";
 import { imageResizerDimension } from "@/utils/helper";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,21 +6,26 @@ import { PublicBlogApiHooks } from "../Blog/api";
 import Lucide from "@/components/Base/Lucide";
 import moment from "moment";
 import { FadeAnimation } from "@/components/Animations";
-import { useRef } from "react";
-import { CarouselRef } from "antd/es/carousel";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { paths } from "@/router/paths";
 import { IconLogoAlt, IconVS } from "@/assets/images/icons";
 import { Upcoming } from "@/assets/images/illustrations/illustrations";
 import { PartnersComponent } from "../LandingPage/components/PartnersComponent";
 import { NestedImage } from "@/components/NestedImage";
+import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 
 export const PublicChallenger = () => {
   const navigate = useNavigate();
   const queryParams = useRouteParams(paths.tournament.index);
-  const { uuid } = queryParams;
-  const sliderRef = useRef<CarouselRef>(null);
-  const { data: liveMatch } = PublicTournamentApiHooks.useGetOngoingMatch();
+  const { data: recentMatch } = PublicTournamentApiHooks.useGetMatches({
+    queries: {
+      status: [
+        matchStatusEnum.Values.ENDED,
+        matchStatusEnum.Values.ONGOING,
+        matchStatusEnum.Values.PAUSED
+      ]
+    }
+  });
   const { data: upcomingMatch } = PublicTournamentApiHooks.useGetUpcomingMatch({
     queries: {
       limit: 20
@@ -110,8 +114,8 @@ export const PublicChallenger = () => {
               </div>
             </div>
             <div className="col-span-12 flex flex-col gap-4">
-              {(liveMatch?.data?.length ?? 0) > 0 ? (
-                liveMatch?.data?.map((match, idx) => (
+              {(recentMatch?.data?.length ?? 0) > 0 ? (
+                recentMatch?.data?.map((match, idx) => (
                   <Link key={idx} to={paths.challenger.match({ matchUuid: match.uuid || "" }).$} className='flex flex-col justify-center items-center shadow-md md:shadow-none rounded-3xl bg-white mr-0 lg:mr-2 px-2 relative border md:border-0'>
                     {/* Desktop */}
                     <div className='md:flex hidden flex-row justify-center overflow-hidden items-center mt-2 -mb-3 z-10 text-gray-500 text-xs border-emerald-800 rounded-full border'>
@@ -123,6 +127,9 @@ export const PublicChallenger = () => {
                         <span>{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
                       </div>
                     </div>
+                    {match.status !== 'ENDED' && <div className={`md:flex hidden bg-white px-2 flex-row justify-center overflow-hidden text-xs z-10 rounded-full border absolute -bottom-2 ${match.status !== 'PAUSED' ? 'border-emerald-800 text-emerald-800 ' : 'bg-yellow-500'}`}>
+                      {match.status}
+                    </div>}
                     <div className="hidden md:flex flex-row bg-gray-100 rounded-full justify-between p-2.5 w-full h-20 relative">
                       <NestedImage
                         players={match.home_team?.players?.map((player) => ({
@@ -137,7 +144,11 @@ export const PublicChallenger = () => {
                               <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="line-clamp-1 w-fit">{player.name}</Link>
                             ))}
                           </div>
-                          <IconVS className="w-32 h-8 text-emerald-800" />
+                          <div className="flex flex-row items-center justify-center !w-48">
+                            <span className="text-2xl font-bold w-8 text-center">{match.home_team_score}</span>
+                            <IconVS className="w-16 h-8 text-emerald-800" />
+                            <span className="text-2xl font-bold w-8 text-center">{match.away_team_score}</span>
+                          </div>
                           <div className="flex flex-col justify-end items-end w-full">
                             {match.away_team?.players?.map((player, idx) => (
                               <Link key={idx} to={paths.players.info({ uuid: player.uuid || "" }).$} className="text-end line-clamp-1 w-fit" >{player.name}</Link>
@@ -154,7 +165,7 @@ export const PublicChallenger = () => {
                       />
                     </div>
                     {/* Mobile */}
-                    <div className='flex md:hidden flex-row justify-center items-center my-2 text-gray-500 text-xs'>
+                    < div className='flex md:hidden flex-row justify-center items-center my-2 text-gray-500 text-xs' >
                       <Lucide icon='MapPin' className='w-6 h-4' /> {match.court_field?.court?.name && `${match.court_field?.court?.name} - ${match.court_field?.name}`}
                     </div>
                     <div className="flex md:hidden bg-emerald-800 rounded-full justify-between p-1.5 h-14 w-full">
@@ -201,7 +212,7 @@ export const PublicChallenger = () => {
 
             </div>
           </div>
-        </FadeAnimation>
+        </FadeAnimation >
         <FadeAnimation className="col-span-4 md:flex flex-col space-y-2 hidden" direction="down">
           {blogData?.data?.map((blog, index) => (
             <div key={index} className="flex flex-row overflow-hidden h-fit rounded-xl border p-2 slide-in-top">
@@ -231,7 +242,7 @@ export const PublicChallenger = () => {
           <PartnersComponent hideTitle />
         </FadeAnimation>
         {/* <PartnersComponent className="col-span-12 mb-8" /> */}
-      </LayoutWrapper>
+      </LayoutWrapper >
     </>
   )
 }

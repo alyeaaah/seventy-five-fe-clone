@@ -16,6 +16,14 @@ export default defineConfig(({ mode }) => {
   return {
     base, // <-- ini penting untuk build di subpath
 
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: "modern-compiler",
+        },
+      },
+    },
+
     build: {
       outDir: "dist",
       commonjsOptions: {

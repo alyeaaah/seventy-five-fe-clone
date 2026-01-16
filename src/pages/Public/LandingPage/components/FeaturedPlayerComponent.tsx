@@ -13,7 +13,7 @@ interface FeaturedPlayerProps extends HTMLProps<HTMLDivElement> {
   title?: string;
 }
 
-export const FeaturedPlayer = ({className, title}: FeaturedPlayerProps) => {
+export const FeaturedPlayer = ({ className, title }: FeaturedPlayerProps) => {
   const navigate = useNavigate();
   const { data: featuredPlayer } = LandingPageApiHooks.useGetFeaturedPlayer();
 
@@ -32,7 +32,7 @@ export const FeaturedPlayer = ({className, title}: FeaturedPlayerProps) => {
         ) : (
           <Carousel swipeToSlide autoplay infinite autoplaySpeed={11000}>
             {featuredPlayer?.data?.map((item, idx) => (<div key={idx} className='flex flex-col justify-center items-center h-max'>
-              <div className='flex flex-row relative w-full cursor-pointer' onClick={() => navigate(paths.players.info({uuid: item.uuid || ""}).$)}>
+              <div className='flex flex-row relative w-full cursor-pointer' onClick={() => navigate(paths.players.info({ uuid: item.uuid || "" }).$)}>
                 <div className="flex flex-col absolute left-6">
                   {Object.keys(item.skills || {}).map((key, keyIdx) => (
                     <div key={keyIdx} className="flex flex-col text-emerald-800">
@@ -57,7 +57,7 @@ export const FeaturedPlayer = ({className, title}: FeaturedPlayerProps) => {
                       <span className='font-semibold italic uppercase'>{item.level}</span>
                       <span className='text-xs inline-flex'><Lucide icon='CircleDollarSign' className='h-4 w-4 mx-1' /> {item.point}</span>
                     </div>
-                    <Link className="flex flex-row font-semibold" to={paths.players.info({uuid: item.uuid || ""}).$}>
+                    <Link className="flex flex-row font-semibold" to={paths.players.info({ uuid: item.uuid || "" }).$}>
                       <span className='hidden 2xl:inline'>Player</span><span className='ml-1'>Detail</span><ChevronRight className='h-5' />
                     </Link>
                   </div>

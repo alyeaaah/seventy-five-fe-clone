@@ -4,6 +4,8 @@ import Layout from "../themes";
 import { ProtectedRoute } from "./protectedRoute";
 import { paths } from "./paths";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { SimpleLoadingOverlay } from "@/components/SimpleLoadingOverlay";
+import { useEffect, useState } from "react";
 
 // Lazy load semua pages untuk code splitting
 const DashboardAdministrator = lazy(() => import("@/pages/Admin/DashboardAdministrator"));
@@ -114,6 +116,16 @@ const LazyWrapper = ({ children }: { children: React.ReactNode }) => (
 
 function Router() {
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Hide loading after initial render
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const routes = [
     {
       path: paths.landingPage,
@@ -881,7 +893,12 @@ function Router() {
     },
   ];
 
-  return useRoutes(routes);
+  return (
+    <>
+      <SimpleLoadingOverlay show={isLoading} />
+      {useRoutes(routes)}
+    </>
+  );
 }
 
 export default Router;

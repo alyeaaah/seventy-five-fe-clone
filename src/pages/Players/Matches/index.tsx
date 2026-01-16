@@ -1,6 +1,6 @@
 
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { userAtom } from "@/utils/store";
 import { IconLogo, IconVS } from "@/assets/images/icons";
 import moment from "moment";
@@ -27,17 +27,17 @@ import Tippy from "@/components/Base/Tippy";
 export const PlayerMatches = () => {
   const userData = useAtomValue(userAtom);
   const [isChallengerModalOpen, setIsChallengerModalOpen] = useState(false);
-  const { data: upcomingMatches } = PlayerMatchApiHooks.useGetPlayerMatches({
+  const { data: upcomingMatches, isLoading: isUpcomingLoading } = PlayerMatchApiHooks.useGetPlayerMatches({
     queries: {
       status: matchStatusEnum.Values.UPCOMING,
     }
   });
-  const { data: recentMatches } = PlayerMatchApiHooks.useGetPlayerMatches({
+  const { data: recentMatches, isLoading: isRecentLoading } = PlayerMatchApiHooks.useGetPlayerMatches({
     queries: {
       status: [matchStatusEnum.Values.ENDED, matchStatusEnum.Values.ONGOING]
     }
   });
-  const { data: playerData } = PlayerHomeApiHooks.useGetPlayersDetail({
+  const { data: playerData, isLoading: isPlayerDataLoading } = PlayerHomeApiHooks.useGetPlayersDetail({
     params: {
       uuid: userData?.uuid || ""
     }
@@ -53,8 +53,20 @@ export const PlayerMatches = () => {
       enabled: !!userData?.uuid,
     }
   );
-  const { data: upcomingTournaments } = PlayerMatchApiHooks.useGetPlayerTournamentsUpcoming();
-  const { data: joinedTournaments } = PlayerMatchApiHooks.useGetPlayerTournamentsJoined();
+  const { data: upcomingTournaments, isLoading: isUpcomingTournamentsLoading } = PlayerMatchApiHooks.useGetPlayerTournamentsUpcoming();
+  const { data: joinedTournaments, isLoading: isJoinedTournamentsLoading } = PlayerMatchApiHooks.useGetPlayerTournamentsJoined();
+
+  const isLoading = isUpcomingLoading || isRecentLoading || isPlayerDataLoading || isChallengerListLoading || isUpcomingTournamentsLoading || isJoinedTournamentsLoading;
+
+  if (isLoading) {
+    return (
+      <div className="my-5 grid grid-cols-12 gap-4">
+        <div className="col-span-12 flex items-center justify-center h-96">
+          <LoadingAnimation autoplay loop label="Loading matches..." className="py-4" />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="my-5 grid grid-cols-12 gap-4">
       {/* Your upcoming match section */}

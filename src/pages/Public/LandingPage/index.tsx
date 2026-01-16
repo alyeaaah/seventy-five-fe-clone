@@ -13,13 +13,10 @@ import { Galleries } from './components/GalleriesComponent';
 import { StandingsComponent } from './components/StandingsComponent';
 import { MerchComponent } from './components/MerchComponent';
 import { PartnersComponent } from './components/PartnersComponent';
-import { FooterComponent } from './components/FooterComponent';
 import ReactVisibilitySensor from 'react-visibility-sensor';
 import { PublicHeader } from './components/HeaderLandingPage';
-import { LandingPageApiHooks } from './api';
 
-const { Header, Content } = Layout;
-const { Title } = Typography;
+const { Content } = Layout;
 
 export const LandingPage = () => {
   const navigate = useNavigate();

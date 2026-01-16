@@ -8,7 +8,7 @@ import Lucide from "@/components/Base/Lucide";
 import { PublicTournamentApiHooks } from "../../Tournament/api";
 import { paths } from "@/router/paths";
 
-export const TournamentHighlight = ({className}: HTMLProps<HTMLDivElement>) => {
+export const TournamentHighlight = ({ className }: HTMLProps<HTMLDivElement>) => {
   const navigate = useNavigate();
 
   const { data } = PublicTournamentApiHooks.useGetFeaturedTournament({

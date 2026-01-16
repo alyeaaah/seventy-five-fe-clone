@@ -3,13 +3,12 @@ import { FooterComponent } from "@/pages/Public/LandingPage/components/FooterCom
 import { PublicHeader } from "@/pages/Public/LandingPage/components/HeaderLandingPage";
 import { Layout } from "antd";
 import { Helmet as HelmetBase } from "react-helmet";
-import React from "react";
+import React, { Suspense } from "react";
 import { Outlet } from "react-router-dom";
+import { LoadingAnimation } from "@/components/LoadingAnimation";
 
 export const PublicLayout = () => {
   const Helmet = HelmetBase as unknown as React.ComponentType<any>;
-  console.log(location.pathname, "pathname");
-  console.log("basename", clientEnv.BASENAME);
   return (
     <>
       <Layout className="min-h-screen bg-white text-white public-page">
@@ -21,8 +20,16 @@ export const PublicLayout = () => {
         </Helmet>
         {location.pathname != "" && location.pathname != "/" && location.pathname != clientEnv.BASENAME && <PublicHeader className="border-b-8 border-emerald-800 rounded-b-2xl shadow-2xl fixed w-full z-20" />}
         {location.pathname != "" && location.pathname != "/" && location.pathname != clientEnv.BASENAME && <div className="h-24" />}
-        <Outlet />
-        <FooterComponent className='bg-[#37144E] py-16 text-white' />
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-96">
+            <LoadingAnimation autoplay loop label="Loading page..." className="py-4" />
+          </div>
+        }>
+          <div className="min-h-[calc(100vh-360px)]">
+            <Outlet />
+          </div>
+          <FooterComponent className='bg-[#37144E] py-16 text-white' />
+        </Suspense>
       </Layout>
     </>
   );

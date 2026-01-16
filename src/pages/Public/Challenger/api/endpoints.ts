@@ -1,44 +1,16 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { galleriesMediaSchema } from "@/pages/Admin/Galleries/api/schema";
-import { tournamentMatchDetailSchema, tournamentMatchSchema, tournamentsSchema } from "@/pages/Admin/Tournaments/api/schema";
+import { tournamentMatchDetailSchema, tournamentsSchema } from "@/pages/Admin/Tournaments/api/schema";
 import { matchesListSchema } from "@/pages/Admin/CustomMatch/api/schema";
 import { publicTournamentDetailSchema } from "./schema";
 import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
+import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 
 
 const featuredTournamentApi = makeEndpoint({
   alias: "getFeaturedTournament",
   method: "get",
   path: `/public/tournament/featured`,
-  parameters: parametersBuilder().addQueries
-    ({
-      page: z.number().optional(),
-      limit: z.number().optional(),
-  }).build(),
-  response: z.object({
-    data: z.array(tournamentsSchema)
-  })
-});
-
-const upcomingTournamentApi = makeEndpoint({
-  alias: "getUpcomingTournament",
-  method: "get",
-  path: `/public/tournament/upcoming`,
-  parameters: parametersBuilder().addQueries
-    ({
-      page: z.number().optional(),
-      limit: z.number().optional(),
-  }).build(),
-  response: z.object({
-    data: z.array(tournamentsSchema)
-  })
-});
-
-const recentTournamentApi = makeEndpoint({
-  alias: "getRecentTournament",
-  method: "get",
-  path: `/public/tournament/recent`,
   parameters: parametersBuilder().addQueries
     ({
       page: z.number().optional(),
@@ -105,11 +77,28 @@ const ongoingMatchApi = makeEndpoint({
   response: matchesListSchema
 });
 
+
+const recentMatchApi = makeEndpoint({
+  alias: "getMatches",
+  method: "get",
+  path: `/public/matches`,
+  parameters: parametersBuilder().addQueries
+    ({
+      search: z.string().nullish(),
+      page: z.number().nullish(),
+      limit: z.number().nullish(),
+      player: z.string().nullish(),
+      status: z.union([matchStatusEnum, z.array(matchStatusEnum)]).nullish(),
+  }).build(),
+  response: matchesListSchema
+});
+
 export const endpoints = {
   featuredTournamentApi,
   tournamentDetailApi,
   tournamentDetailMatchesApi,
   tournamentDetailSponsorsApi,
   upcomingMatchApi,
-  ongoingMatchApi
+  ongoingMatchApi,
+  recentMatchApi
 };

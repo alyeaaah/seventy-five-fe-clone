@@ -13,6 +13,7 @@ export const PublicTournamentApiClient = new Zodios(
     endpoints.featuredTournamentApi,
     endpoints.upcomingMatchApi,
     endpoints.ongoingMatchApi,
+    endpoints.recentMatchApi,
     endpoints.tournamentDetailApi,
     endpoints.tournamentDetailMatchesApi,
     endpoints.tournamentDetailSponsorsApi

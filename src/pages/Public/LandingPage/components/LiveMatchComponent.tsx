@@ -13,7 +13,7 @@ import { useMatchesScore } from "@/pages/Admin/MatchDetail/api/firestore";
 import { PublicTournamentApiHooks } from "../../Tournament/api";
 import { paths } from "@/router/paths";
 
-export const LiveMatch = ({className}: HTMLProps<HTMLDivElement>) => {
+export const LiveMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
   const navigate = useNavigate();
 
   const liveMatchRef = useRef<CarouselRef>(null);
@@ -52,7 +52,7 @@ export const LiveMatch = ({className}: HTMLProps<HTMLDivElement>) => {
           {liveMatch?.data?.map((match) => {
             const matchScore = scores?.find((score) => score.match_uuid === match.uuid);
             const lastScore = matchScore?.matchScore?.[matchScore?.matchScore?.length - 1];
-            
+
             return (
               <Link key={match.id} className='flex flex-col justify-center items-center h-max w-full' to={!!match?.tournament_uuid ? paths.tournament.match({ matchUuid: match.uuid || "" }).$ : paths.challenger.match({ matchUuid: match.uuid || "" }).$}>
                 <div className='flex flex-row justify-center items-center text-white mb-2 text-xs'>
@@ -61,28 +61,28 @@ export const LiveMatch = ({className}: HTMLProps<HTMLDivElement>) => {
                 <div className="flex bg-white mx-4 rounded-full justify-between p-1">
                   <div className='flex flex-row '>
                     <Link to={match.home_team?.players?.[0]?.uuid ? paths.players.info({ uuid: match.home_team?.players?.[0]?.uuid || "" }).$ : "#"}>
-                    <Tippy
-                      as="div"
-                      className="w-12 h-12 image-fit zoom-in "
-                      content={`${match.home_team?.name} - ${match.home_team?.players?.[0]?.name}` || ""}
-                    >
-                      <Image
-                        src={match.home_team?.players?.[0]?.media_url ? imageResizer(match.home_team?.players?.[0]?.media_url, 50) : ''}
-                        className='w-12 h-12 rounded-full object-cover border-2 border-white'
-                      />
-                    </Tippy>
+                      <Tippy
+                        as="div"
+                        className="w-12 h-12 image-fit zoom-in "
+                        content={`${match.home_team?.name} - ${match.home_team?.players?.[0]?.name}` || ""}
+                      >
+                        <Image
+                          src={match.home_team?.players?.[0]?.media_url ? imageResizer(match.home_team?.players?.[0]?.media_url, 50) : ''}
+                          className='w-12 h-12 rounded-full object-cover border-2 border-white'
+                        />
+                      </Tippy>
                     </Link>
                     <Link to={match.home_team?.players?.[1]?.uuid ? paths.players.info({ uuid: match.home_team?.players?.[1]?.uuid || "" }).$ : "#"}>
-                    <Tippy
-                      as="div"
-                      className="w-12 h-12 image-fit zoom-in ml-[-16px] xl:ml-[-16px] lg:ml-[-32px] mt-0 "
-                      content={`${match.home_team?.name} - ${match.home_team?.players?.[1]?.name}` || ""}
-                    >
-                      <Image
-                        src={match.home_team?.players?.[1]?.media_url ? imageResizer(match.home_team?.players?.[1]?.media_url, 50) : ''}
-                        className='w-12 h-12 rounded-full object-cover border-2 border-white'
-                      />
-                    </Tippy>
+                      <Tippy
+                        as="div"
+                        className="w-12 h-12 image-fit zoom-in ml-[-16px] xl:ml-[-16px] lg:ml-[-32px] mt-0 "
+                        content={`${match.home_team?.name} - ${match.home_team?.players?.[1]?.name}` || ""}
+                      >
+                        <Image
+                          src={match.home_team?.players?.[1]?.media_url ? imageResizer(match.home_team?.players?.[1]?.media_url, 50) : ''}
+                          className='w-12 h-12 rounded-full object-cover border-2 border-white'
+                        />
+                      </Tippy>
                     </Link>
                   </div>
                   <div className='flex flex-row text-emerald-800 items-center'>
@@ -94,28 +94,28 @@ export const LiveMatch = ({className}: HTMLProps<HTMLDivElement>) => {
                   </div>
                   <div className='flex flex-row'>
                     <Link to={match.away_team?.players?.[0]?.uuid ? paths.players.info({ uuid: match.away_team?.players?.[0]?.uuid || "" }).$ : "#"}>
-                    <Tippy
-                      as="div"
-                      className="w-12 h-12 image-fit zoom-in "
-                      content={`${match.away_team?.name} - ${match.away_team?.players?.[0]?.name}` || ""}
-                    >
-                      <Image
-                        src={match.away_team?.players?.[0]?.media_url ? imageResizer(match.away_team?.players?.[0]?.media_url, 50) : ''}
-                        className='w-12 h-12 rounded-full object-cover border-2 border-white'
-                      />
-                    </Tippy>
+                      <Tippy
+                        as="div"
+                        className="w-12 h-12 image-fit zoom-in "
+                        content={`${match.away_team?.name} - ${match.away_team?.players?.[0]?.name}` || ""}
+                      >
+                        <Image
+                          src={match.away_team?.players?.[0]?.media_url ? imageResizer(match.away_team?.players?.[0]?.media_url, 50) : ''}
+                          className='w-12 h-12 rounded-full object-cover border-2 border-white'
+                        />
+                      </Tippy>
                     </Link>
                     <Link to={match.away_team?.players?.[1]?.uuid ? paths.players.info({ uuid: match.away_team?.players?.[1]?.uuid || "" }).$ : "#"}>
-                    <Tippy
-                      as="div"
-                      className="w-12 h-12 image-fit zoom-in ml-[-16px] xl:ml-[-16px] lg:ml-[-32px] mt-0 "
-                      content={`${match.away_team?.name} - ${match.away_team?.players?.[1]?.name}` || ""}
-                    >
-                      <Image
-                        src={match.away_team?.players?.[1]?.media_url ? imageResizer(match.away_team?.players?.[1]?.media_url, 50) : ''}
-                        className='w-12 h-12 rounded-full object-cover border-2 border-white'
-                      />
-                    </Tippy>
+                      <Tippy
+                        as="div"
+                        className="w-12 h-12 image-fit zoom-in ml-[-16px] xl:ml-[-16px] lg:ml-[-32px] mt-0 "
+                        content={`${match.away_team?.name} - ${match.away_team?.players?.[1]?.name}` || ""}
+                      >
+                        <Image
+                          src={match.away_team?.players?.[1]?.media_url ? imageResizer(match.away_team?.players?.[1]?.media_url, 50) : ''}
+                          className='w-12 h-12 rounded-full object-cover border-2 border-white'
+                        />
+                      </Tippy>
                     </Link>
                   </div>
                 </div>

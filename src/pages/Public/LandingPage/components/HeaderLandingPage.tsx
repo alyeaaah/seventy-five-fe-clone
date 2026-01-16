@@ -17,7 +17,7 @@ interface LandingPageProps extends HTMLProps<HTMLDivElement> {
   innerClassName?: string;
 }
 
-export const PublicHeader = ({className, innerClassName}: LandingPageProps) => {
+export const PublicHeader = ({ className, innerClassName }: LandingPageProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAtomValue(userAtom);
@@ -31,7 +31,7 @@ export const PublicHeader = ({className, innerClassName}: LandingPageProps) => {
     {
       key: paths.landingPage,
       label: <Link to={paths.landingPage}>Home</Link>,
-      
+
     },
     {
       key: `/${paths.tournament.index.template.split('/')[1]}`,
@@ -73,9 +73,9 @@ export const PublicHeader = ({className, innerClassName}: LandingPageProps) => {
       <LayoutWrapper className='h-full'>
         <div className={`border-white rounded-xl flex justify-between items-center h-full w-full px-4 ${innerClassName}`}>
           <Link to={paths.landingPage}>
-          <Title level={3} className="!text-emerald-800 !mb-0 flex flex-row">
-            <IconLogo className="mr-2 w-20 h-16" />
-          </Title>
+            <Title level={3} className="!text-emerald-800 !mb-0 flex flex-row">
+              <IconLogo className="mr-2 w-20 h-16" />
+            </Title>
           </Link>
           <div className="w-full ">
             <Menu
