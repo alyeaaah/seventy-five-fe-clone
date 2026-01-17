@@ -8,14 +8,16 @@ interface PWAInstallButtonProps {
 }
 
 export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ className = '' }) => {
-  const { isInstallable, isInstalled, install } = usePWAInstall();
+  const { isInstallable, isInstalled, isiOS, install } = usePWAInstall();
 
   const handleInstall = async () => {
     const success = await install();
     if (success) {
       message.success('App installed successfully!');
+    } else if (isiOS) {
+      message.info('Follow the instructions to add to home screen');
     } else {
-      message.info('Installation cancelled or failed');
+      message.info('Follow the instructions to bookmark the page');
     }
   };
 
@@ -32,11 +34,13 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ className = 
       <Button
         type="primary"
         size="large"
-        icon={<Download className="w-5 h-5" />}
+        icon={isiOS ? <Smartphone className="w-5 h-5" /> : <Download className="w-5 h-5" />}
         onClick={handleInstall}
         className="bg-emerald-600 hover:bg-emerald-700 border-emerald-600 hover:border-emerald-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-full px-6 py-3 flex items-center gap-2"
       >
-        <span className="hidden sm:inline font-medium">Install App</span>
+        <span className="hidden sm:inline font-medium">
+          {isiOS ? 'Add to Home Screen' : 'Bookmark App'}
+        </span>
         <Smartphone className="w-5 h-5 sm:hidden" />
       </Button>
     </div>
