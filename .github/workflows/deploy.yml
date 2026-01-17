@@ -1,9 +1,9 @@
-name: Deploy React App to VPS
+name: Deploy React App to VPS (Production)
 
 on:
   push:
     branches:
-      - main  # or 'develop' depending on your branch
+      - main
 
 jobs:
   build-and-deploy:

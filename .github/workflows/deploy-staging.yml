@@ -1,0 +1,57 @@
+name: Deploy React App to VPS (Staging)
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build React app
+        run: pnpm build
+        env:
+          VITE_SECRET_KEY: ${{ secrets.VITE_SECRET_KEY_STAGING }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_STAGING }}
+          VITE_AUTH_COOKIE_NAME: ${{ secrets.VITE_AUTH_COOKIE_NAME_STAGING }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_STAGING }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN_STAGING }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID_STAGING }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID_STAGING }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID_STAGING }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET_STAGING }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID_STAGING }}
+          VITE_FIREBASE_SCORE_COLLECTION: ${{ secrets.VITE_FIREBASE_SCORE_COLLECTION_STAGING }}
+          VITE_FIREBASE_FIRESTORE_SECRET_KEY: ${{ secrets.VITE_FIREBASE_FIRESTORE_SECRET_KEY_STAGING }}
+          VITE_BASENAME: ${{ secrets.VITE_BASENAME_STAGING }}
+
+      - name: Prepare SSH key
+        run: |
+          echo "$PRIVATE_KEY_STAGING" > key.pem
+          chmod 600 key.pem
+        env:
+          PRIVATE_KEY_STAGING: ${{ secrets.PRIVATE_KEY_STAGING }}
+
+      - name: Deploy frontend (React app) via rsync over SSH
+        run: |
+          rsync -avz --no-group -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
+            ./dist/ ${{ secrets.SERVER_USER_STAGING }}@${{ secrets.SERVER_HOST_STAGING }}:${{ secrets.SERVER_DEST_STAGING }}
+
+      - name: Cleanup
+        run: rm -f key.pem

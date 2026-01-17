@@ -15,6 +15,7 @@ import { MerchComponent } from './components/MerchComponent';
 import { PartnersComponent } from './components/PartnersComponent';
 import ReactVisibilitySensor from 'react-visibility-sensor';
 import { PublicHeader } from './components/HeaderLandingPage';
+import { PWAInstallButton } from '@/components/PWAInstallButton';
 
 const { Content } = Layout;
 
@@ -121,6 +122,7 @@ export const LandingPage = () => {
         <PartnersComponent className='grid grid-cols-12 gap-6 w-full my-6' />
       </LayoutWrapper>
       {/* END: Sixth Section */}
+      <PWAInstallButton />
     </>
   );
 }

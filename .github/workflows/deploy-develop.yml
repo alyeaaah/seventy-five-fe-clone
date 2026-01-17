@@ -1,0 +1,57 @@
+name: Deploy React App to VPS (Develop)
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build React app
+        run: pnpm build
+        env:
+          VITE_SECRET_KEY: ${{ secrets.VITE_SECRET_KEY_DEV }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_DEV }}
+          VITE_AUTH_COOKIE_NAME: ${{ secrets.VITE_AUTH_COOKIE_NAME_DEV }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_DEV }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN_DEV }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID_DEV }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID_DEV }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID_DEV }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET_DEV }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID_DEV }}
+          VITE_FIREBASE_SCORE_COLLECTION: ${{ secrets.VITE_FIREBASE_SCORE_COLLECTION_DEV }}
+          VITE_FIREBASE_FIRESTORE_SECRET_KEY: ${{ secrets.VITE_FIREBASE_FIRESTORE_SECRET_KEY_DEV }}
+          VITE_BASENAME: ${{ secrets.VITE_BASENAME_DEV }}
+
+      - name: Prepare SSH key
+        run: |
+          echo "$PRIVATE_KEY_DEV" > key.pem
+          chmod 600 key.pem
+        env:
+          PRIVATE_KEY_DEV: ${{ secrets.PRIVATE_KEY_DEV }}
+
+      - name: Deploy frontend (React app) via rsync over SSH
+        run: |
+          rsync -avz --no-group -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
+            ./dist/ ${{ secrets.SERVER_USER_DEV }}@${{ secrets.SERVER_HOST_DEV }}:${{ secrets.SERVER_DEST_DEV }}
+
+      - name: Cleanup
+        run: rm -f key.pem
