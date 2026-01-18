@@ -259,7 +259,14 @@ export const TournamentFormBrackets = (props: Props) => {
     }
 
     // Generate matches from groups
-    const groupMatches = generateGroupMatches(groups);
+    const groupMatches = generateGroupMatches(groups, {
+      startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
+      endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
+      courts: courtOptions?.data?.fields?.map(c => ({
+        name: c.name,
+        uuid: c.uuid
+      })) || []
+    });
     const body: TournamentMatchesPayload = {
       tournament_uuid: tournamentUuid,
       matches: []
