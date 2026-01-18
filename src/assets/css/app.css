@@ -29,6 +29,31 @@
 @import "./components/base/_intro.css";
 
 /*
+|--------------------------------------------------------------------------
+| Dark mode table styles
+|--------------------------------------------------------------------------
+|
+| Dark mode styles for Ant Design tables in PointConfig
+|
+*/
+.dark .ant-table-tbody .ant-table-row .ant-table-cell {
+  background-color: rgb(41, 53, 82) !important;
+  color: rgb(226, 232, 240) !important;
+}
+
+.dark .ant-table-tbody .ant-table-row:hover .ant-table-cell {
+  background-color: rgb(53, 69, 103) !important;
+}
+
+.dark .ant-table-tbody .ant-table-row:nth-child(even) .ant-table-cell {
+  background-color: rgb(48, 61, 93) !important;
+}
+
+.dark .customTableRow td {
+  background-color: rgb(48, 61, 93) !important;
+}
+
+/*
  |--------------------------------------------------------------------------
  | TailwindCSS Directives
  |--------------------------------------------------------------------------

@@ -13,37 +13,3 @@
   border-collapse: separate; /* Required for spacing */
   border-spacing: 0 8px; /* Vertical spacing between rows */
 }
-
-// Dark mode support
-:global(.dark) {
-  .customTableRow {
-    td {
-      background-color: rgb(48, 61, 93) !important;
-    }
-  }
-  
-  // Ensure all table cells have dark background
-  :global(.ant-table-tbody) {
-    :global(.ant-table-row) {
-      :global(.ant-table-cell) {
-        background-color: rgb(41, 53, 82) !important;
-        color: rgb(226, 232, 240) !important;
-      }
-      
-      &:hover {
-        :global(.ant-table-cell) {
-          background-color: rgb(53, 69, 103) !important;
-        }
-      }
-    }
-  }
-  
-  // Even rows (striped effect)
-  :global(.ant-table-tbody) {
-    :global(.ant-table-row:nth-child(even)) {
-      :global(.ant-table-cell) {
-        background-color: rgb(48, 61, 93) !important;
-      }
-    }
-  }
-}

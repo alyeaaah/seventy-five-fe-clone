@@ -24,8 +24,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build React app
-        run: pnpm build
+      - name: Make hybrid build script executable
+        run: chmod +x build-hybrid.sh
+
+      - name: Build React app (Hybrid Vite + Next.js)
+        run: ./build-hybrid.sh
         env:
           VITE_SECRET_KEY: ${{ secrets.VITE_SECRET_KEY }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
