@@ -266,7 +266,7 @@ const restGeometric = (n: number) => n <= 0 ? 0 : n - 2 ** Math.floor(Math.log2(
 
 const generateGroups = (teams: ITeam[], total: number): IGroup[] => {
   return Array.from({ length: total }, (_, i) => ({
-    name: `Group ${String.fromCharCode(65 + i)}`,
+    name: `${String.fromCharCode(65 + i)}`,
     groupKey: i,
     
     teams: teams.slice(
@@ -328,7 +328,7 @@ const getAllKnockoutMatches = (rounds: IRound[]): IMatch[] => {
   return allKnockoutMatches;
 }
 
-const generateGroupMatches = (groups: IGroup[], info?: ITournamentInfo):IMatch[] => {
+const generateGroupMatches = (groups: IGroup[], info: ITournamentInfo):IMatch[] => {
   const matches: IMatch[] = [];
   // create match for all teams, each team will face other teams in same group
   groups.forEach(group => {

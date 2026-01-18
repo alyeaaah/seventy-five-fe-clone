@@ -27,13 +27,13 @@ export const GroupBox = ({ group, onDrop, readOnly, selected, onClickGroup }: Gr
     <div
       ref={drop as unknown as React.Ref<HTMLDivElement>}
       className={`rounded-xl shadow-lg pb-2 border-2 w-full overflow-hidden cursor-pointer transition-all ${selected ? "border-primary ring-2 ring-primary ring-opacity-50" : ""
-        } ${isOver ? "border-[#EBCE56] bg-emerald-50" : selected ? "border-primary bg-primary/5" : "border-emerald-800"
+        } ${isOver ? "border-[#EBCE56] bg-emerald-50" : selected ? "border-[#EBCE56] border-2 shadow-lg" : "border-emerald-800"
         }`}
       onClick={() => onClickGroup?.(group)}
     >
-      <h2 className={`text-lg font-semibold mb-2 text-center ${isOver ? "bg-[#EBCE56] text-emerald-800" : selected ? "bg-primary text-white" : "bg-emerald-800 text-white"
+      <h2 className={`text-lg font-semibold mb-2 text-center ${isOver ? "bg-[#EBCE56] text-emerald-800" : selected ? "bg-[#EBCE56]  text-emerald-800" : "bg-emerald-800 text-white"
         }`}>
-        {group.name}
+        Group {group.name}
       </h2>
       <div className="flex flex-col gap-2">
         {group.teams.map((team) => (

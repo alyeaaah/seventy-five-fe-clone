@@ -27,7 +27,8 @@ export const TournamentsApiClient = new Zodios(
     endpoints.TournamentsMatchesApi,
     endpoints.TournamentsToggleFeaturedApi,
     endpoints.TournamentsSponsorsApi,
-    endpoints.TournamentsSponsorsUpdateApi
+    endpoints.TournamentsSponsorsUpdateApi,
+    endpoints.TournamentsUpdateGroupsApi,
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

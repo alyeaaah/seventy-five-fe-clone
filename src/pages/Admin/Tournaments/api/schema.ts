@@ -97,6 +97,7 @@ export const tournamentMatchSchema = z.object({
   seed_index: z.number().nullish(),
   group: z.number().nullish(),
   group_uuid: z.string().nullish(),
+  groupKey: z.number().nullish(),
   status: z.string().nullish(),
   court_field_uuid: z.string(),
   court: z.string().nullish(),
@@ -149,16 +150,30 @@ export const tournamentSponsorSchema =z.object({
   is_delete: z.boolean().default(false),
 });
 
-export const tournamentGroupPayloadSchema = z.object({
+export const matchGroupPayloadSchema = z.object({
   uuid: z.string().nullish(),
-  name: z.string().nullish(),
-  players: z.array(z.object({
-    uuid: z.string(),
-    name: z.string().nullish(),
-  })).nullish(),
+  away_team_uuid: z.string(),
+  home_team_uuid: z.string(),
+  court_field_uuid: z.string(),
+  time: z.string(),
+  group_uuid: z.string().nullish(),
+  status: z.string().nullish(),
+  groupKey: z.number(),
 });
 
-export type TournamentGroupPayloadData = z.infer<typeof tournamentGroupPayloadSchema>;
+export const tournamentGroupPayloadSchema = z.object({
+  groups: z.array(z.object({
+    uuid: z.string().nullish(),
+    groupKey: z.number(),
+    name: z.string(),
+    teams: z.array(z.object({
+      uuid: z.string().nullish(),
+      name: z.string(),
+    })),
+  })),
+  matches: z.array(matchGroupPayloadSchema),
+});
+
 
 export type TournamentRounds = {
   teams: number;
@@ -175,4 +190,5 @@ export type TournamentMatchPayload = z.infer<typeof tournamentMatchSchema>;
 export type TournamentMatchesPayload = z.infer<typeof tournamentMatchPayloadSchema>;
 export type TournamentSponsorPayload = z.infer<typeof tournamentSponsorSchema>;
 export type TournamentStatusEnum = z.infer<typeof tournamentStatusEnum>;
+export type TournamentUpdateGroupPayload = z.infer<typeof tournamentGroupPayloadSchema>;
 

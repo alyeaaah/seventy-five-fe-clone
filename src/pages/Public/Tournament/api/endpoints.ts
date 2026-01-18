@@ -3,7 +3,7 @@ import { z } from "zod";
 import { galleriesMediaSchema } from "@/pages/Admin/Galleries/api/schema";
 import { tournamentMatchDetailSchema, tournamentMatchSchema, tournamentsSchema } from "@/pages/Admin/Tournaments/api/schema";
 import { matchesListSchema } from "@/pages/Admin/CustomMatch/api/schema";
-import { publicTournamentDetailSchema } from "./schema";
+import { publicTournamentDetailSchema, groupResponseSchema } from "./schema";
 import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
 
 
@@ -105,11 +105,21 @@ const ongoingMatchApi = makeEndpoint({
   response: matchesListSchema
 });
 
+const getGroupsByTournamentApi = makeEndpoint({
+  alias: "getGroupsByTournament",
+  method: "get",
+  path: `/public/tournament/groups/:tournament_uuid`,
+  response: z.object({
+    data: z.array(groupResponseSchema)
+  })
+});
+
 export const endpoints = {
   featuredTournamentApi,
   tournamentDetailApi,
   tournamentDetailMatchesApi,
   tournamentDetailSponsorsApi,
   upcomingMatchApi,
-  ongoingMatchApi
+  ongoingMatchApi,
+  getGroupsByTournamentApi
 };

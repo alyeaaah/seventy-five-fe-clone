@@ -1,19 +1,16 @@
-import LayoutWrapper from "@/components/LayoutWrapper"
-import { FooterComponent } from "../LandingPage/components/FooterComponent"
+import LayoutWrapper from "@/components/LayoutWrapper";
 import { PublicTournamentApiHooks } from "./api";
-import { Carousel, Image } from "antd";
 import { imageResizerDimension } from "@/utils/helper";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PublicBlogApiHooks } from "../Blog/api";
 import Lucide from "@/components/Base/Lucide";
 import moment from "moment";
-import { LandingPageApiHooks } from "../LandingPage/api";
 import { FadeAnimation } from "@/components/Animations";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { CarouselRef } from "antd/es/carousel";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { paths } from "@/router/paths";
-import { IconLogo, IconLogoAlt } from "@/assets/images/icons";
+import { IconLogoAlt } from "@/assets/images/icons";
 import { DraggableBracket, TournamentDrawingUtils } from "@/components/TournamentDrawing";
 
 

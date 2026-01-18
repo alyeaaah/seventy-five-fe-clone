@@ -1,7 +1,7 @@
 import Button from "@/components/Base/Button";
 import { useEffect, useState } from "react";
-import { TournamentMatchesPayload, TournamentMatchPayload } from "../api/schema";
 import { TournamentsApiHooks } from "../api";
+import { PublicTournamentApiHooks } from "../../../../pages/Public/Tournament/api";
 import { queryClient } from "@/utils/react-query";
 import { useToast } from "@/components/Toast/ToastContext";
 import {
@@ -14,15 +14,17 @@ import Lucide from "@/components/Base/Lucide";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import 'react-quill/dist/quill.snow.css';
 import TournamentSteps from "../Components/TournamentSteps";
-import { ITeam, IGroup, IMatch } from "@/components/TournamentDrawing/interfaces";
+import { IGroup, IMatch, ITournamentInfo } from "@/components/TournamentDrawing/interfaces";
 import { GroupStage, TournamentDrawingUtils } from "@/components/TournamentDrawing";
-import { faker } from "@faker-js/faker";
 import { GroupMatchesModal } from "../Components/GroupMatchesModal";
 import { ModalMatch } from "./ModalMatch";
 import { CourtsApiHooks } from "../../Courts/api";
 import { assignSchedule } from "@/components/TournamentDrawing/scheduler";
 import { IconVS } from "@/assets/images/icons";
 import moment from "moment";
+import { convertTournamentMatchToMatch, convertTournamentTeamToTeam } from "@/utils/drawing.util";
+import { TournamentUpdateGroupPayload } from "../api/schema";
+import { matchStatusEnum } from "../../MatchDetail/api/schema";
 
 const {
   generateGroups,
@@ -76,17 +78,14 @@ export const TournamentFormGroup = (_props: Props) => {
     enabled: !!tournamentUuid && !!data?.data && !!courtOptions,
   });
 
-  const tempTeam: ITeam[] = (teamsData?.data.map(t => ({
-    uuid: t.uuid,
-    name: t.name,
-    players: t.players.map(p => ({
-      uuid: p.uuid,
-      name: p.name,
-      media_url: p.media_url,
-      nickname: p.nickname,
-      city: p.city
-    }))
-  })) || []) as ITeam[];
+  // Fetch Groups by Tournament
+  const { data: groupsData } = PublicTournamentApiHooks.useGetGroupsByTournament({
+    params: {
+      tournament_uuid: tournamentUuid || ""
+    }
+  }, {
+    enabled: !!tournamentUuid,
+  });
 
   // Fetch Tournament Matches 
   const { data: matchesData } = TournamentsApiHooks.useGetTournamentMatches({
@@ -97,83 +96,71 @@ export const TournamentFormGroup = (_props: Props) => {
     enabled: !!tournamentUuid && !!data?.data && !!teamsData?.data?.length,
   });
 
-  // Handle Fetched Tournament Matches
   useEffect(() => {
-    if (!matchesData?.data?.length && teamsData?.data?.length && data?.data?.type === "ROUND ROBIN") {
-      // setting up group with teams
-      const groups = generateGroups(tempTeam, data?.data.total_group || 0);
-      setGroups(groups);
-      // Generate matches from groups
-      if (groups.length > 0 && courtOptions?.data?.fields) {
-        const groupMatches = generateGroupMatches(groups, {
-          startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
-          endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
-          courts: courtOptions.data.fields.map(c => ({
-            name: c.name,
-            uuid: c.uuid
-          }))
-        });
-        setMatches(groupMatches);
-        // Auto-select first group on large screens
-        if (groups.length > 0) {
-          setSelectedGroup(groups[0].groupKey);
-        }
-      }
-    } else if (matchesData?.data?.length && teamsData?.data?.length) {
-      // Load existing groups from matches
-      const groupMatches = matchesData.data.filter(m => m.group !== undefined && m.group !== null);
-      if (groupMatches.length > 0) {
-        // Reconstruct groups from matches
-        const groupKeys = [...new Set(groupMatches.map(m => m.group).filter(g => g !== null && g !== undefined))];
-        const reconstructedGroups: IGroup[] = groupKeys.map((groupKey, idx) => {
-          const groupMatchesForGroup = groupMatches.filter(m => m.group === groupKey);
-          const teamsInGroup = new Set<string>();
-          groupMatchesForGroup.forEach(m => {
-            if (m.home_team_uuid && m.home_team_uuid !== "TBD" && m.home_team_uuid !== "BYE") {
-              teamsInGroup.add(m.home_team_uuid);
-            }
-            if (m.away_team_uuid && m.away_team_uuid !== "TBD" && m.away_team_uuid !== "BYE") {
-              teamsInGroup.add(m.away_team_uuid);
-            }
-          });
-          const teams = tempTeam.filter(t => teamsInGroup.has(t.uuid));
-          return {
-            groupKey: groupKey || idx,
-            teams: teams,
-            name: `Group ${String.fromCodePoint(65 + idx)}`
-          };
-        });
-        setGroups(reconstructedGroups);
-        // Load matches
-        const convertedMatches = matchesData.data.map(m => {
-          const homeTeam = tempTeam.find(t => t.uuid === m.home_team_uuid);
-          const awayTeam = tempTeam.find(t => t.uuid === m.away_team_uuid);
-          return {
-            id: m.id?.toString() || "",
-            uuid: m.uuid || "",
-            roundKey: m.round,
-            groupKey: m.group,
-            seed_index: m.seed_index,
-            teams: [
-              homeTeam ? { ...homeTeam, alias: m.home_team_uuid } : { uuid: m.home_team_uuid, name: m.home_team_uuid, players: [] },
-              awayTeam ? { ...awayTeam, alias: m.away_team_uuid } : { uuid: m.away_team_uuid, name: m.away_team_uuid, players: [] }
-            ],
-            court: m.court || "",
-            court_uuid: m.court_field_uuid || "",
-            time: m.time || "",
-            status: m.status || "SCHEDULED",
-            home_team_score: m.home_team_score || 0,
-            away_team_score: m.away_team_score || 0
-          } as IMatch;
-        });
-        setMatches(convertedMatches);
-        // Auto-select first group on large screens
-        if (reconstructedGroups.length > 0) {
-          setSelectedGroup(reconstructedGroups[0].groupKey);
-        }
+    const tournamentInfo: ITournamentInfo = {
+      courts: courtOptions?.data?.fields?.map(court => ({
+        uuid: court.uuid,
+        name: courtOptions?.data?.name + ' - ' + court.name
+      })) || [],
+      startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
+      endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
+    }
+    // generate group based on teams data while groups data not fetched yet
+    if (!groupsData?.data.length && !!teamsData?.data && courtOptions && !matchesData?.data.length) {
+      const teams = convertTournamentTeamToTeam(teamsData?.data || [])
+      const groupedTeams = generateGroups(teams, data?.data?.total_group || 2)
+      setGroups(groupedTeams);
+      const groupMatches = generateGroupMatches(groupedTeams, tournamentInfo);
+      setMatches(assignSchedule({ info: tournamentInfo, matches: groupMatches }));
+    }
+    // set group based on groups data
+    else if (!!groupsData?.data?.length && courtOptions && !!teamsData?.data) {
+      // Transform fetched groups data to local format
+      const transformedGroups: IGroup[] = groupsData.data.map((group, i) => ({
+        id: group.id,
+        uuid: group.group_uuid,
+        groupKey: i, // Using id as groupKey for now
+        name: group.group_name,
+        teams: (group.teams || []).map((team) => ({
+          uuid: team.uuid || "",
+          name: team.name || "",
+          alias: team.alias || "",
+          players: team.players?.map(tp => ({
+            uuid: tp.uuid || "",
+            name: tp.name || "",
+            media_url: tp.media_url || "",
+          })) || [],
+        })),
+      }));
+      setGroups(transformedGroups);
+      // Generate matches from the transformed groups
+      if (matchesData?.data?.length) {
+        const matchWithGroupKey = matchesData.data.map(m => ({ ...m, groupKey: groupsData.data.findIndex(g => g.group_uuid === m.group_uuid) }))
+        const matchesConverted: IMatch[] = convertTournamentMatchToMatch(matchWithGroupKey || [])
+        setMatches(matchesConverted)
+      } else {
+        const groupMatches = generateGroupMatches(transformedGroups, tournamentInfo);
+        setMatches(assignSchedule({ info: tournamentInfo, matches: groupMatches }));
       }
     }
-  }, [matchesData, data, teamsData, tempTeam, courtOptions]);
+  }, [teamsData, groupsData, courtOptions, matchesData])
+
+
+  const { mutateAsync: updateTournamentGroup } = TournamentsApiHooks.useUpdateTournamentGroups({
+    params: {
+      uuid: tournamentUuid || ""
+    }
+  }, {
+    onError: (error) => {
+      console.error("Error updating groups:", error);
+      showNotification({
+        duration: 3000,
+        text: "Failed to update groups",
+        icon: "X",
+        variant: "danger",
+      });
+    }
+  });
 
   const { mutate: actionUpdateMatches } = TournamentsApiHooks.useCreateTournamentMatches(
     {},
@@ -207,7 +194,7 @@ export const TournamentFormGroup = (_props: Props) => {
   );
 
   // Handler untuk save group
-  const actionUpdateGroup = () => {
+  const actionUpdateGroup = async () => {
     if (!tournamentUuid || !groups || groups.length === 0) {
       showNotification({
         duration: 3000,
@@ -218,61 +205,54 @@ export const TournamentFormGroup = (_props: Props) => {
       return;
     }
 
-    // Generate matches from groups
-    const groupMatches = generateGroupMatches(groups, {
-      startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
-      endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
-      courts: courtOptions?.data?.fields?.map(c => ({
-        name: c.name,
-        uuid: c.uuid
-      })) || []
-    });
-
-    const matchesSchedule = assignSchedule({
-      matches: groupMatches, info: {
-        startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
-        endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
-        courts: courtOptions?.data?.fields?.map(c => ({
-          name: c.name,
-          uuid: c.uuid
-        })) || []
-      }
-    });
-
-    const body: TournamentMatchesPayload = {
-      tournament_uuid: tournamentUuid,
-      matches: []
-    };
-
-    matchesSchedule.forEach((match, idx) => {
-      const matchPayload: TournamentMatchPayload = {
-        id: Number.isNaN(Number(match.id)) ? Number(`${data?.data?.id}${idx}`) : +match.id,
-        uuid: match.uuid ?? faker.string.uuid(),
-        round: match.roundKey,
-        group: match.groupKey,
-        seed_index: match.seed_index,
-        home_team_uuid: ["TBD", 'BYE'].includes(match.teams?.[0]?.alias ?? "") ? match.teams?.[0]?.alias ?? "TBD" : match.teams?.[0]?.uuid ?? "TBD",
-        away_team_uuid: ["TBD", 'BYE'].includes(match.teams?.[1]?.alias ?? "") ? match.teams?.[1]?.alias ?? "TBD" : match.teams?.[1]?.uuid ?? "TBD",
-        home_group_index: match.teams?.[0]?.group_index ?? null,
-        home_group_position: match.teams?.[0]?.group_position ?? null,
-        away_group_index: match.teams?.[1]?.group_index ?? null,
-        away_group_position: match.teams?.[1]?.group_position ?? null,
-        court_field_uuid: match.court_field_uuid || "",
-        status: match.status || "SCHEDULED",
-        time: match.time,
-        updatedAt: match.updatedAt,
-        court: match.court,
-        tournament_uuid: tournamentUuid,
-        home_team_score: match.home_team_score || 0,
-        away_team_score: match.away_team_score || 0
+    try {
+      // Transform groups data to match the schema
+      const payload: TournamentUpdateGroupPayload = {
+        groups: groups.map((group) => ({
+          uuid: group.uuid || null,
+          groupKey: group.groupKey || 0,
+          name: String.fromCharCode(65 + (group.groupKey || 0)),
+          teams: group.teams.map((team) => ({
+            uuid: team.uuid || null,
+            name: team.name,
+          })),
+        })),
+        matches: matches.map((match) => ({
+          uuid: match.uuid || null,
+          away_team_uuid: match.teams[1]?.uuid || "",
+          home_team_uuid: match.teams[0]?.uuid || "",
+          court_field_uuid: match.court_uuid || "",
+          time: match.time ? new Date(match.time).toISOString() : new Date().toISOString(),
+          group_uuid: match.group_uuid || null,
+          status: match.status || matchStatusEnum.Values.UPCOMING,
+          groupKey: match.groupKey || 0,
+        })),
       };
-      body.matches.push(matchPayload);
-    });
 
-    actionUpdateMatches({
-      matches: body.matches,
-      tournament_uuid: tournamentUuid,
-    });
+      const updated = await updateTournamentGroup(payload).catch((error) => {
+      }).then((data) => {
+        if (data) {
+          showNotification({
+            duration: 3000,
+            text: "Groups updated successfully",
+            icon: "Check",
+            variant: "success",
+          });
+          // Invalidate queries to refresh data
+          queryClient.invalidateQueries({
+            queryKey: ["tournaments", "getTournamentDetail", tournamentUuid],
+          });
+        }
+      });
+    } catch (error) {
+      console.error("Error updating groups:", error);
+      showNotification({
+        duration: 3000,
+        text: "Failed to update groups",
+        icon: "X",
+        variant: "danger",
+      });
+    }
   };
 
   return (
@@ -294,24 +274,81 @@ export const TournamentFormGroup = (_props: Props) => {
               groups={groups || []}
               className="w-full"
               selectedGroupKey={selectedGroup}
-              key={"groupStage" + groups.length}
-              onChange={(groups) => {
-                setGroups(groups);
-                // Generate matches when groups change
-                if (groups.length > 0 && courtOptions?.data?.fields) {
-                  const groupMatches = generateGroupMatches(groups, {
-                    startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
-                    endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
-                    courts: courtOptions.data.fields.map(c => ({
-                      name: c.name,
-                      uuid: c.uuid
-                    }))
+              key={"groupStage" + JSON.stringify(groups)}
+              onChange={(newGroups) => {
+                const oldGroups = JSON.parse(JSON.stringify(groups)) as IGroup[];
+                // Check if groups actually changed
+                const groupsChanged = JSON.stringify(oldGroups) !== JSON.stringify(newGroups);
+
+
+                if (groupsChanged) {
+                  // Update groups immediately to maintain UI sync
+                  // Show confirmation dialog for match regeneration
+                  setModalAlert({
+                    title: "Update Groups",
+                    size: "lg",
+                    description: "Groups changes and will be applied and will be regenerate the matches schedule. Do you want to regenerate matches? This will overwrite existing match data.",
+                    type: "warning",
+                    open: true,
+                    onClose: () => {
+                      setModalAlert(undefined);
+                      setGroups(oldGroups);
+                      return false;
+                    },
+                    icon: "ShieldQuestion",
+                    buttons: [
+                      {
+                        type: "button",
+                        label: "Cancel",
+                        variant: "primary",
+                        onClick: () => {
+                          setGroups(oldGroups);
+                          setModalAlert(undefined);
+                          return false;
+                        }
+                      },
+                      {
+                        type: "button",
+                        label: "Yes, Continue",
+                        variant: "outline-primary",
+                        onClick: () => {
+                          setGroups(newGroups);
+                          // Generate matches when groups change
+                          if (newGroups.length > 0 && courtOptions?.data?.fields) {
+                            const groupMatches = generateGroupMatches(newGroups, {
+                              startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
+                              endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
+                              courts: courtOptions.data.fields.map(c => ({
+                                name: c.name,
+                                uuid: c.uuid
+                              }))
+                            });
+                            const tourneyInfo: ITournamentInfo = {
+                              courts: courtOptions?.data?.fields?.map(court => ({
+                                uuid: court.uuid,
+                                name: courtOptions?.data?.name + ' - ' + court.name
+                              })) || [],
+                              startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
+                              endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
+                            }
+                            setMatches(assignSchedule({ matches: groupMatches, info: tourneyInfo }));
+                            // Auto-select first group if none selected
+                            if (selectedGroup === undefined && newGroups.length > 0) {
+                              setSelectedGroup(newGroups[0].groupKey);
+                            }
+                            setModalAlert(undefined);
+                          }
+                        }
+                      }
+                    ],
+                    onCancel: () => {
+                      setGroups(oldGroups);
+                      setModalAlert(undefined);
+
+                      return false;
+
+                    }
                   });
-                  setMatches(groupMatches);
-                  // Auto-select first group if none selected
-                  if (selectedGroup === undefined && groups.length > 0) {
-                    setSelectedGroup(groups[0].groupKey);
-                  }
                 }
               }}
               onClickGroup={(group) => {
@@ -333,19 +370,20 @@ export const TournamentFormGroup = (_props: Props) => {
               {selectedGroup === undefined ? "Select a group to view matches" : `Group ${String.fromCodePoint(65 + selectedGroup)} Matches`}
             </h2>
             <Divider className="mb-0" />
-            <div className="grid grid-cols-12 gap-3 mt-4">
+            <div className="grid grid-cols-12 gap-3 mt-4" key={selectedGroup}>
+              {/* {JSON.stringify({ selectedGroup, matchesByGroup: matches.filter(m => m.groupKey === selectedGroup) })} */}
               {selectedGroup !== undefined && matches.filter(m => m.groupKey === selectedGroup).map((match, index) => (
                 <button
                   key={match.id || match.uuid || `match-${index}`}
                   type="button"
-                  className="col-span-12 border border-emerald-800 rounded-full hover:bg-stone-200 cursor-pointer text-left"
+                  className="col-span-12 border border-emerald-800 rounded-full hover:bg-stone-200  dark:border-darkmode-100 dark:hover:bg-darkmode-200 cursor-pointer text-left"
                   onClick={() => {
                     setModalFormMatch(true);
                     setSelectedMatch(match);
                   }}
                 >
-                  <div className="flex flex-row items-center justify-between gap-2 px-4 py-2">
-                    <div className="flex flex-row items-center justify-between gap-2 border flex-1 bg-[#EBce56] rounded-full px-4 py-2">
+                  <div className="flex flex-row items-center justify-between gap-2 px-2 py-2">
+                    <div className="flex flex-row items-center justify-between gap-2 border flex-1 bg-[#EBce56] dark:bg-darkmode-300 rounded-full px-4 py-2">
                       <div className="flex flex-row items-center gap-2 flex-1">
                         <span className="font-medium bg-emerald-800 px-2 py-1 text-xs rounded-full text-white line-clamp-1 min-w-fit">{match.teams[0]?.name ?? "TBD"}</span>
                         <div className="flex flex-col gap-1">
@@ -376,7 +414,7 @@ export const TournamentFormGroup = (_props: Props) => {
                   </div>
                 </button>
               ))}
-              {selectedGroup !== undefined && matches.filter(m => m.groupKey === selectedGroup).length === 0 && (
+              {(selectedGroup !== undefined && matches.filter(m => m.groupKey === selectedGroup).length === 0) && (
                 <div className="col-span-12 text-center py-8 text-gray-500">
                   No matches found for this group
                 </div>
@@ -471,7 +509,7 @@ export const TournamentFormGroup = (_props: Props) => {
               if (m.id === match.id && m.groupKey === match.groupKey) {
                 m = {
                   ...m,
-                  court: match.court,
+                  court: courtOptions?.data?.name + " - " + match.court,
                   court_uuid: match.court_uuid,
                   time: match.time
                 };

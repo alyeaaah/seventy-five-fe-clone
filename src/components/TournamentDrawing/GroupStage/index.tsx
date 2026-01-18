@@ -28,7 +28,7 @@ export const GroupStage = ({ groups: initialGroups, readOnly, className, selecte
     );
     if (sourceGroupIndex === -1) return;
 
-    const updatedGroups = [...groups];
+    const updatedGroups = JSON.parse(JSON.stringify([...groups])) as IGroup[];
 
     // remove from source
     updatedGroups[sourceGroupIndex].teams = updatedGroups[
@@ -38,8 +38,8 @@ export const GroupStage = ({ groups: initialGroups, readOnly, className, selecte
     // add to target
     updatedGroups[targetGroupIndex].teams.push(team);
 
-    setGroups(updatedGroups);
-    onChange?.(updatedGroups);
+    // setGroups(updatedGroups as IGroup[]);
+    onChange?.(updatedGroups as IGroup[]);
   };
 
   return (
