@@ -24,21 +24,32 @@ export const Register = () => {
   const { showNotification } = useToast();
   const navigate = useNavigate();
   const formRef = useRef<HTMLFormElement>(null);
+
+  const [modalAlert, setModalAlert] = useState<AlertProps>({
+    open: false,
+    onClose: () => { },
+    icon: "CheckCircle",
+    title: "",
+    description: "",
+    buttons: [],
+    size: "md",
+    dismissable: true,
+  });
   const methods = useForm({
-      mode: "onChange",
-      defaultValues: {
-        name: "",
-        email: "",
-        username: "",
-        phone: "",
-        password: "",
-        confirmPassword:"",
-        dateOfBirth: "",
-        placeOfBirth: "",
-        gender: "",
-      },
-      resolver: zodResolver(registerSchema),
-    });
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      email: "",
+      username: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+      dateOfBirth: "",
+      placeOfBirth: "",
+      gender: "",
+    },
+    resolver: zodResolver(registerSchema),
+  });
   const { control, formState, handleSubmit, setValue, watch, getValues } = methods;
   const { mutate: actionRegisterPlayer } = RegisterApiHooks.useRegister({},
     {
@@ -80,22 +91,63 @@ export const Register = () => {
             }
           ]
         })
+      },
+      onError: (err) => {
+        showNotification({
+          text: err.message,
+          duration: 2000
+        })
+        setModalAlert({
+          description: err.message,
+          icon: "ShieldAlert",
+          onClose: () => {
+            setModalAlert({
+              ...modalAlert,
+              open: false,
+              icon: "CheckCircle",
+              buttons: [],
+            })
+          },
+          dismissable: true,
+          title: "Register Failed",
+          buttons: [
+            {
+              type: "button",
+              label: "Go to Login",
+              variant: "primary",
+              onClick: () => {
+                setModalAlert({
+                  ...modalAlert,
+                  open: false,
+                  icon: "CheckCircle",
+                  buttons: [],
+                })
+                navigate(paths.login);
+              },
+            },
+            {
+              type: "button",
+              label: "Cancel",
+              variant: "outline-primary",
+              onClick: () => {
+                setModalAlert({
+                  ...modalAlert,
+                  open: false,
+                  icon: "CheckCircle",
+                  buttons: [],
+                })
+              },
+            }
+          ],
+          open: true,
+
+        })
       }
     }
   );
-  const onSubmit:SubmitHandler<any> = (data: RegisterPayload) => {
+  const onSubmit: SubmitHandler<any> = (data: RegisterPayload) => {
     actionRegisterPlayer(data);
   };
-  const [modalAlert, setModalAlert] = useState<AlertProps>({
-    open: false,
-    onClose: () => {},
-    icon: "CheckCircle",
-    title: "",
-    description: "",
-    buttons: [],
-    size: "md",
-    dismissable: true,
-  });
   return (
     <>
       <div
@@ -342,8 +394,8 @@ export const Register = () => {
                                   field.onChange(moment(e.target.value).format('DD MMMM YYYY'));
                                 }}
                                 onEnded={(e) => {
-                                  console.log('onEnded',e);
-                                  
+                                  console.log('onEnded', e);
+
                                   // field.onChange(moment(e.target.value).format('DD-MM-YYYY'));
                                 }}
                                 defaultValue={moment().subtract(20, 'years').toISOString()}
@@ -443,8 +495,8 @@ export const Register = () => {
                         onClick={() => {
                           setModalAlert({
                             ...modalAlert,
-                            title: "Register", 
-                            description: "Are you sure you want to register?", 
+                            title: "Register",
+                            description: "Are you sure you want to register?",
                             open: true,
                             icon: "MailQuestion",
                             variant: "warning",

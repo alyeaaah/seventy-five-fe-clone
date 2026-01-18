@@ -13,7 +13,7 @@ type LitepickerConfig = Partial<ILPConfiguration>;
 
 export interface LitepickerProps
   extends React.PropsWithChildren,
-    Omit<React.ComponentPropsWithoutRef<"input">, "onChange"> {
+  Omit<React.ComponentPropsWithoutRef<"input">, "onChange"> {
   options: {
     format?: string | undefined;
   } & LitepickerConfig;
@@ -29,8 +29,8 @@ export interface LitepickerProps
 function Litepicker({
   options = {},
   value = "",
-  onChange = () => {},
-  getRef = () => {},
+  onChange = () => { },
+  getRef = () => { },
   ...computedProps
 }: LitepickerProps) {
   const props = {

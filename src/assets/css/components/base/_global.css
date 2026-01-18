@@ -10,7 +10,7 @@
   --color-primary-hover: rgba(6, 87, 64, 0.1);
   --color-primary-light: #e0f2ed;
   --color-primary-muted: #b0c3be;
-  --color-accent: #EBCE56;
+  --color-accent: #ebce56;
   --color-border-light: #f0f0f0;
   --color-border-gray: #909090;
   --color-text-disabled: #b3b3b3;
@@ -170,31 +170,33 @@ html {
   .ant-steps-item-process .ant-steps-item-title,
   .ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon,
   .ant-steps-item-finish .ant-steps-item-title {
-    color: #135F46 !important;
+    color: #135f46 !important;
     font-weight: 500 !important;
   }
   .ant-steps-item-wait .ant-steps-item-icon .ant-steps-icon {
     color: #bababa !important;
   }
   .ant-steps-item-finish .ant-steps-item-title:after,
-  .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-tail::after {
-    background-color: #135F46 !important;
+  .ant-steps-item-finish
+    > .ant-steps-item-container
+    > .ant-steps-item-tail::after {
+    background-color: #135f46 !important;
   }
   /* Process/Active step styling */
   .ant-steps-item-process .ant-steps-item-icon {
-    border-color: #135F46 !important;
+    border-color: #135f46 !important;
     background-color: transparent !important;
   }
   .ant-steps-item-process .ant-steps-item-icon .ant-steps-icon {
-    color: #135F46 !important;
+    color: #135f46 !important;
   }
   /* Finish step styling */
   .ant-steps-item-finish .ant-steps-item-icon {
-    border-color: #135F46 !important;
+    border-color: #135f46 !important;
     background-color: transparent !important;
   }
   .ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon {
-    color: #135F46 !important;
+    color: #135f46 !important;
   }
   /* Tail/separator line styling - ensure visibility in light mode */
   .ant-steps-item-tail::after {
@@ -202,7 +204,7 @@ html {
     height: 2px !important;
   }
   .ant-steps-item-finish .ant-steps-item-tail::after {
-    background-color: #135F46 !important;
+    background-color: #135f46 !important;
     height: 2px !important;
   }
   .ant-steps-item-process .ant-steps-item-tail::after {
@@ -220,7 +222,7 @@ html {
     height: 2px !important;
   }
   .ant-steps-item-finish:not(:last-child) .ant-steps-item-tail::after {
-    background-color: #135F46 !important;
+    background-color: #135f46 !important;
     height: 2px !important;
   }
   .ant-steps-item-process:not(:last-child) .ant-steps-item-tail::after {
@@ -358,7 +360,7 @@ html.dark {
 
   > div:nth-child(2) {
     position: relative;
-    
+
     @media (max-width: 1023px) {
       display: flex;
       flex-direction: column;
@@ -374,7 +376,7 @@ html.dark {
 
       &:nth-child(even)::after,
       &:nth-child(odd)::after {
-        content: '';
+        content: "";
         position: absolute;
         left: 180px;
         width: 20px;
@@ -397,7 +399,7 @@ html.dark {
       }
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         right: 180px;
         top: 50%;
@@ -453,7 +455,9 @@ html.dark {
 }
 
 .bracket-round:last-of-type > div:nth-child(2) .bracket-seed-container::after,
-.bracket-round:first-of-type > div:nth-child(2) .bracket-seed-container::before {
+.bracket-round:first-of-type
+  > div:nth-child(2)
+  .bracket-seed-container::before {
   display: none !important;
 }
 
@@ -604,7 +608,9 @@ html.dark {
 .fade-flex-down-enter-active {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 600ms ease-out, transform 600ms ease-out;
+  transition:
+    opacity 600ms ease-out,
+    transform 600ms ease-out;
 }
 
 .fade-flex-up-exit,
@@ -616,13 +622,17 @@ html.dark {
 .fade-flex-up-exit-active {
   opacity: 0;
   transform: translateY(-16px);
-  transition: opacity 600ms ease-in, transform 600ms ease-in;
+  transition:
+    opacity 600ms ease-in,
+    transform 600ms ease-in;
 }
 
 .fade-flex-down-exit-active {
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 600ms ease-in, transform 600ms ease-in;
+  transition:
+    opacity 600ms ease-in,
+    transform 600ms ease-in;
 }
 
 .fade-animation-container {
@@ -657,7 +667,7 @@ html.dark {
   .ql-toolbar.ql-snow {
     background-color: rgb(48, 61, 93) !important;
     border-color: rgb(53, 69, 103) !important;
-    
+
     /* Toolbar buttons */
     .ql-formats {
       .ql-button,
@@ -665,52 +675,52 @@ html.dark {
       button.ql-picker-item {
         color: rgb(226, 232, 240) !important;
         opacity: 1 !important;
-        
+
         &:hover,
         &:focus {
           color: rgb(255, 255, 255) !important;
           background-color: rgb(53, 69, 103) !important;
         }
-        
+
         &.ql-active,
         &.ql-selected {
           color: rgb(255, 255, 255) !important;
           background-color: rgb(35, 45, 69) !important;
         }
       }
-      
+
       /* Icons SVG */
       svg {
         stroke: rgb(226, 232, 240) !important;
         fill: rgb(226, 232, 240) !important;
       }
-      
+
       .ql-button:hover svg,
       .ql-button.ql-active svg {
         stroke: rgb(255, 255, 255) !important;
         fill: rgb(255, 255, 255) !important;
       }
-      
+
       /* Picker dropdown */
       .ql-picker {
         color: rgb(226, 232, 240) !important;
-        
+
         .ql-picker-label {
           color: rgb(226, 232, 240) !important;
-          
+
           &:hover,
           &.ql-active {
             color: rgb(255, 255, 255) !important;
           }
         }
-        
+
         .ql-picker-options {
           background-color: rgb(41, 53, 82) !important;
           border-color: rgb(53, 69, 103) !important;
-          
+
           .ql-picker-item {
             color: rgb(226, 232, 240) !important;
-            
+
             &:hover,
             &.ql-selected {
               color: rgb(255, 255, 255) !important;
@@ -719,37 +729,37 @@ html.dark {
           }
         }
       }
-      
+
       /* Separator */
       .ql-stroke {
         stroke: rgb(226, 232, 240) !important;
       }
-      
+
       .ql-fill {
         fill: rgb(226, 232, 240) !important;
       }
-      
+
       .ql-button:hover .ql-stroke,
       .ql-button.ql-active .ql-stroke {
         stroke: rgb(255, 255, 255) !important;
       }
-      
+
       .ql-button:hover .ql-fill,
       .ql-button.ql-active .ql-fill {
         fill: rgb(255, 255, 255) !important;
       }
     }
   }
-  
+
   /* Editor area */
   .ql-container.ql-snow {
     background-color: rgb(41, 53, 82) !important;
     border-color: rgb(53, 69, 103) !important;
     color: rgb(226, 232, 240) !important;
-    
+
     .ql-editor {
       color: rgb(226, 232, 240) !important;
-      
+
       &::before {
         color: rgb(148, 163, 184) !important;
       }
@@ -944,6 +954,22 @@ html.dark {
     .ant-tabs-tab-active .ant-tabs-tab-btn {
       color: var(--color-primary);
       border-bottom: 2px solid #fff;
+    }
+  }
+}
+/* litepicker mobile header fix */
+@media (max-width: 640px) {
+  .litepicker > div {
+    width: 100%;
+    gap: 6px;
+    > div {
+      width: 100% !important;
+      > div {
+        width: 100% !important;
+        > div {
+          width: 100% !important;
+        }
+      }
     }
   }
 }

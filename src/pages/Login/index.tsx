@@ -12,12 +12,25 @@ import { accessTokenAtom, userAtom } from "@/utils/store";
 import { IconLogo } from "@/assets/images/icons";
 import { Illustration } from "@/assets/images/illustrations/illustrations";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 
 function Main() {
   const setUser = useSetAtom(userAtom);
   const setToken = useSetAtom(accessTokenAtom);
   const navigate = useNavigate();
-  const { mutate: actionLoginApi } = adminApiHooks.useLogin();
+  const { mutate: actionLoginApi, isPending: isLoading } = adminApiHooks.useLogin();
+
+  const [modalAlert, setModalAlert] = useState<AlertProps>({
+    open: false,
+    onClose: () => { },
+    icon: "CheckCircle",
+    title: "",
+    description: "",
+    buttons: [],
+    size: "md",
+    dismissable: true,
+  });
 
   const methods = useForm({
     defaultValues: {
@@ -32,7 +45,7 @@ function Main() {
     actionLoginApi(values, {
       onSuccess: async (e) => {
         setToken(e.token);
-        adminApiClient.get("/user/get").then((res) => {  
+        adminApiClient.get("/user/get").then((res) => {
           setUser(res.data);
           if (res.data.role == "admin") {
             navigate(paths.administrator.dashboard);
@@ -44,8 +57,37 @@ function Main() {
           console.error("Failed to fetch user data:", e);
         });
       },
-      onError: (e: any) => {
-        alert("Failed to login");
+      onError: (e) => {
+        setModalAlert({
+          ...modalAlert,
+          title: "Login Failed",
+          description: e.message,
+          open: true,
+          icon: "MailWarning",
+          variant: "warning",
+          onClose: () => {
+            setModalAlert({ ...modalAlert, open: false })
+            navigate(paths.landingPage);
+          },
+          buttons: [
+            {
+              label: "Cancel",
+              variant: "outline-secondary",
+              onClick: () => {
+                setModalAlert({ ...modalAlert, open: false })
+                // window.location.reload();
+              }
+            },
+            {
+              label: "Back to Home",
+              variant: "primary",
+              onClick: () => {
+                setModalAlert({ ...modalAlert, open: false })
+                navigate(paths.landingPage);
+              }
+            }
+          ]
+        })
       },
     });
   }
@@ -64,7 +106,7 @@ function Main() {
             {/* BEGIN: Login Info */}
             <div className="flex-col hidden min-h-screen xl:flex">
               <a href={paths.landingPage} className="flex items-center pt-5 -intro-x">
-                <IconLogo className="w-16 h-12 text-white"/>
+                <IconLogo className="w-16 h-12 text-white" />
                 <span className="ml-3 text-lg text-white"> Seventy Five </span>
               </a>
               <div className="my-auto">
@@ -94,75 +136,77 @@ function Main() {
                   tennis club in one place
                 </div>
                 <FormProvider {...methods}>
-                <form onSubmit={methods.handleSubmit(goLogin)}>
-                <div className="mt-8 intro-x">
-                  <Controller
-                    name="username"
-                    control={methods.control}
-                    render={({ field, fieldState }) => {
-                      return (
-                          <FormInput
-                            type="email"
-                            onChange={field.onChange}
-                            autoComplete="email"
-                            className="block px-4 py-3 intro-x min-w-full xl:min-w-[350px]"
-                            placeholder="Email"
-                            name="username"
-                          />
-                      );
-                    }}
-                  />
-                  <Controller
-                    name="password"
-                    control={methods.control}
-                    render={({ field, fieldState }) => {
-                      return (
-                        <FormInput
-                          type="password"
-                          onChange={field.onChange}
-                          className="block px-4 py-3 mt-4 intro-x min-w-full xl:min-w-[350px]"
-                          placeholder="Password"
-                          autoComplete="current-password"
-                          name="password"
-                        />
-                      );
-                    }}
-                  />
-                </div>
-                <div className="flex mt-4 text-xs intro-x text-slate-600 dark:text-slate-500 sm:text-sm">
-                  <div className="flex items-center mr-auto">
-                    <FormCheck.Input
-                      id="remember-me"
-                      type="checkbox"
-                      className="mr-2 border"
-                    />
-                    <label
-                      className="cursor-pointer select-none"
-                      htmlFor="remember-me"
-                    >
-                      Remember me
-                    </label>
-                  </div>
-                  <a href="">Forgot Password?</a>
-                </div>
-                <div className="mt-5 text-center intro-x xl:mt-8 xl:text-left">
-                  <Button
-                    variant="primary"
-                    className="w-full px-4 py-3 align-top xl:w-32 xl:mr-3"
-                    onClick={methods.handleSubmit(goLogin)}
-                    type="submit"
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    variant="outline-secondary"
-                  className="w-full px-4 py-3 mt-3 align-top xl:w-32 xl:mt-0"
-                  onClick={() => navigate(paths.register)}
-                  >
-                    Register
-                  </Button>
+                  <form onSubmit={methods.handleSubmit(goLogin)}>
+                    <div className="mt-8 intro-x">
+                      <Controller
+                        name="username"
+                        control={methods.control}
+                        render={({ field, fieldState }) => {
+                          return (
+                            <FormInput
+                              type="email"
+                              onChange={field.onChange}
+                              autoComplete="email"
+                              className="block px-4 py-3 intro-x min-w-full xl:min-w-[350px]"
+                              placeholder="Email"
+                              name="username"
+                            />
+                          );
+                        }}
+                      />
+                      <Controller
+                        name="password"
+                        control={methods.control}
+                        render={({ field, fieldState }) => {
+                          return (
+                            <FormInput
+                              type="password"
+                              onChange={field.onChange}
+                              className="block px-4 py-3 mt-4 intro-x min-w-full xl:min-w-[350px]"
+                              placeholder="Password"
+                              autoComplete="current-password"
+                              name="password"
+                            />
+                          );
+                        }}
+                      />
                     </div>
-                </form>
+                    {/* <div className="flex mt-4 text-xs intro-x text-slate-600 dark:text-slate-500 sm:text-sm">
+                      <div className="flex items-center mr-auto">
+                        <FormCheck.Input
+                          id="remember-me"
+                          type="checkbox"
+                          className="mr-2 border"
+                        />
+                        <label
+                          className="cursor-pointer select-none"
+                          htmlFor="remember-me"
+                        >
+                          Remember me
+                        </label>
+                      </div>
+                      <a href="">Forgot Password?</a>
+                    </div> */}
+                    <div className="mt-5 text-center intro-x xl:mt-8 xl:text-left">
+                      <Button
+                        variant="primary"
+                        className="w-full px-4 py-3 align-top xl:w-32 xl:mr-3"
+                        onClick={methods.handleSubmit(goLogin)}
+                        disabled={isLoading}
+                        type="submit"
+                      >
+                        {isLoading ? "Loading.." : "Login"}
+
+                      </Button>
+                      <Button
+                        variant="outline-secondary"
+                        className="w-full px-4 py-3 mt-3 align-top xl:w-32 xl:mt-0"
+                        onClick={() => navigate(paths.register)}
+                      >
+                        Register
+                      </Button>
+                    </div>
+                  </form>
                 </FormProvider>
                 <div className="mt-10 text-center intro-x xl:mt-24 text-slate-600 dark:text-slate-500 xl:text-left">
                   By signin up, you agree to our{" "}
@@ -180,6 +224,16 @@ function Main() {
           </div>
         </div>
       </div>
+      <Confirmation
+        title={modalAlert.title || "Register"}
+        description={modalAlert.description || "Are you sure you want to register?"}
+        open={modalAlert.open}
+        onClose={modalAlert.onClose}
+        onConfirm={modalAlert.onConfirm}
+        icon={modalAlert.icon}
+        variant={modalAlert.variant}
+        buttons={modalAlert.buttons}
+      />
     </>
   );
 }
