@@ -166,7 +166,7 @@ export const MatchMediaAndInfoSection = ({
               </div>
               <div className="flex flex-row items-center border rounded-md px-2 py-1  border-gray-400 mb-1">
                 <Lucide icon="Calendar" className="mr-1" />
-                {moment(data?.data?.date).format("dddd, DD MMM YYYY")}
+                {moment(data?.data?.date).format("dddd, DD MMM YYYY hh:mm")}
               </div>
             </div>
           </div>
@@ -551,7 +551,7 @@ export const MatchMediaAndInfoSection = ({
         </div>
       </div>
 
-      <div style={{ position: "fixed", left: "-99999px", top: 0, width: 1080, height: 1920 }}>
+      <div style={{ position: "fixed", left: "-99999px", top: "-99999px", width: 1080, height: 1920 }}>
         <div
           ref={storyRef}
           style={{ width: 1080, height: 1920 }}
@@ -573,9 +573,9 @@ export const MatchMediaAndInfoSection = ({
 
           <div className="px-16 flex-1 flex flex-col justify-center">
             <div className="flex flex-row justify-between gap-8 mb-8">
-              <div className="text-2xl uppercase font-semibold line-clamp-2 text-ellipsis w-full">{data?.data?.home_team?.alias || data?.data?.home_team?.name}</div>
+              <div className="text-2xl uppercase font-semibold line-clamp-2 text-ellipsis w-full">{data?.data?.home_team?.alias == data?.data?.home_team?.name ? data?.data?.home_team?.name : data?.data?.home_team?.name + " " + data?.data?.home_team?.alias}</div>
               <div className="text-2xl uppercase font-semibold text-right line-clamp-2 text-ellipsis w-full">
-                {data?.data?.away_team?.alias || data?.data?.away_team?.name}
+                {data?.data?.away_team?.alias == data?.data?.away_team?.name ? data?.data?.away_team?.name : data?.data?.away_team?.name + " " + data?.data?.away_team?.alias}
               </div>
             </div>
             <div className="bg-white/10 rounded-[48px] p-12">
@@ -664,14 +664,15 @@ export const MatchMediaAndInfoSection = ({
                 </div>
                 <div className="flex flex-row items-center">
                   <Lucide icon="Calendar" className="mr-2" />
-                  <span>{moment(data?.data?.date).format("DD MMM YYYY")}</span>
+                  <span>{moment(data?.data?.date).format("DD MMM YYYY hh:mm")}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="p-16 opacity-90">
-            <div className="text-2xl uppercase tracking-tight">seventy<strong>five</strong></div>
+          <div className="p-16 opacity-90 flex flex-row justify-between">
+            <div className="text-2xl uppercase tracking-tight">seventy<strong>five</strong>.club</div>
+            <div className="text-2xl uppercase tracking-tight">@75<strong>Tennis</strong>Club</div>
           </div>
         </div>
       </div>

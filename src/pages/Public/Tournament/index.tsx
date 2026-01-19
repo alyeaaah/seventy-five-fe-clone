@@ -215,7 +215,7 @@ export const PublicTournament = () => {
               <IconLogoAlt className="h-10 w-20" />
               <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
                 <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
-                <span className="hidden sm:flex">Supported&nbsp;</span>By
+                Supported By
               </div>
             </div>
             <div className="col-span-12 grid grid-cols-12 gap-6 sm:gap-8 mt-2 rounded-xl overflow-x-scroll">

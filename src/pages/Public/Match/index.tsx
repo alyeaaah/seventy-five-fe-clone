@@ -111,7 +111,7 @@ export const PublicMatchDetail = () => {
           <div className="col-span-12 text-emerald-800 flex flex-row my-4 justify-center md:justify-start">
             <IconLogoAlt className="h-10 w-20" />
             <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
-              <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>Sponsors
+              Supported By
             </div>
             <div className="h-10 ml-1.5 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
           </div>
