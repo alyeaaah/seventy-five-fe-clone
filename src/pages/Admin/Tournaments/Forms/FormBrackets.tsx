@@ -54,6 +54,8 @@ export const TournamentFormBrackets = (props: Props) => {
   const [modalFormMatch, setModalFormMatch] = useState(false);
   const [roundValidation, setRoundValidation] = useState({ valid: false, message: "" });
   const [roundInfo, setRoundInfo] = useState<TournamentRounds>({ byes: 0, rounds: 0, teams: 0, nextPowerOf2: 0 });
+  const [allRounds, setAllRounds] = useState<IRound[]>([]);
+  // const [matchesData, setMatchesData] = useState<{ data: TournamentMatchDetail[] }>({ data: [] });
   // Fetch Tournament Info
   const { data } = TournamentsApiHooks.useGetTournamentsDetail({
     params: {
@@ -125,21 +127,15 @@ export const TournamentFormBrackets = (props: Props) => {
     } else if (matchesData?.data?.length && teamsData?.data?.length) {
       const mm = convertTournamentMatchToMatch(matchesData.data.map(m => ({
         ...m,
-        roundKey: m.round ? m.round - 1 : undefined,
-        round: m.round ? m.round - 1 : undefined,
+        roundKey: m.round !== undefined && m.round !== null && m.round >= 0 ? m.round : undefined,
+        round: m.round !== undefined && m.round !== null && m.round >= 0 ? m.round : undefined,
       })))
-      console.log(mm, "MATCHES");
-
       const allRounds = convertMatchToRound(mm);
-      console.log(allRounds, "ALL ROUNDS");
-
       setMatches(mm);
+      setAllRounds(allRounds);
     }
   }, [matchesData, data, teamsData]);
 
-  useEffect(() => {
-    console.log(matches, "MATCHES UPDATE");
-  }, [matches]);
   const setupTeamToRound = (teams: ITeam[]): IRound[] => {
     const calculateRound = calculateTournamentRounds(teams?.length * 2)
     setRoundInfo(calculateRound);
@@ -428,7 +424,7 @@ export const TournamentFormBrackets = (props: Props) => {
           </div>
           <div className="col-span-12">
             <DraggableBracket
-              rounds={convertMatchToRound(matches.filter(m => m.groupKey === undefined))}
+              rounds={allRounds}
               setRounds={(r) => {
                 const validation = validateNoDuplicateTeamsInRounds(r);
                 console.log("scheduledMatches1 ", validation, r);
@@ -456,7 +452,7 @@ export const TournamentFormBrackets = (props: Props) => {
                 setSelectedMatch(seed);
                 setModalFormMatch(true);
               }}
-              key={JSON.stringify(convertMatchToRound(matches.filter(m => m.groupKey === undefined)))}
+              key={JSON.stringify(allRounds)}
             />
           </div>
           <Divider className="mb-2 mt-2 col-span-12" />

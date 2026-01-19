@@ -16,9 +16,10 @@ const calculateTournamentRounds = (totalPlayers: number): TournamentRounds => {
 const convertMatchToRound = (matches: any[]): IRound[] => {
   const round: IRound[] = [];
   let seedIndex = 0;
-  matches.map(match => {
+  
+  matches.map((match,mi) => {
     if (match.roundKey === undefined) return [];
-    if (round.length < match.roundKey + 1) {
+    if (round.length < (match.roundKey || 0) + 1) {
       seedIndex = 0;
       round.push({
         title: `Round ${match.roundKey + 1}`,
@@ -45,7 +46,7 @@ const convertMatchToRound = (matches: any[]): IRound[] => {
         }
       ]
     };
-    round[match.roundKey].seeds.push({
+    round[match.roundKey || 0].seeds.push({
       ...transformedMatch,
       seed_index: seedIndex
     })

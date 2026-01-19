@@ -78,7 +78,7 @@ export const convertTournamentMatchToMatch = (matches: TournamentMatchDetail[]):
     away_team_score: match.away_team_score,
     game_scores: match.game_scores || undefined,
     round: match.round,
-    roundKey: match.round || undefined,
+    roundKey:match.round !== undefined && match.round !== null && match.round >= 0 ? match.round : undefined,
     groupKey: match.groupKey || 0,
     group_uuid: match.group_uuid,
     seed_index: match.seed_index || 0,
