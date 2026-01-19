@@ -1,5 +1,5 @@
 import Button from "@/components/Base/Button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { TournamentMatchesPayload, TournamentMatchPayload, TournamentTeams } from "../api/schema";
 import { TournamentsApiHooks } from "../api";
 import { queryClient } from "@/utils/react-query";
@@ -98,6 +98,17 @@ export const TournamentFormBrackets = (props: Props) => {
     }))
   })) || []) as ITeam[];
 
+  // Create a mapping of team names/aliases to their original UUIDs from teamsData
+  const teamUuidMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    teamsData?.data?.forEach(team => {
+      if (team.uuid && team.name) {
+        map[team.name] = team.uuid;
+      }
+    });
+    return map;
+  }, [teamsData]);
+
   // Fetch Tournament Matches 
   const { data: matchesData, isFetched: isFetchedMatches } = TournamentsApiHooks.useGetTournamentMatches({
     queries: {
@@ -150,6 +161,8 @@ export const TournamentFormBrackets = (props: Props) => {
         uuid: c.uuid
       })) || []
     });
+    console.log(allRounds, "ALLLL");
+
     const validation = validateNoDuplicateTeamsInRounds(allRounds);
     setRoundValidation(validation);
     return allRounds;
@@ -279,10 +292,10 @@ export const TournamentFormBrackets = (props: Props) => {
         round: match.roundKey,
         group: match.groupKey,
         seed_index: match.seed_index,
-        home_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[0]?.alias || "") ? match.teams?.[0]?.uuid || "TBD" : match.teams?.[0]?.alias || "TBD",
+        home_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[0]?.alias || "") ? (teamUuidMap[match.teams?.[0]?.alias || ""] || match.teams?.[0]?.uuid || "TBD") : match.teams?.[0]?.alias || "TBD",
         home_team_alias: match.teams?.[0]?.alias || "",
         away_team_alias: match.teams?.[1]?.alias || "",
-        away_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[1]?.alias || "") ? match.teams?.[1]?.uuid || "TBD" : match.teams?.[1]?.alias || "TBD",
+        away_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[1]?.alias || "") ? (teamUuidMap[match.teams?.[1]?.alias || ""] || match.teams?.[1]?.uuid || "TBD") : match.teams?.[1]?.alias || "TBD",
         home_group_index: match.teams?.[0]?.group_index !== undefined ? match.teams?.[0]?.group_index : null,
         home_group_position: match.teams?.[0]?.group_position !== undefined ? match.teams?.[0]?.group_position : null,
         away_group_index: match.teams?.[1]?.group_index !== undefined ? match.teams?.[1]?.group_index : null,
@@ -341,8 +354,8 @@ export const TournamentFormBrackets = (props: Props) => {
         round: match.roundKey,
         group: match.groupKey,
         seed_index: match.seed_index,
-        home_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[0]?.alias || "") ? match.teams?.[0]?.uuid : match.teams?.[0]?.alias || "",
-        away_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[1]?.alias || "") ? match.teams?.[1]?.uuid : match.teams?.[1]?.alias || "",
+        home_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[0]?.alias || "") ? (teamUuidMap[match.teams?.[0]?.alias || ""] || match.teams?.[0]?.uuid || "") : match.teams?.[0]?.alias || "",
+        away_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[1]?.alias || "") ? (teamUuidMap[match.teams?.[1]?.alias || ""] || match.teams?.[1]?.uuid || "") : match.teams?.[1]?.alias || "",
         home_team_alias: match.teams?.[0]?.alias || "",
         away_team_alias: match.teams?.[1]?.alias || "",
         home_group_index: match.teams?.[0]?.group_index !== undefined ? match.teams?.[0]?.group_index : null,
@@ -362,7 +375,7 @@ export const TournamentFormBrackets = (props: Props) => {
       body.matches.push(matchPayload)
     })
     console.log(body, "SUBMITMATCH matchPayload");
-
+    return;
     console.log(body.matches.filter(m => m.round !== undefined).map(m => ({ ...m, time: new Date(m.time || "") })), "BODY ROUND");
     console.log(body.matches.filter(m => m.group !== undefined).map(m => ({ ...m, time: new Date(m.time || "") })), "BODY GROUP");
     actionUpdateMatches({

@@ -9,6 +9,7 @@ export const convertTournamentTeamToTeam = (teams: TournamentTeams[]): ITeam[] =
     id: team.id || 0,
     uuid: team.uuid || "",
     name: team.name || "",
+    alias: team.name || "", // Set alias to team name for lookup
     teamKey: idx+1,
     players: team.players.map((player) => ({
       uuid: player.uuid || "",
@@ -44,6 +45,7 @@ export const convertTournamentMatchToMatch = (matches: TournamentMatchDetail[]):
     id: match.id || 0,
     teams: [{
       name: match.home_team.name,
+      alias: match.home_team.name, // Set alias to team name for lookup
       uuid: match.home_team.uuid,
       players: match.home_team.players.map(hp => ({
         id: hp.uuid || faker.string.uuid(),
@@ -57,6 +59,7 @@ export const convertTournamentMatchToMatch = (matches: TournamentMatchDetail[]):
       },
     }, {
       name: match.away_team.name,
+      alias: match.away_team.name, // Set alias to team name for lookup
       uuid: match.away_team.uuid,
       players: match.away_team.players.map(ap => ({
         id: ap.uuid || faker.string.uuid(),

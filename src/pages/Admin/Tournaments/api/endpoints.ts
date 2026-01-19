@@ -12,6 +12,7 @@ import {
   tournamentTeamsSchema,
 } from "./schema";
 import { sponsorsSchema } from "../../MasterData/Sponsors/api/schema";
+import { message } from "antd";
 
 const TournamentsListApi = makeEndpoint({
   alias: "getTournamentsList",
@@ -166,7 +167,8 @@ const TournamentsUpdateMatchesApi = makeEndpoint({
   parameters: parametersBuilder().addBody(tournamentMatchPayloadSchema).build(),
   response: z
     .object({
-      data: z.array(tournamentMatchSchema),
+      // data: z.array(tournamentMatchSchema),
+      message: z.string().nullish(),
     })
 });
 

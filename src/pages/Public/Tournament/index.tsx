@@ -123,7 +123,7 @@ export const PublicTournament = () => {
                       </div>
                       <div className="flex flex-col">
                         <span className="font-semibold text-sm">{detailTournament?.data.court_info?.name}</span>
-                        <span className="text-xs font-normal">{detailTournament?.data.court_info?.address}</span>
+                        <span className="text-xs font-normal text-ellipsis line-clamp-2">{detailTournament?.data.court_info?.address}</span>
                         <span className="text-xs font-light">{detailTournament?.data.court_info?.city}</span>
                       </div>
                     </a>
@@ -149,7 +149,7 @@ export const PublicTournament = () => {
                   </div>
                 </div>
                 <div className="col-span-12 sm:col-span-4">
-                  <img src={imageResizerDimension(detailTournament?.data.media_url || '', 420, "h")} className="flex w-full object-cover aspect-square rounded-xl border" />
+                  <img src={imageResizerDimension(detailTournament?.data.media_url || '', 420, "h")} className="flex w-full object-contain h-auto rounded-xl border" />
                 </div>
                 <div className="col-span-12 text-emerald-800 flex flex-row my-4">
                   <IconLogoAlt className="h-10 w-20" />

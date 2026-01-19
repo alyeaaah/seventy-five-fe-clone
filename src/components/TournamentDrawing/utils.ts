@@ -86,8 +86,8 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
                 ...team,
                 name: team.name || "",
                 alias: team.alias || "",
-                teamKey: tempTeamUuid,
-                uuid: tempTeamUuid,
+                teamKey: team.uuid || tempTeamUuid,
+                uuid: team.uuid || tempTeamUuid,
                 id: i,
                 players: team.players?.map(p => ({
                   uuid: p.uuid || "",
@@ -106,8 +106,8 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
               ...team,
               name: team.name || "",
               alias: team.alias || "",
-              teamKey: tempTeamUuid,
-              uuid: tempTeamUuid,
+              teamKey: team.uuid || tempTeamUuid,
+              uuid: team.uuid || tempTeamUuid,
               id: i,
               players: team.players?.map(p => ({
                 uuid: p.uuid || "",
@@ -127,8 +127,8 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
                 ...team,
                 name: team.name || "",
                 alias: team.alias || "",
-                teamKey: tempTeamUuid,
-                uuid: tempTeamUuid,
+                teamKey: team.uuid || tempTeamUuid,
+                uuid: team.uuid || tempTeamUuid,
                 id: i,
                 players: team.players?.map(p => ({
                   uuid: p.uuid || "",
@@ -155,8 +155,8 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
             ...team,
             name: team.name || "",
             alias: team.alias || "",
-            teamKey: tempTeamUuid,
-            uuid: tempTeamUuid,
+            teamKey: team.uuid || tempTeamUuid,
+            uuid: team.uuid || tempTeamUuid,
             id: i,
             players: team.players?.map(p => ({
               uuid: p.uuid || "",
