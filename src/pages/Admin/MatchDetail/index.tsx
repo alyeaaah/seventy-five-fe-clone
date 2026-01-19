@@ -556,7 +556,7 @@ export const MatchDetail = () => {
             setRetirement({
               matchUuid,
               team: pos,
-              player_uuid: player.uuid,
+              player_uuid: player.uuid || "",
               retirement: "NO_SHOW"
             });
             setModalAlert(undefined);
@@ -648,7 +648,7 @@ export const MatchDetail = () => {
             setRetirement({
               matchUuid,
               team: pos,
-              player_uuid: player.uuid,
+              player_uuid: player.uuid || "",
               notes,
               retirement: "INJURY"
             });

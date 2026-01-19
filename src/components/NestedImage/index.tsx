@@ -8,15 +8,18 @@ interface NestedImageProps extends HTMLProps<HTMLDivElement> {
   players: {
     media_url: string | null | undefined;
     name: string;
-    uuid?: string;
+    uuid?: string | null;
   }[];
 }
 export const NestedImage = ({ players, className }: NestedImageProps) => {
   const navigate = useNavigate();
 
+  // Filter out players with null UUIDs for navigation
+  const validPlayers = players?.filter(player => player.uuid !== null) || [];
+
   return (
     <div className={`flex flex-row h-full aspect-video justify-center relative ${className}`}>
-      <Link to={players?.[0]?.uuid ? paths.players.info({ uuid: players?.[0]?.uuid || "" }).$ : "#"}>
+      <Link to={validPlayers?.[0]?.uuid ? paths.players.info({ uuid: validPlayers?.[0]?.uuid || "" }).$ : "#"}>
         <Tippy
           as="div"
           className="h-full aspect-square image-fit zoom-in left-0 absolute rounded-full"
@@ -28,7 +31,7 @@ export const NestedImage = ({ players, className }: NestedImageProps) => {
           />
         </Tippy>
       </Link>
-      <Link to={players?.[1]?.uuid ? paths.players.info({ uuid: players?.[1]?.uuid || "" }).$ : "#"}>
+      <Link to={validPlayers?.[1]?.uuid ? paths.players.info({ uuid: validPlayers?.[1]?.uuid || "" }).$ : "#"}>
         <Tippy
           as="div"
           className="flex h-full aspect-square image-fit zoom-in absolute right-0 mt-0 rounded-full"

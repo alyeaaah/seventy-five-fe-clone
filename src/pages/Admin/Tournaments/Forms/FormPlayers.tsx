@@ -142,7 +142,7 @@ export const TournamentFormPlayers = (props: Props) => {
   );
 
   // Handler untuk menambahkan player dari sidebar
-  const handleAddPlayer = (player: { uuid?: string; name?: string | null; media_url?: string | null }, currentPlayersOverride?: any[], currentTeamNamesOverride?: any[]) => {
+  const handleAddPlayer = (player: { uuid?: string | null; name?: string | null; media_url?: string | null }, currentPlayersOverride?: any[], currentTeamNamesOverride?: any[]) => {
     if (!player.uuid) return { players: currentPlayersOverride || getValues("players"), teamNames: currentTeamNamesOverride || teamNames };
     const currentPlayers = currentPlayersOverride || getValues("players");
     const currentTeamNames = currentTeamNamesOverride || teamNames;
