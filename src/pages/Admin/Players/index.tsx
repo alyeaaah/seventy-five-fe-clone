@@ -77,6 +77,14 @@ function Players() {
       },
       cacheTime: 0,
     },
+    {
+      onSuccess: (d) => {
+        console.log("result", d)
+      },
+      onError: (e) => {
+        console.log("ee", e);
+      }
+    }
   );
   const handleDeletePlayer = (refId: string) => {
     setModalAlert({
@@ -297,7 +305,7 @@ function Players() {
           <div className="flex mt-4 sm:mt-0">
           </div>
         </div>
-        <div className="overflow-x-auto scrollbar-hidden">
+        <div className="overflow-x-auto scrollbar-hidden" key={JSON.stringify(data)}>
           <Table
             key={JSON.stringify(data)}
             dataSource={data?.data || []}
