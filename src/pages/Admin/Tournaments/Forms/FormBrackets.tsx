@@ -123,8 +123,10 @@ export const TournamentFormBrackets = (props: Props) => {
   // Handle Fetched Tournament Matches
   useEffect(() => {
     if (!matchesData?.data?.length && teamsData?.data?.length) {
+      console.log("teamsData", teamsData?.data);
       setupRound(teamsData?.data);
     } else if (matchesData?.data?.length && teamsData?.data?.length) {
+      console.log("matchesData", matchesData?.data);
       const mm = convertTournamentMatchToMatch(matchesData.data.map(m => ({
         ...m,
         roundKey: m.round !== undefined && m.round !== null && m.round >= 0 ? m.round : undefined,
@@ -191,6 +193,12 @@ export const TournamentFormBrackets = (props: Props) => {
           })) || []
         }
       })
+      console.log("matchesSchedule", matchesSchedule.map(m => ({
+        ...m,
+        a: new Date(m.time || ""),
+        aa: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
+      })));
+      setAllRounds(convertMatchToRound(matchesSchedule));
       setMatches(matchesSchedule);
     }
   };

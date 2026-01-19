@@ -16,8 +16,17 @@ const calculateTournamentRounds = (totalPlayers: number): TournamentRounds => {
 const convertMatchToRound = (matches: any[]): IRound[] => {
   const round: IRound[] = [];
   let seedIndex = 0;
+  let sortedMatch = matches;
+  if (matches[0].roundKey !== undefined && matches[0].seed_index !== undefined) {
+    sortedMatch = matches.sort((a, b) => {
+      if (a.roundKey !== b.roundKey) {
+        return a.roundKey - b.roundKey; // sort by round first
+      }
+      return a.seed_index - b.seed_index; // then by seed
+    });
+  }
   
-  matches.map((match,mi) => {
+  sortedMatch.map((match, mi) => {
     if (match.roundKey === undefined) return [];
     if (round.length < (match.roundKey || 0) + 1) {
       seedIndex = 0;

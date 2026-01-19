@@ -43,10 +43,9 @@ export const assignSchedule = (params: ScheduleParams): IMatch[] => {
     return (a.roundKey || 0) - (b.roundKey || 0);
   });
 
-  // Generate available time slots for both days
-  const day1Slots = generateTimeSlots(startDate, courts, true, matchDuration); // true = first day with ceremony
-  const day2Slots = generateTimeSlots(endDate, courts, false, matchDuration);
-  const allSlots = [...day1Slots, ...day2Slots];
+  // Generate available time slots for the tournament period
+  const allSlots = generateTimeSlots(startDate, endDate, courts, matchDuration);
+
 
   // Shuffle group matches for random assignment
   const shuffledGroupMatches = shuffleArray([...groupMatches]);
@@ -184,64 +183,87 @@ const updateTeamSchedules = (
 };
 
 /**
- * Generates all available time slots for a given day
- * Now uses configurable intervals
+ * Generates all available time slots for a given tournament period
+ * @param startDate - Tournament start date and time
+ * @param endDate - Tournament end date and time
+ * @param courts - Available courts
  * @param matchDuration - Duration in minutes for validation purposes
  */
 const generateTimeSlots = (
-  date: Date,
+  startDate: Date,
+  endDate: Date,
   courts: { uuid: string; name: string }[],
-  isFirstDay: boolean,
   matchDuration: number = 40 // 30 min game + 10 min spare time
 ): TimeSlot[] => {
   const slots: TimeSlot[] = [];
-  const dayStart = new Date(date);
-  dayStart.setHours(0, 0, 0, 0);
-
+  
   // Define session times
   const morningSessions = { start: 7, end: 11 }; // 07:00-11:00
   const eveningSessions = { start: 15, end: 23 }; // 15:00-23:00
   const lastStartTime = 22.5; // 22:30 (22.5 hours)
   const intervalMinutes = 10; // 10-minute intervals
 
-  // Morning session slots
-  let startHour = morningSessions.start;
-  if (isFirstDay) {
-    startHour += 1; // Add 1 hour for ceremonial on first day
-  }
+  // Calculate the number of days between start and end dates
+  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  
+  for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
+    const currentDate = new Date(startDate);
+    currentDate.setDate(startDate.getDate() + dayOffset);
+    currentDate.setHours(0, 0, 0, 0);
+    
+    // Skip if this day is beyond the end date
+    if (currentDate > endDate) break;
+    
 
-  // Generate morning slots
-  for (let hour = startHour; hour < morningSessions.end; hour++) {
-    for (let minute = 0; minute < 60; minute += intervalMinutes) {
-      const timeInHours = hour + minute / 60;
-      if (timeInHours + matchDuration / 60 <= morningSessions.end) {
-        for (const court of courts) {
-          const slotTime = new Date(dayStart);
-          slotTime.setHours(hour, minute, 0, 0);
-          slots.push({
-            time: slotTime,
-            courtUuid: court.uuid,
-            courtName: court.name,
-          });
+    // Morning session slots
+    let startHour = morningSessions.start;
+    if (dayOffset === 0) {
+      // For the first day, check if we need to account for ceremony time
+      const ceremonyStartHour = morningSessions.start + 1; // Add 1 hour for ceremonial on first day
+      startHour = ceremonyStartHour;
+    }
+
+    // Generate morning slots
+    for (let hour = startHour; hour < morningSessions.end; hour++) {
+      for (let minute = 0; minute < 60; minute += intervalMinutes) {
+        const timeInHours = hour + minute / 60;
+        if (timeInHours + matchDuration / 60 <= morningSessions.end) {
+          for (const court of courts) {
+            const slotTime = new Date(currentDate);
+            slotTime.setHours(hour, minute, 0, 0);
+            
+            // Only add slots that are within the tournament period
+            if (slotTime >= startDate && slotTime <= endDate) {
+              slots.push({
+                time: slotTime,
+                courtUuid: court.uuid,
+                courtName: court.name,
+              });
+            }
+          }
         }
       }
     }
-  }
 
-  // Generate evening slots
-  for (let hour = eveningSessions.start; hour < eveningSessions.end; hour++) {
-    for (let minute = 0; minute < 60; minute += intervalMinutes) {
-      const timeInHours = hour + minute / 60;
-      // No game starts after 22:30
-      if (timeInHours <= lastStartTime) {
-        for (const court of courts) {
-          const slotTime = new Date(dayStart);
-          slotTime.setHours(hour, minute, 0, 0);
-          slots.push({
-            time: slotTime,
-            courtUuid: court.uuid,
-            courtName: court.name,
-          });
+    // Generate evening slots
+    for (let hour = eveningSessions.start; hour < eveningSessions.end; hour++) {
+      for (let minute = 0; minute < 60; minute += intervalMinutes) {
+        const timeInHours = hour + minute / 60;
+        // No game starts after 22:30
+        if (timeInHours <= lastStartTime) {
+          for (const court of courts) {
+            const slotTime = new Date(currentDate);
+            slotTime.setHours(hour, minute, 0, 0);
+            
+            // Only add slots that are within the tournament period
+            if (slotTime >= startDate && slotTime <= endDate) {
+              slots.push({
+                time: slotTime,
+                courtUuid: court.uuid,
+                courtName: court.name,
+              });
+            }
+          }
         }
       }
     }
