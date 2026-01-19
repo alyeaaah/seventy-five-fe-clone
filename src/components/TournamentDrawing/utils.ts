@@ -57,7 +57,6 @@ const convertMatchToRound = (matches: any[]): IRound[] => {
   if (round.length >= 2) {
     round[round.length - 2].title = `Semifinal`
   }
-  console.log(round, "ROUND");
   return round;
 }
   

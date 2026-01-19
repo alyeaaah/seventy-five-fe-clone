@@ -280,6 +280,8 @@ export const TournamentFormBrackets = (props: Props) => {
         group: match.groupKey,
         seed_index: match.seed_index,
         home_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[0]?.alias || "") ? match.teams?.[0]?.uuid || "TBD" : match.teams?.[0]?.alias || "TBD",
+        home_team_alias: match.teams?.[0]?.alias || "",
+        away_team_alias: match.teams?.[1]?.alias || "",
         away_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[1]?.alias || "") ? match.teams?.[1]?.uuid || "TBD" : match.teams?.[1]?.alias || "TBD",
         home_group_index: match.teams?.[0]?.group_index !== undefined ? match.teams?.[0]?.group_index : null,
         home_group_position: match.teams?.[0]?.group_position !== undefined ? match.teams?.[0]?.group_position : null,
@@ -331,8 +333,7 @@ export const TournamentFormBrackets = (props: Props) => {
       tournament_uuid: tournamentUuid,
       matches: []
     };
-    matches.map((match, idx) => {
-      console.log(match, "SUBMITMATCH");
+    matches.filter(m => m.groupKey === undefined).map((match, idx) => {
 
       const matchPayload: TournamentMatchPayload = {
         id: !isNaN(Number(match.id)) ? +match.id : Number(`${data?.data?.id}${idx}`),
@@ -342,11 +343,13 @@ export const TournamentFormBrackets = (props: Props) => {
         seed_index: match.seed_index,
         home_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[0]?.alias || "") ? match.teams?.[0]?.uuid : match.teams?.[0]?.alias || "",
         away_team_uuid: !["TBD", 'BYE'].includes(match.teams?.[1]?.alias || "") ? match.teams?.[1]?.uuid : match.teams?.[1]?.alias || "",
+        home_team_alias: match.teams?.[0]?.alias || "",
+        away_team_alias: match.teams?.[1]?.alias || "",
         home_group_index: match.teams?.[0]?.group_index !== undefined ? match.teams?.[0]?.group_index : null,
         home_group_position: match.teams?.[0]?.group_position !== undefined ? match.teams?.[0]?.group_position : null,
         away_group_index: match.teams?.[1]?.group_index !== undefined ? match.teams?.[1]?.group_index : null,
         away_group_position: match.teams?.[1]?.group_position !== undefined ? match.teams?.[1]?.group_position : null,
-        court_field_uuid: match.court_field_uuid || "",
+        court_field_uuid: match.court_uuid || "",
         status: match.status,
         time: match.time,
         updatedAt: match.updatedAt,
@@ -355,10 +358,10 @@ export const TournamentFormBrackets = (props: Props) => {
         home_team_score: match.home_team_score,
         away_team_score: match.away_team_score
       }
-      console.log(matchPayload, "SUBMITMATCH matchPayload");
 
       body.matches.push(matchPayload)
     })
+    console.log(body, "SUBMITMATCH matchPayload");
 
     console.log(body.matches.filter(m => m.round !== undefined).map(m => ({ ...m, time: new Date(m.time || "") })), "BODY ROUND");
     console.log(body.matches.filter(m => m.group !== undefined).map(m => ({ ...m, time: new Date(m.time || "") })), "BODY GROUP");
@@ -415,11 +418,23 @@ export const TournamentFormBrackets = (props: Props) => {
               rounds={convertMatchToRound(matches.filter(m => m.groupKey === undefined))}
               setRounds={(r) => {
                 const validation = validateNoDuplicateTeamsInRounds(r);
-                console.log(r, "seedindex");
+                console.log("scheduledMatches1 ", validation, r);
 
                 if (!!validation.valid) {
                   const roundMatches = getAllKnockoutMatches(r).sort((a, b) => (a.roundKey || 0) - (b.roundKey || 0));
-                  setMatches(matches.filter(m => m.groupKey !== undefined).concat(roundMatches));
+                  const scheduledMatches = assignSchedule({
+                    matches: matches.filter(m => m.groupKey !== undefined).concat(roundMatches), info: {
+                      courts: courtOptions?.data?.fields?.map(c => ({
+                        uuid: c.uuid,
+                        name: c.name
+                      })) || [],
+                      startDate: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
+                      endDate: data?.data?.end_date ? new Date(data?.data?.end_date) : new Date(),
+                    }
+                  });
+                  setMatches(scheduledMatches);
+                  console.log("scheduledMatches", scheduledMatches);
+
                 }
                 setRoundValidation(validation);
 

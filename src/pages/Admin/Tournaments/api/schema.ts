@@ -82,10 +82,12 @@ export const tournamentMatchSchema = z.object({
   tournament_uuid: z.string().nullish(),
   home_team_uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
   away_team_uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
+  home_team_alias: z.string().nullish(),
   home_group_index: z.number().nullish(),
   home_group_position: z.number().nullish(),
   away_group_index: z.number().nullish(),
   away_group_position: z.number().nullish(),
+  away_team_alias: z.string().nullish(),
   home_team_score: z.number().default(0).nullish(),
   away_team_score: z.number().default(0).nullish(),
   game_scores: z.array(z.object({
