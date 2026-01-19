@@ -138,6 +138,14 @@ export const TournamentFormPlayers = (props: Props) => {
         limit: 20,
         page: availablePlayersPage
       }
+    },
+    {
+      onSuccess: (d) => {
+        console.log("result", d);
+      },
+      onError: (e) => {
+        console.log("ee", e);
+      }
     }
   );
 
@@ -347,7 +355,7 @@ export const TournamentFormPlayers = (props: Props) => {
                 </div>
                 <Divider className="mb-3" />
               </div>
-              <div className="max-h-[600px] overflow-y-auto">
+              <div className="max-h-[600px] overflow-y-auto" key={JSON.stringify(availablePlayersData?.data)}>
                 {availablePlayersData?.data?.map((player) => {
                   const playerAdded = watch('players').some(p => p.player_uuid === player.uuid);
                   return (
