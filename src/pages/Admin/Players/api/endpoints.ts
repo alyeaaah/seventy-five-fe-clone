@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { playerDetailSchema, playerSchemaList, PlayersPayload, playersSchema } from "./schema";
+import { playerDetailSchema, playerSchemaList, PlayersPayload, playersSchema, quickAddPlayerPayloadSchema } from "./schema";
 import moment from "moment";
 import { playersPartialSchema } from "@/pages/Players/Home/api/schema";
 
@@ -87,6 +87,17 @@ const PlayersToggleFeaturedApi = makeEndpoint({
     })
 });
 
+const PlayersQuickAddApi = makeEndpoint({
+  alias: "quickAddPlayer",
+  method: "post",
+  path: `/player/quick-add`,
+  parameters: parametersBuilder().addBody(quickAddPlayerPayloadSchema).build(),
+  response: z.object({
+    message: z.string().optional(),
+    data: z.any().optional(),
+  }),
+});
+
 export const endpoints = {
   PlayersListApi,
   PlayersCreateApi,
@@ -94,5 +105,6 @@ export const endpoints = {
   PlayersDeleteApi,
   PlayersDetailApi,
   PlayersToggleFeaturedApi,
-  PlayersChangeRoleApi
+  PlayersChangeRoleApi,
+  PlayersQuickAddApi
 };

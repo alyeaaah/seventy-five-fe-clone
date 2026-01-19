@@ -1,6 +1,6 @@
 import { Divider, Modal, Slider } from "antd";
-import { useAtomValue } from "jotai";
-import { userAtom } from "@/utils/store";
+import { useAtomValue, useSetAtom } from "jotai";
+import { accessTokenAtom, userAtom } from "@/utils/store";
 import { PlayerHomeApiHooks } from "../Home/api";
 import { profileChecker } from "@/utils/helper";
 import Lucide from "@/components/Base/Lucide";
@@ -9,7 +9,7 @@ import { Controller, FormProvider, SubmitHandler, useForm } from "react-hook-for
 import { FormCheck, FormHelp, FormInput, FormLabel, FormSelect, FormTextarea, InputGroup } from "@/components/Base/Form";
 import UploadDropzone from "@/components/UploadDropzone";
 import clsx from "clsx";
-import { PlayersPayload, playersSchema } from "../Profile/api/schema";
+import { PlayersPayload } from "../Profile/api/schema";
 import { playersSchema as playerHomeSchema } from "../Home/api/schema";
 import { PlayerProfileApiHooks } from "../Profile/api";
 import { queryClient } from "@/utils/react-query";
@@ -26,6 +26,7 @@ import Button from "@/components/Base/Button";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { LandingPageApiHooks } from "@/pages/Public/LandingPage/api";
 import { PublicPlayerApiHooks } from "@/pages/Public/Player/api";
+import { paths } from "@/router/paths";
 
 
 export const ModalCompleteProfile = () => {
@@ -37,6 +38,9 @@ export const ModalCompleteProfile = () => {
   const { data: levelList, isLoading, refetch } = LandingPageApiHooks.useGetLevelList({}, {});
 
   const userData = useAtomValue(userAtom);
+  const setUser = useSetAtom(userAtom);
+  const setToken = useSetAtom(accessTokenAtom);
+
   const { data } = PlayerHomeApiHooks.useGetPlayersDetail({
     params: {
       uuid: userData?.uuid as string
@@ -1016,6 +1020,20 @@ export const ModalCompleteProfile = () => {
                 <Divider className="mb-0" />
               </div>
               <div className="col-span-12 flex flex-col sm:flex-row sm:justify-end items-stretch pb-4 px-4 gap-2">
+
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={() => {
+
+                    setToken(null);
+                    setUser(null)
+                    navigate(paths.login, { replace: true });
+                  }}
+                  className="sm:mr-2"
+                >
+                  Sign Out
+                </Button>
                 <Button
                   type="button"
                   variant="outline-secondary"

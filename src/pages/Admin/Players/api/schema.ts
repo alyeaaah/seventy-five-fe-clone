@@ -1,8 +1,21 @@
 import { playerLeagueSchema } from "@/pages/Players/Home/api/schema";
 import { z } from "zod";
 
+export const quickAddPlayerPayloadSchema = z.object({
+  name: z.string().min(2, "Player name must be at least 2 characters long"),
+  nickname: z.string().min(2, "Nickname must be at least 2 characters long"),
+  gender: z.enum(["m", "f"], {
+    required_error: "Gender can't be empty",
+    invalid_type_error: "Please select a valid gender (male or female)",
+    message: "Please select a valid gender (male or female)",
+  }),
+  password: z.string().nullish(),
+  level_uuid: z.string().nullish(),
+  league_id: z.number().int().min(1, "League is required"),
+});
+
 export const playersSchema = z.object({
-  uuid: z.string().optional(),
+  uuid: z.string().nullish(),
   name: z.string()
     .min(2, "Player name must be at least 2 characters long"),
   username: z.string()
@@ -24,32 +37,32 @@ export const playersSchema = z.object({
   media_url: z.string()
     .min(2, "Image is required"),
   avatar_url: z.string().nullish(),
-  dateOfBirth: z.string().date().optional(),
-  placeOfBirth: z.string().optional(),
+  dateOfBirth: z.string().date().nullish(),
+  placeOfBirth: z.string().nullish(),
   gender: z.enum(['m', 'f'], {
     required_error: "Gender can't be empty",
     invalid_type_error: "Please select a valid gender (male or female)",
     message: "Please select a valid gender (male or female)",
   }),
   isVerified: z.boolean().default(false),
-  height: z.number().optional(),
-  turnDate: z.string().date().optional(),
+  height: z.number().nullish(),
+  turnDate: z.string().date().nullish(),
   skills: z.object({
     forehand: z.number().default(0),
     backhand: z.number().default(0),
     serve: z.number().default(0),
     volley: z.number().default(0),
     overhead: z.number().default(0),
-  }).optional(),
-  playstyleForehand: z.enum(['RIGHT', 'LEFT']).default('RIGHT').optional(),
-  playstyleBackhand: z.enum(['One Handed', 'Double Handed']).default('Double Handed').optional(),
-  socialMediaIg: z.string().optional(),
-  socialMediaX: z.string().optional(),
-  level: z.string().optional(),
+  }).nullish(),
+  playstyleForehand: z.enum(['RIGHT', 'LEFT']).default('RIGHT').nullish(),
+  playstyleBackhand: z.enum(['One Handed', 'Double Handed']).default('Double Handed').nullish(),
+  socialMediaIg: z.string().nullish(),
+  socialMediaX: z.string().nullish(),
+  level: z.string().nullish(),
   level_uuid: z.string({ required_error: "Level is required" }),
   league: playerLeagueSchema.nullish(),
   league_id: z.number().nullish(),
-  point: z.number().optional(),
+  point: z.number().nullish(),
   createdAt: z.string().datetime().nullish(),
   updatedAt: z.string().datetime().nullish(),
   role: z.enum(['PLAYER', 'ADMIN']).nullish()
@@ -65,6 +78,7 @@ export const playerSchemaList = playersSchema.extend({
   address: z.string().nullish(),
   height: z.number().nullish(),
   turnDate: z.string().nullish(),
+  phone: z.string(),
 });
 export const playerDetailSchema = z.object({
   uuid: z.string(),
@@ -72,13 +86,13 @@ export const playerDetailSchema = z.object({
   email: z.string(),
   city: z.string(),
   address: z.string(),
-  lat: z.string().optional(),
-  long: z.string().optional(),
+  lat: z.string().nullish(),
+  long: z.string().nullish(),
   createdAt: z.string().datetime().nullish(),
   updatedAt: z.string().datetime().nullish(),
 });
 export const playerAddressSchema = z.object({
-  uuid: z.string().optional(),
+  uuid: z.string().nullish(),
   player_uuid: z.string().nullish(),
   receiver_name: z.string(),
   phone: z.string(),
@@ -219,4 +233,6 @@ export type PlayersPayload = z.infer<typeof playersSchema>;
 export type PlayerAddressPayload = z.infer<typeof playerAddressPayloadSchema>;
 export type PlayerAddress = z.infer<typeof playerAddressSchema>;
 export type PlayerList = z.infer<typeof playerSchemaList>;
+
+export type QuickAddPlayerPayload = z.infer<typeof quickAddPlayerPayloadSchema>;
 

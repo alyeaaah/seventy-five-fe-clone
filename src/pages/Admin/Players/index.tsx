@@ -10,13 +10,14 @@ import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { useToast } from "@/components/Toast/ToastContext";
 import Table, { ColumnsType } from "antd/es/table";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import styles from "./index.module.scss";
-import { PlayerList, PlayersPayload } from "./api/schema";
+import { PlayerList } from "./api/schema";
 import Image from "@/components/Image";
 import { imageResizer } from "@/utils/helper";
 import { Menu } from "@/components/Base/Headless";
+import { QuickAddModal } from "./Forms/QuickAddModal";
 
 function Players() {
   const screens = useBreakpoint();
@@ -28,6 +29,7 @@ function Players() {
     search: "",
   });
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const { showNotification } = useToast();
   const { mutate: actionDeletePlayer } = PlayersApiHooks.useDeletePlayer({
     params: {
@@ -142,7 +144,7 @@ function Players() {
       className: "rounded-l-xl"
     },
     {
-      fixed: "left",
+
       title: "Name",
       dataIndex: "name",
       align: "left",
@@ -211,9 +213,9 @@ function Players() {
               </Menu.Button>
               <Menu.Items className="w-40">
                 <Menu.Header className="bg-emerald-800 italic font-bold text-white rounded-xl tracking-widestç text-xs p-1">{record.role}</Menu.Header>
-                <Menu.Divider/>
+                <Menu.Divider />
                 <Menu.Item onClick={() => changeRolePlayer(record.uuid || "")}>
-                  <Lucide icon="UserCog" className="w-4 h-4 mr-2"/>
+                  <Lucide icon="UserCog" className="w-4 h-4 mr-2" />
                   Set as {record.role === "PLAYER" ? "Admin" : "Player"}
                 </Menu.Item>
                 <Menu.Item onClick={() => handleDeletePlayer(value)} className="text-danger">
@@ -239,6 +241,14 @@ function Players() {
         <div className="flex">
           <Button variant="primary" className="mr-2 shadow-md" onClick={() => navigate(paths.administrator.players.new)} >
             Add New Player
+          </Button>
+          <Button
+            variant="secondary"
+            className="mr-2 shadow-md"
+            type="button"
+            onClick={() => setIsQuickAddOpen(true)}
+          >
+            Quick Add Player
           </Button>
         </div>
       </div>
@@ -329,7 +339,7 @@ function Players() {
                         <Menu.Header className="bg-emerald-800 text-center italic font-bold text-white rounded-xl tracking-tighter text-xs p-1">{record.role}</Menu.Header>
                         <Menu.Divider />
                         <Menu.Item onClick={() => changeRolePlayer(record.uuid || "")} >
-                          <Lucide icon="UserCog" className="w-4 h-4 mr-2"/>
+                          <Lucide icon="UserCog" className="w-4 h-4 mr-2" />
                           Set as {record.role === "PLAYER" ? "Admin" : "Player"}
                         </Menu.Item>
                         <Menu.Item onClick={() => handleDeletePlayer(record.uuid || "")} className="text-danger">
@@ -348,7 +358,7 @@ function Players() {
         </div>
       </div>
       <Confirmation
-        open={!!modalAlert?.open} 
+        open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
         icon={modalAlert?.icon || "Info"}
         title={modalAlert?.title || ""}
@@ -356,6 +366,8 @@ function Players() {
         refId={modalAlert?.refId}
         buttons={modalAlert?.buttons}
       />
+
+      <QuickAddModal isOpen={isQuickAddOpen} onClose={() => setIsQuickAddOpen(false)} />
     </>
   );
 }

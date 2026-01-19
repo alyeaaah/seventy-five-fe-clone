@@ -16,7 +16,8 @@ export const PlayersApiClient = new Zodios(
     endpoints.PlayersDeleteApi,
     endpoints.PlayersDetailApi,
     endpoints.PlayersToggleFeaturedApi,
-    endpoints.PlayersChangeRoleApi
+    endpoints.PlayersChangeRoleApi,
+    endpoints.PlayersQuickAddApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );
