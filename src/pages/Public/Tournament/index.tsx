@@ -6,12 +6,15 @@ import { PublicBlogApiHooks } from "../Blog/api";
 import Lucide from "@/components/Base/Lucide";
 import moment from "moment";
 import { FadeAnimation } from "@/components/Animations";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CarouselRef } from "antd/es/carousel";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { paths } from "@/router/paths";
 import { IconLogoAlt } from "@/assets/images/icons";
 import { DraggableBracket, TournamentDrawingUtils } from "@/components/TournamentDrawing";
+import { IMatch, IRound } from "@/components/TournamentDrawing/interfaces";
+import { convertTournamentMatchToMatch } from "@/utils/drawing.util";
+import { TournamentStory } from "@/components/TournamentStory";
 
 
 export const PublicTournament = () => {
@@ -20,7 +23,8 @@ export const PublicTournament = () => {
   const { uuid } = queryParams;
   const sliderRef = useRef<CarouselRef>(null);
   const { data: liveMatch } = PublicTournamentApiHooks.useGetOngoingMatch();
-  const { data: upcomingMatch } = PublicTournamentApiHooks.useGetUpcomingMatch({}, { enabled: liveMatch?.data?.length === 0 });
+  const [knockoutRound, setKnockoutRound] = useState<IRound[]>([]);
+  const { convertMatchToRound } = TournamentDrawingUtils;
 
   const { data } = PublicTournamentApiHooks.useGetFeaturedTournament(
     {
@@ -51,6 +55,14 @@ export const PublicTournament = () => {
       retry: false
     }
   );
+  useEffect(() => {
+    if (tournamentMatches?.data) {
+      const knockoutMatches = tournamentMatches?.data.filter((match) => match.groupKey === null || match.groupKey === undefined);
+
+      const convertedKnockoutMatches: IMatch[] = convertTournamentMatchToMatch(knockoutMatches);
+      setKnockoutRound(convertMatchToRound(convertedKnockoutMatches));
+    }
+  }, [tournamentMatches])
   const { data: tournamentSponsors } = PublicTournamentApiHooks.useGetTournamentDetailSponsors(
     {
       params: {
@@ -116,9 +128,9 @@ export const PublicTournament = () => {
                     <div className="w-8 bottom-0 absolute border-b-4 border-b-emerald-800"></div>
                   </h2>
                   <h4 className="text-sm font-light text-gray-500 py-4 " dangerouslySetInnerHTML={{ __html: detailTournament?.data.description || "" }}></h4>
-                  <div className="grid grid-cols-3">
-                    <a className="col-span-2 md:col-span-1 text-gray-500 hover:text-emerald-800 text-[11px] font-light flex flex-row items-center" href={`https://www.google.com/maps/search/?api=1&query=${detailTournament?.data.court_info?.lat},${detailTournament?.data.court_info?.long}`} target="_blank" rel="noreferrer">
-                      <div className="h-full aspect-square p-2">
+                  <div className="grid grid-cols-3 gap-y-2">
+                    <a className="col-span-3 md:col-span-1 text-gray-500 hover:text-emerald-800 text-[11px] font-light flex flex-row items-center" href={`https://www.google.com/maps/search/?api=1&query=${detailTournament?.data.court_info?.lat},${detailTournament?.data.court_info?.long}`} target="_blank" rel="noreferrer">
+                      <div className="h-full aspect-square p-2  w-12">
                         <Lucide icon="MapPin" className="h-full w-full" />
                       </div>
                       <div className="flex flex-col">
@@ -127,24 +139,30 @@ export const PublicTournament = () => {
                         <span className="text-xs font-light">{detailTournament?.data.court_info?.city}</span>
                       </div>
                     </a>
-                    <div className="col-span-2 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
-                      <div className="h-full aspect-square p-2">
+                    <div className="col-span-3 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
+                      <div className="h-full aspect-square p-2  w-12">
                         <Lucide icon="Calendar" className="h-full w-full" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-sm">{moment(detailTournament?.data.start_date).format('DD MMM')} -  {moment(detailTournament?.data.end_date).format('DD MMM YYYY')}</span>
+                      <div className="flex flex-col flex-1">
+                        {moment(detailTournament?.data.start_date).format('DD MMM YYYY') === moment(detailTournament?.data.end_date).format('DD MMM YYYY') ?
+                          <span className="font-semibold text-sm">{moment(detailTournament?.data.start_date).format('DD MMM YYYY')}</span> :
+                          <span className="font-semibold text-sm">{moment(detailTournament?.data.start_date).format('DD MMM')} -  {moment(detailTournament?.data.end_date).format('DD MMM YYYY')}</span>
+                        }
                         <span className="text-xs font-semibold text-emerald-800">{moment(detailTournament?.data.start_date).format('HH:mm')} - {moment(detailTournament?.data.end_date).format('HH:mm')}</span>
                         <span className="text-xs font-normal">GMT +7</span>
                       </div>
                     </div>
-                    <div className="col-span-2 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
-                      <div className="h-full aspect-square p-2">
+                    <div className="col-span-3 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
+                      <div className="h-full aspect-square p-2 w-12">
                         <Lucide icon="GitPullRequest" className="h-full w-full" />
                       </div>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col flex-1">
                         <span className="font-semibold text-sm">Level</span>
-                        <span className="text-xs text-emerald-800 font-semibold">{detailTournament?.data.level}</span>
+                        <span className="text-xs text-emerald-800 font-semibold">{detailTournament?.data.level} {detailTournament && detailTournament.data.strict_level === false ? "Open" : ""}</span>
                       </div>
+                    </div>
+                    <div className="mt-4 lg:col-span-1 col-span-3">
+                      {detailTournament?.data && <TournamentStory tournament={detailTournament?.data} />}
                     </div>
                   </div>
                 </div>
@@ -158,9 +176,9 @@ export const PublicTournament = () => {
                     <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>MATCHES
                   </div>
                 </div>
-                <div className="col-span-12 h-fit overflow-x-scroll">
+                <div className="col-span-12 h-fit overflow-x-scroll" key={JSON.stringify(knockoutRound)}>
                   <DraggableBracket
-                    rounds={TournamentDrawingUtils.convertMatchToRound(tournamentMatches?.data || [])}
+                    rounds={knockoutRound}
                     readOnly
                     className=""
                     setRounds={() => null}
@@ -197,17 +215,22 @@ export const PublicTournament = () => {
               <IconLogoAlt className="h-10 w-20" />
               <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
                 <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
-                <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>Sponsors
+                <span className="hidden sm:flex">Supported&nbsp;</span>By
               </div>
             </div>
             <div className="col-span-12 grid grid-cols-12 gap-6 sm:gap-8 mt-2 rounded-xl overflow-x-scroll">
               {tournamentSponsors?.data?.map((image, index) => (
                 <div key={index} className="flex flex-col col-span-4 sm:col-span-2 rounded-xl">
-                  <div className="relative w-full flex">
-                    <img
-                      src={imageResizerDimension(image.media_url, 300, "h")}
-                      className="flex h-full w-full object-contain aspect-square rounded-xl hover:scale-110 transition-all duration-700"
-                    />
+                  <div className=" w-full flex">
+                    <div className="flex border-2 w-full aspect-square relative overflow-hidden group rounded-xl">
+                      <img
+                        src={imageResizerDimension(image.media_url, 300, "h")}
+                        className="flex h-full w-full object-contain aspect-square rounded-xl group-hover:scale-110 transition-all duration-700"
+                      />
+                      <div className="absolute h-fit -bottom-14 group-hover:-translate-y-16 w-full flex items-center text-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-700">
+                        {image.name}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}

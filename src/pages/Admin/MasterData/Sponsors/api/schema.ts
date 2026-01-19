@@ -16,9 +16,9 @@ export const sponsorsPayloadSchema = z.object({
   name: z.string()
     .min(2, "Sponsor name must be at least 2 characters long")
     .refine(
-      (value: string) => /^[a-zA-Z0-9_ ]+$/.test(value), // Added space after underscore
-      "Sponsor name can only contain letters, numbers, underscores, and spaces"
-  ),
+      (value: string) => /^[a-zA-Z0-9_ !&?.]+$/.test(value),
+      "Sponsor name can only contain letters, numbers, underscores, spaces, and symbols like !, &, ?"
+    ),
   description: z.string()
     .min(2, "Description must be at least 2 characters long"),
   media_url: z.string()

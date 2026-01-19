@@ -79,7 +79,7 @@ export const ModalSponsors = (props: Props) => {
         });
       }
     });
-    actionUpdateSponsor({sponsors}, {
+    actionUpdateSponsor({ sponsors }, {
       onSuccess: () => {
         setIsModalOpen(false);
         queryClient.invalidateQueries({
@@ -123,7 +123,7 @@ export const ModalSponsors = (props: Props) => {
       dataIndex: "media_url",
       align: "left",
       render(value) {
-        return <img src={value} alt="" className="max-h-12"/>
+        return <img src={value} alt="" className="max-h-12" />
       }
     },
     {
@@ -145,7 +145,7 @@ export const ModalSponsors = (props: Props) => {
               }}
             >
               <Lucide icon="Plus" className="w-4 h-4 mr-1" />
-              Add 
+              Add
             </Button> : <Button
               className="flex items-center mr-3"
               variant="danger"
@@ -172,10 +172,11 @@ export const ModalSponsors = (props: Props) => {
       initialFocus={submitButtonRef}
     >
       <Dialog.Panel>
-        <Dialog.Title>
+        <Dialog.Title className="flex items-center justify-between">
           <h2 className="mr-auto text-base font-medium">
             Manage Sponsor
           </h2>
+          {/* <Button>Add Sponsor</Button> */}
         </Dialog.Title>
         <Dialog.Description className="grid grid-cols-12 gap-4 gap-y-3">
           <div className="col-span-12 flex flex-col">

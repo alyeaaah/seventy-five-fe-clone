@@ -8,6 +8,7 @@ import moment from "moment";
 import { useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import YouTube from "react-youtube";
+import Image from "@/components/Image";
 
 interface MatchMediaAndInfoSectionProps {
   data: any;
@@ -245,7 +246,7 @@ export const MatchMediaAndInfoSection = ({
                         <h3 className="text-xs text-right font-normal capitalize">{player?.nickname}</h3>
                       </div>
                       <div className="border rounded-lg p-0.5">
-                        <img src={player?.media_url || ""} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
+                        <Image src={player?.media_url || ""} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
                       </div>
                     </div>
                   </Link>
@@ -418,7 +419,7 @@ export const MatchMediaAndInfoSection = ({
                   >
                     <div className="flex flex-row items-center">
                       <div className="border rounded-lg p-0.5">
-                        <img src={player?.media_url || ""} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
+                        <Image src={player?.media_url || ""} alt={player?.name} className="w-12 h-12 rounded-lg object-cover" />
                       </div>
                       <div className="ml-2">
                         <h2 className="text-sm text-left font-bold capitalize">{player?.name}</h2>
@@ -528,7 +529,7 @@ export const MatchMediaAndInfoSection = ({
                   <h3 className="text-[10px] text-right font-light capitalize text-ellipsis line-clamp-1">{player?.nickname}</h3>
                 </div>
                 <div className="min-w-8">
-                  <img src={player?.media_url || ""} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
+                  <Image src={player?.media_url || ""} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
                 </div>
               </Link>
             ))}
@@ -537,7 +538,7 @@ export const MatchMediaAndInfoSection = ({
             {data?.data?.away_team?.players?.map((player: any, index: number) => (
               <div key={index} className="col-span-12 flex flex-row items-center">
                 <div className="min-w-8">
-                  <img src={player?.media_url || ""} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
+                  <Image src={player?.media_url || ""} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
                 </div>
                 <div className="ml-2 w-full">
                   <h2 className="text-[10px] text-left font-normal capitalize text-ellipsis line-clamp-1 w-full">{player?.name}</h2>
@@ -608,7 +609,7 @@ export const MatchMediaAndInfoSection = ({
                     {(data?.data?.home_team?.players || []).slice(0, 2).map((p: any, i: number) => (
                       <div key={i} className="flex flex-row items-center gap-4">
                         <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/30 bg-white/10">
-                          <img
+                          <Image
                             src={p?.media_url || ""}
                             alt={p?.name || "Player"}
                             className="w-full h-full object-cover"
@@ -643,7 +644,7 @@ export const MatchMediaAndInfoSection = ({
                           <div className="text-lg opacity-90 line-clamp-1 text-ellipsis">{p?.name}</div>
                         </div>
                         <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/30 bg-white/10">
-                          <img
+                          <Image
                             src={p?.media_url || ""}
                             alt={p?.name || "Player"}
                             className="w-full h-full object-cover"
