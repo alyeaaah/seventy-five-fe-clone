@@ -299,6 +299,7 @@ function Players() {
         </div>
         <div className="overflow-x-auto scrollbar-hidden">
           <Table
+            key={JSON.stringify(data)}
             dataSource={data?.data || []}
             columns={tableColumnsAntd}
             rowKey={(d) => d.uuid || ""}
