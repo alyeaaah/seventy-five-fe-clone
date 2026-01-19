@@ -116,11 +116,7 @@ export const PlayerHome = () => {
       <div className="col-span-12 xs:hidden sm:hidden box rounded-2xl md:hidden lg:flex xl:flex 2xl:hidden md:col-span-3 xl:col-span-3 2xl:col-span-2">
         <PlayerPartnersComponent
           className="w-full h-full"
-          players={[9, 8, 7, 6, 5, 4, 3, 2, 1].map((item) => ({
-            name: faker.person.fullName(),
-            media_url: faker.image.personPortrait(),
-            point: 30 * item
-          }))}
+          players={[]}
         />
       </div>
 

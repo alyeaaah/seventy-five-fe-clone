@@ -25,7 +25,7 @@ interface Props {
   subHeaderContent?: React.ReactNode;
 }
 
-export const PublicPlayer = ({isPreview = false, onEdit, subHeaderContent}: Props) => {
+export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Props) => {
   const navigate = useNavigate();
   const queryParams = useRouteParams(paths.players.info);
   const { uuid } = queryParams;
@@ -33,7 +33,7 @@ export const PublicPlayer = ({isPreview = false, onEdit, subHeaderContent}: Prop
 
   const { data } = PublicPlayerApiHooks.useGetPlayerDetail({
     params: {
-      uuid: (isPreview ? userData?.uuid : uuid ) || ""
+      uuid: (isPreview ? userData?.uuid : uuid) || ""
     },
   }, {
     onSuccess: () => {
@@ -42,7 +42,7 @@ export const PublicPlayer = ({isPreview = false, onEdit, subHeaderContent}: Prop
   });
   const { data: matches } = PublicPlayerApiHooks.useGetPlayerMatches({
     params: {
-      player_uuid: (isPreview ? userData?.uuid : uuid ) || ""
+      player_uuid: (isPreview ? userData?.uuid : uuid) || ""
     },
   }, {
     onSuccess: () => {
@@ -50,6 +50,13 @@ export const PublicPlayer = ({isPreview = false, onEdit, subHeaderContent}: Prop
     retry: false
   });
   const { data: featuredPlayer } = LandingPageApiHooks.useGetFeaturedPlayer();
+  const stats = {
+    matches: 0,
+    wins: 0,
+    losses: 0,
+    tournaments: 0,
+    titles: 0,
+  }
   return (
     <>
       <LayoutWrapper isPreview={isPreview} className={`grid grid-cols-12 gap-4 sm:gap-8 mt-4 sm:mt-8 min-h-[calc(100vh-300px)] ${isPreview ? "p-4" : ""}`}>
@@ -241,28 +248,28 @@ export const PublicPlayer = ({isPreview = false, onEdit, subHeaderContent}: Prop
               ))}
               <div className="md:col-span-2 col-span-6 border-4 rounded-xl border-emerald-800 p-0 aspect-square flex flex-col justify-center items-center relative overflow-hidden [text-shadow:2px_2px_1px_#EBCE56] [box-shadow:2px_2px_1px_#EBCE56]">
                 <IconDouble className="w-2/3 h-4/5 text-emerald-800 fill-emerald-800 absolute opacity-20 right-0 bottom-0 z-0" />
-                <p className="text-5xl font-bold z-[1]">{542}</p>
-                <p className="text-sm font-semibold z-[1]">Match Played</p>
+                <p className="text-5xl font-bold z-[1]">{stats.matches}</p>
+                <p className="text-sm font-semibold z-[1]">Matches Played</p>
               </div>
               <div className="md:col-span-2 col-span-6 border-4 rounded-xl border-emerald-800 p-0 aspect-square flex flex-col justify-center items-center relative overflow-hidden [text-shadow:2px_2px_1px_#EBCE56] [box-shadow:2px_2px_1px_#EBCE56]">
                 <IconPlayerWin className="w-2/3 h-4/5 text-emerald-800 fill-emerald-800 absolute opacity-20 right-0 bottom-0 z-0" />
-                <p className="text-5xl font-bold z-[1]">{30}</p>
+                <p className="text-5xl font-bold z-[1]">{stats.wins}</p>
                 <p className="text-sm font-semibold z-[1]">Wins</p>
               </div>
               <div className="md:col-span-2 col-span-6 border-4 rounded-xl border-emerald-800 p-0 aspect-square flex flex-col justify-center items-center relative overflow-hidden [text-shadow:2px_2px_1px_#EBCE56] [box-shadow:2px_2px_1px_#EBCE56]">
                 <IconPlayerLoseAlt className="w-2/3 h-4/5 text-emerald-800 fill-emerald-800 absolute opacity-20 right-0 bottom-0 z-0" />
-                <p className="text-5xl font-bold z-[1]">{8}</p>
+                <p className="text-5xl font-bold z-[1]">{stats.losses}</p>
                 <p className="text-sm font-semibold z-[1]">Losses</p>
               </div>
               <div className="md:col-span-2 col-span-6 border-4 rounded-xl border-emerald-800 p-0 aspect-square flex flex-col justify-center items-center relative overflow-hidden [text-shadow:2px_2px_1px_#EBCE56] [box-shadow:2px_2px_1px_#EBCE56]">
                 <IconTournament className="w-2/3 h-4/5 text-emerald-800 fill-emerald-800 absolute opacity-20 right-0 bottom-0 z-0" />
-                <p className="text-5xl font-bold z-[1]">{12}</p>
-                <p className="text-sm font-semibold z-[1]">Tournament</p>
+                <p className="text-5xl font-bold z-[1]">{stats.tournaments}</p>
+                <p className="text-sm font-semibold z-[1]">Tournaments</p>
               </div>
               <div className="md:col-span-2 col-span-6 border-4 rounded-xl border-emerald-800 p-0 aspect-square flex flex-col justify-center items-center relative overflow-hidden [text-shadow:2px_2px_1px_#EBCE56] [box-shadow:2px_2px_1px_#EBCE56]">
                 <IconTrophy className="w-2/3 h-4/5 text-emerald-800 fill-emerald-800 absolute opacity-20 right-0 bottom-0 z-0" />
-                <p className="text-5xl font-bold z-[1]">{8}</p>
-                <p className="text-sm font-semibold z-[1]">Title</p>
+                <p className="text-5xl font-bold z-[1]">{stats.titles}</p>
+                <p className="text-sm font-semibold z-[1]">Titles</p>
               </div>
             </div>
 
