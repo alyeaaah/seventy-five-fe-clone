@@ -235,7 +235,7 @@ export const TournamentFormBrackets = (props: Props) => {
     setMatches(matchesSchedule);
   }
 
-  const { mutate: actionUpdateMatches } = TournamentsApiHooks.useCreateTournamentMatches(
+  const { mutate: actionUpdateMatches, isLoading: isLoadingSubmit } = TournamentsApiHooks.useCreateTournamentMatches(
     {},
     {
       retry: false,
@@ -375,7 +375,7 @@ export const TournamentFormBrackets = (props: Props) => {
       body.matches.push(matchPayload)
     })
     console.log(body, "SUBMITMATCH matchPayload");
-    return;
+
     console.log(body.matches.filter(m => m.round !== undefined).map(m => ({ ...m, time: new Date(m.time || "") })), "BODY ROUND");
     console.log(body.matches.filter(m => m.group !== undefined).map(m => ({ ...m, time: new Date(m.time || "") })), "BODY GROUP");
     actionUpdateMatches({
@@ -513,7 +513,7 @@ export const TournamentFormBrackets = (props: Props) => {
               variant="primary"
               type="submit"
               className="w-[46%] sm:w-auto"
-              disabled={!roundValidation.valid}
+              disabled={!roundValidation.valid || isLoadingSubmit}
               onClick={onSubmit}
             >
               <Lucide icon="Save" className="w-4 h-4 mr-2" />
