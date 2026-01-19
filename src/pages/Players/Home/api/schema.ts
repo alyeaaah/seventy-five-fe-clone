@@ -26,7 +26,7 @@ export const playersSchema = z.object({
   city: z.string()
     .min(2, "City must be at least 2 characters long"),
   address: z.string()
-    .min(2, "Address must be at least 2 characters long"),
+    .min(2, "Address must be at least 2 characters long").nullish(),
   phone: z.string({required_error: "Phone is required" })
     .min(8, "Phone must be at least 8 characters long")
     .max(15, "Phone must be at most 15 characters long")
