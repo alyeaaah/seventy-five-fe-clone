@@ -46,7 +46,7 @@ export const SimpleLoadingOverlay = ({ show }: SimpleLoadingOverlayProps) => {
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isDarkMode ? 'bg-[#084930]' : 'bg-white'}`}>
       <div className="flex flex-col items-center space-y-2">
-        <div className="h-12 w-18">
+        <div className="h-12 w-16 sm:w-20 max-w-[80px]">
           <LottieAnimation
             animationData={isDarkMode ? loadingBounceWhite : loadingBounce}
             loop={true}

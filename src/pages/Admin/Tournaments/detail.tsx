@@ -1,5 +1,5 @@
 import Button from "@/components/Base/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TournamentsApiHooks } from "./api";
 import { useToast } from "@/components/Toast/ToastContext";
 import {
@@ -17,6 +17,7 @@ import { DraggableBracket, TournamentDrawingUtils } from "@/components/Tournamen
 import { PointConfigurationsApiHooks } from "../PointConfig/api";
 import { ModalSponsors } from "./Components/ModalSponsors";
 import { convertTournamentMatchToMatch } from "@/utils/drawing.util";
+import { IRound } from "@/components/TournamentDrawing/interfaces";
 
 
 interface Props {
@@ -30,6 +31,7 @@ export const TournamentDetail = () => {
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const [isModalSponsorOpen, setIsModalSponsorOpen] = useState(false);
   const navigate = useNavigate();
+  const [allRounds, setAllRounds] = useState<IRound[]>([]);
 
   const { data } = TournamentsApiHooks.useGetTournamentsDetail({
     params: {
@@ -56,6 +58,11 @@ export const TournamentDetail = () => {
   }, {
     enabled: !!tournamentUuid
   });
+  useEffect(() => {
+    if (!matches?.data) return;
+    const knockoutMatches = matches?.data.filter((match) => match.groupKey === null || match.groupKey === undefined);
+    setAllRounds(convertMatchToRound(convertTournamentMatchToMatch(knockoutMatches || [])))
+  }, [matches])
 
   const { data: dataSponsors } = TournamentsApiHooks.useGetTournamentSponsors({
     params: {
@@ -140,7 +147,7 @@ export const TournamentDetail = () => {
           </div>
           <div className="col-span-12 h-fit overflow-x-scroll">
             <DraggableBracket
-              rounds={convertMatchToRound(convertTournamentMatchToMatch(matches?.data || []))}
+              rounds={allRounds}
               readOnly
               setRounds={() => null}
               onSeedClick={(seed) => {

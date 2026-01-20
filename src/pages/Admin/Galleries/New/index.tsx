@@ -44,7 +44,7 @@ export const GalleriesNew = (props: Props) => {
           name: data.data.name,
           description: data.data.description || "",
           pinned_gallery_uuid: data.data.pinned_gallery_uuid || "",
-          galleries: data.data.galleries?.map(d=> ({...d, pinned: d.uuid === data.data.pinned_gallery_uuid})) || [{
+          galleries: data.data.galleries?.map(d => ({ ...d, pinned: d.uuid === data.data.pinned_gallery_uuid })) || [{
             uuid: "",
             name: "",
             description: "",
@@ -87,24 +87,91 @@ export const GalleriesNew = (props: Props) => {
 
   const { mutateAsync: actionUploadImage } = adminApiHooks.useMediaUpload({});
 
+  const compressImage = (file: File, maxSize: number = 1200): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        const { width, height } = img;
+
+        // Calculate new dimensions
+        let newWidth = width;
+        let newHeight = height;
+
+        if (width > maxSize || height > maxSize) {
+          const aspectRatio = width / height;
+          if (width > height) {
+            newWidth = maxSize;
+            newHeight = maxSize / aspectRatio;
+          } else {
+            newHeight = maxSize;
+            newWidth = maxSize * aspectRatio;
+          }
+        }
+
+        // Set canvas dimensions
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+
+        // Draw and compress image
+        ctx?.drawImage(img, 0, 0, newWidth, newHeight);
+
+        // Convert to blob with 0.8 quality
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file); // Return original if compression fails
+          }
+        }, 'image/jpeg', 0.8);
+      };
+
+      img.onerror = () => {
+        resolve(file); // Return original if loading fails
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const uploadHandler = async (info: UploadChangeParam, index: number) => {
     setUploading(true);
-    await actionUploadImage({ image: info.file as RcFile }, {
-      onError: (error) => {
-        setUploading(false);
-        showNotification({
-          duration: 3000,
-          text: `Failed to upload image ${error?.message}`,
-          icon: "XCircle",
-          variant: "danger",
-        });
-      },
-      onSuccess: (res) => {
-        setValue(`galleries.${index}.link`, res.imageUrl, {
-          shouldValidate: true,
-        });
-      }
-    });
+
+    try {
+      // Compress the image before upload
+      const compressedFile = await compressImage(info.file as RcFile);
+
+      await actionUploadImage({ image: compressedFile as RcFile }, {
+        onError: (error) => {
+          setUploading(false);
+          showNotification({
+            duration: 3000,
+            text: `Failed to upload image ${error?.message}`,
+            icon: "XCircle",
+            variant: "danger",
+          });
+        },
+        onSuccess: (res) => {
+          setValue(`galleries.${index}.link`, res.imageUrl, {
+            shouldValidate: true,
+          });
+        }
+      });
+    } catch (error) {
+      showNotification({
+        duration: 3000,
+        text: `Failed to compress image ${error}`,
+        icon: "XCircle",
+        variant: "danger",
+      });
+    }
+
     setUploading(false);
   }
   const onSubmit: SubmitHandler<any> = (values: GalleryPayload) => {
@@ -182,15 +249,15 @@ export const GalleriesNew = (props: Props) => {
         <h2 className="mr-auto text-lg font-medium">{galleryUuid ? "Edit" : "Add New"} Album</h2>
       </div>
       <Divider />
-      <FormProvider {...methods} key={location.pathname+"_form"}>
-        <form onSubmit={handleSubmit(onSubmit)} key={location.pathname+"_form2"}>
+      <FormProvider {...methods} key={location.pathname + "_form"}>
+        <form onSubmit={handleSubmit(onSubmit)} key={location.pathname + "_form2"}>
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 grid grid-cols-12 gap-4 intro-y box p-4">
               <div className="col-span-12 sm:col-span-12">
                 <FormLabel htmlFor="modal-form-1">Album's name</FormLabel>
                 <Controller
                   name="name"
-                  key={location.pathname+"_name"}
+                  key={location.pathname + "_name"}
                   control={control}
                   render={({ field, fieldState }) =>
                     <>
@@ -218,7 +285,7 @@ export const GalleriesNew = (props: Props) => {
                 <FormLabel htmlFor="modal-form-2">Description</FormLabel>
                 <Controller
                   name="description"
-                  key={location.pathname+"_address"}
+                  key={location.pathname + "_address"}
                   control={control}
                   render={({ field, fieldState }) =>
                     <>
@@ -362,7 +429,7 @@ export const GalleriesNew = (props: Props) => {
                           }
                         />
                       </div>
-                    </div> 
+                    </div>
                     <div className="col-span-12 sm:col-span-12">
                       <div className="">
                         <Controller
@@ -411,7 +478,7 @@ export const GalleriesNew = (props: Props) => {
                                 onChange={field.onChange}
                                 placeholder="Description"
                               ></FormTextarea>
-                            
+
                               {!!fieldState.error && (
                                 <FormHelp className={"text-danger"}>
                                   {fieldState.error.message || "Form is not valid"}
@@ -422,46 +489,46 @@ export const GalleriesNew = (props: Props) => {
                         />
                       </div>
                     </div>
-                    
+
                     {idx > 0 &&
-                    <div className="col-span-12 sm:col-span-1 sm:hidden flex items-center">
-                      <Button
-                        variant="danger"
-                        className="w-full"
-                        disabled={formState.isSubmitting || idx == 0}
-                        type="button"
-                        onClick={() => {
-                          setModalAlert({
-                            open: true,
-                            onClose: () => setModalAlert(undefined),
-                            icon: "XCircle",
-                            title: "Are you sure?",
-                            description: "Do you really want to delete these field? This process cannot be undone.",
-                            refId: idx.toString(),
-                            buttons: [
-                              {
-                                label: "Cancel",
-                                onClick: () => setModalAlert(undefined),
-                                variant: "secondary"
-                              },
-                              {
-                                label: "Delete",
-                                onClick: () => {
-                                  // Handle delete logic here
-                                  setValue("galleries", getValues("galleries").filter((_, i) => i !== idx), {
-                                    shouldValidate: true
-                                  });
-                                  setModalAlert(undefined);
+                      <div className="col-span-12 sm:col-span-1 sm:hidden flex items-center">
+                        <Button
+                          variant="danger"
+                          className="w-full"
+                          disabled={formState.isSubmitting || idx == 0}
+                          type="button"
+                          onClick={() => {
+                            setModalAlert({
+                              open: true,
+                              onClose: () => setModalAlert(undefined),
+                              icon: "XCircle",
+                              title: "Are you sure?",
+                              description: "Do you really want to delete these field? This process cannot be undone.",
+                              refId: idx.toString(),
+                              buttons: [
+                                {
+                                  label: "Cancel",
+                                  onClick: () => setModalAlert(undefined),
+                                  variant: "secondary"
                                 },
-                                variant: "danger"
-                              }
-                            ]
-                          });
-                        }}
-                      >
-                        <Lucide icon="Trash" className="w-4 h-4" />
-                      </Button>
-                    </div>}
+                                {
+                                  label: "Delete",
+                                  onClick: () => {
+                                    // Handle delete logic here
+                                    setValue("galleries", getValues("galleries").filter((_, i) => i !== idx), {
+                                      shouldValidate: true
+                                    });
+                                    setModalAlert(undefined);
+                                  },
+                                  variant: "danger"
+                                }
+                              ]
+                            });
+                          }}
+                        >
+                          <Lucide icon="Trash" className="w-4 h-4" />
+                        </Button>
+                      </div>}
                   </div>
                 ))
               }
@@ -473,7 +540,7 @@ export const GalleriesNew = (props: Props) => {
                   disabled={formState.isSubmitting}
                   onClick={() => {
                     setValue("galleries",
-                      [...getValues("galleries"), {uuid:"", name: "", description: "", link: "", pinned: false }],
+                      [...getValues("galleries"), { uuid: "", name: "", description: "", link: "", pinned: false }],
                       { shouldValidate: true }
                     );
                   }}
