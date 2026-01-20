@@ -18,7 +18,7 @@ export const PlayerMatchFull = ({ className, match, playerUuid, ...props }: Comp
 
     <div className={`box w-full inline-block mr-4 shadow-lg ${className}`} {...props}>
       <div className="px-4 pt-2 text-xs font-medium flex justify-between">
-        {moment(match?.time).format('ddd, DD MMM YYYY hh:mm')}
+        {moment(match?.time).format('ddd, DD MMM YYYY HH:mm')}
         <span className="capitalize flex flex-row items-center text-emerald-800 gap-2">
           {match?.status === "ONGOING" &&
             <Tippy

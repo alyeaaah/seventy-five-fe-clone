@@ -206,7 +206,7 @@ export const GalleriesDetail = (props: Props) => {
                 </div>
                 <div className="absolute top-6 right-6 z-20">
                   <Tippy
-                    content={gallery.featured_at ? `Featured at ${moment(gallery.featured_at).format("YYYY-MM-DD hh:mm")}` : "Set as Featured Image"}
+                    content={gallery.featured_at ? `Featured at ${moment(gallery.featured_at).format("YYYY-MM-DD HH:mm")}` : "Set as Featured Image"}
                   >
                     <Button
                       size="sm"
@@ -260,7 +260,7 @@ export const GalleriesDetail = (props: Props) => {
                       }}
                       className="w-full"
                     >
-                      <Image src={imageResizer(gallery?.link ||"", 300)} className="w-full aspect-square object-cover"/>
+                      <Image src={imageResizer(gallery?.link || "", 300)} className="w-full aspect-square object-cover" />
                     </ImagePreview>
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export const GalleriesDetail = (props: Props) => {
               </div>
             ))
           }
-          
+
         </div>
       </div>
       <Confirmation

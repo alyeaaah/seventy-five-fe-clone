@@ -664,7 +664,7 @@ export const MatchMediaAndInfoSection = ({
                 </div>
                 <div className="flex flex-row items-center">
                   <Lucide icon="Calendar" className="mr-2" />
-                  <span>{moment(data?.data?.date).format("DD MMM YYYY hh:mm")}</span>
+                  <span>{moment(data?.data?.date).format("DD MMM YYYY HH:mm")}</span>
                 </div>
               </div>
             </div>

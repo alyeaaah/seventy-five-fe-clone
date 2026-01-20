@@ -8,12 +8,12 @@ import { HTMLAttributes } from "react"
 interface ComponentProps extends HTMLAttributes<HTMLDivElement> {
   customProp?: string;
 }
-export const PlayerGallery = ({className, ...props}: ComponentProps) => {
+export const PlayerGallery = ({ className, ...props }: ComponentProps) => {
   return (
 
     <div className={`box w-72 inline-block mr-4 shadow-lg ${className}`} {...props}>
       <div className="px-4 pt-2 font-medium">
-        {moment().format('ddd, DD MMM YYYY hh:mm')}
+        {moment().format('ddd, DD MMM YYYY HH:mm')}
       </div>
       <Divider className="mt-2 mb-0" />
       <div className="px-4 py-2 relative overflow-hidden">
@@ -24,7 +24,7 @@ export const PlayerGallery = ({className, ...props}: ComponentProps) => {
         <div className="flex flex-row items-center justify-end">
           {/* <span className="text-4xl font-extrabold italic tracking-tighter text-emerald-800 absolute -left-2 flex justify-center items-center [text-shadow:-4px_-2px_0_rgba(213,172,0,0.5),1px_1px_0_rgba(255,215,0,0.3)]">VS</span> */}
           <IconVS className="absolute -left-3 w-24 h-14 text-warning " />
-          <IconVS className="absolute -left-2 w-24 h-14 text-emerald-800 "/>
+          <IconVS className="absolute -left-2 w-24 h-14 text-emerald-800 " />
           <div className="mt-2 z-10">
             <div className="flex flex-row items-center justify-end mb-1">
               {faker.person.fullName()}

@@ -14,11 +14,11 @@ interface Props {
   orderId?: string;
 }
 
-export const OrderDetail = ({orderId}: Props) => {
+export const OrderDetail = ({ orderId }: Props) => {
   const navigate = useNavigate();
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
 
-  const {data} = MerchOrderApiHooks.useGetMerchOrderDetail({
+  const { data } = MerchOrderApiHooks.useGetMerchOrderDetail({
     params: {
       uuid: orderId || ""
     }
@@ -48,7 +48,7 @@ export const OrderDetail = ({orderId}: Props) => {
       default:
         break;
     }
-    
+
     setModalAlert({
       open: true,
       onClose: () => setModalAlert(undefined),
@@ -110,7 +110,7 @@ export const OrderDetail = ({orderId}: Props) => {
         {
           label: "Cancel Order",
           onClick: (noteText: string) => {
-          
+
             updateOrderStatus({
               status: OrderStatus.CANCELLED,
               note: noteText,
@@ -151,7 +151,7 @@ export const OrderDetail = ({orderId}: Props) => {
                   actionButtonPrimary(data?.data.uuid || "");
                 }}
               >
-                <Lucide icon="Check" className="h-4 w-4 mr-2" /> 
+                <Lucide icon="Check" className="h-4 w-4 mr-2" />
                 {data?.data.status == OrderStatus.ORDERED ? "Process Order" : ""}
                 {data?.data.status == OrderStatus.PROCESSED ? "Deliver Order" : ""}
                 {data?.data.status == OrderStatus.DELIVERED ? "Complete Order" : ""}
@@ -170,14 +170,14 @@ export const OrderDetail = ({orderId}: Props) => {
           </Menu.Items>
         </Menu>}
       </div>
-      <Divider/>
+      <Divider />
       <div className="grid grid-cols-12 mt-0 mx-4">
         <div className="col-span-12 grid grid-cols-12 gap-4">
           <div className="col-span-2 flex flex-col">
             <span className="font-bold">Order ID: </span>
             <span className="uppercase">{data?.data.uuid.split("-")[0]}SF{data?.data.id}</span>
             <span className="font-bold mt-2">Order Date: </span>
-            <span className="">{moment(data?.data.createdAt).format("DD MMMM YYYY hh:mm")}</span>
+            <span className="">{moment(data?.data.createdAt).format("DD MMMM YYYY HH:mm")}</span>
           </div>
           <div className="col-span-2 flex flex-col">
             <span className="font-bold">Status: </span>
@@ -259,7 +259,7 @@ export const OrderDetail = ({orderId}: Props) => {
       </div>
       <Confirmation
         key={modalAlert?.refId}
-        open={!!modalAlert?.open} 
+        open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
         icon={modalAlert?.icon || "Info"}
         iconClassname={modalAlert?.iconClassname}

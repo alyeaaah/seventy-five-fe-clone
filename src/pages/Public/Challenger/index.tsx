@@ -89,7 +89,7 @@ export const PublicChallenger = () => {
                         </div>
                       </div>
                       <div className='flex flex-row justify-center px-6 capitalize w-full text-xs py-2'>
-                        <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
+                        <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.date).format('ddd, DD MMM YYYY HH:mm')}</span>
                       </div>
                     </div>
                   </Link>
@@ -124,7 +124,7 @@ export const PublicChallenger = () => {
                       </div>
                       <div className='flex flex-row h-full bg-emerald-800 text-white font-semibold items-center py-1 px-2'>
                         <Lucide icon='Calendar' className='w-6 h-4' />
-                        <span>{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
+                        <span>{moment(match.date).format('ddd, DD MMM YYYY HH:mm')}</span>
                       </div>
                     </div>
                     {match.status !== 'ENDED' && <div className={`md:flex hidden bg-white px-2 flex-row justify-center overflow-hidden text-xs z-10 rounded-full border absolute -bottom-2 ${match.status !== 'PAUSED' ? 'border-emerald-800 text-emerald-800 ' : 'bg-yellow-500'}`}>
@@ -196,7 +196,7 @@ export const PublicChallenger = () => {
                       </div>
                     </div>
                     <div className='flex md:hidden flex-row justify-center px-6 capitalize w-full text-xs py-2'>
-                      <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
+                      <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.date).format('ddd, DD MMM YYYY HH:mm')}</span>
                     </div>
                   </Link>
                 ))

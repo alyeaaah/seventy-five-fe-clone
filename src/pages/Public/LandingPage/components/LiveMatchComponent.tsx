@@ -42,7 +42,7 @@ export const LiveMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
         </div>
       </Title>
       {!liveMatch?.data || liveMatch.data.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 px-4">
+        <div className="flex flex-col items-center justify-center py-4 px-4">
           <Lucide icon="Activity" className="h-16 w-16 text-white/60 mb-4" />
           <h3 className="text-white text-lg font-medium mb-2">No Live Matches</h3>
           <p className="text-white/80 text-sm text-center">There are currently no ongoing matches. Check back later!</p>

@@ -87,7 +87,7 @@ export const DrawingTeams: React.FC<DrawingTeamsProps> = ({
                 </span>}
               </span>
               <div>
-                <span className="text-xs mr-2">{moment(match.date).format('ddd, DD MMM YYYY hh:mm')}</span>
+                <span className="text-xs mr-2">{moment(match.date).format('ddd, DD MMM YYYY HH:mm')}</span>
                 <span className="text-xs font-medium px-2 py-1 bg-gray-100 rounded">
                   {match.status}
                 </span>

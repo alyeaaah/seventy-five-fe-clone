@@ -29,7 +29,7 @@ export const PlayerOrderDetail = () => {
     unit: item.unit,
     price: detail.price
   }))).flat() || [];
-  
+
   return (
     <div className="grid grid-cols-12 mt-8 mx-4">
       <div className="col-span-12 grid grid-cols-12 gap-4">
@@ -37,7 +37,7 @@ export const PlayerOrderDetail = () => {
           <span className="font-bold">Order ID: </span>
           <span className="uppercase">{data?.data.uuid.split("-")[0]}SF{data?.data.id}</span>
           <span className="font-bold mt-2">Order Date: </span>
-          <span className="">{moment(data?.data.createdAt).format("DD MMMM YYYY hh:mm")}</span>
+          <span className="">{moment(data?.data.createdAt).format("DD MMMM YYYY HH:mm")}</span>
         </div>
         <div className="col-span-2 flex flex-col">
           <span className="font-bold">Status: </span>

@@ -117,7 +117,7 @@ export const PlayerMatches = () => {
                   </div>
                 </div>
                 <div className='flex flex-row justify-center px-6 capitalize w-full text-xs py-2'>
-                  <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.time).format('ddd, DD MMM YYYY hh:mm')}</span>
+                  <span className="text-emerald-800 font-semibold border px-2 py-1 border-emerald-800 rounded-full">{moment(match.time).format('ddd, DD MMM YYYY HH:mm')}</span>
                 </div>
               </div>
             </Link>

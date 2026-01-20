@@ -296,7 +296,7 @@ export const CustomMatchPage = () => {
                     <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="Calendar" className="h-4 w-4" />&nbsp;<span className="text-ellipsis line-clamp-1">{moment(record.createdAt).format('ddd, DD MMM YYYY')}</span></span>
                   </div>
                   <div className="flex flex-row justify-between mt-2">
-                    <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="Clock" className="h-4 w-4" />&nbsp;{moment(record.createdAt).format('hh:mm')}</span>
+                    <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center"><Lucide icon="Clock" className="h-4 w-4" />&nbsp;{moment(record.createdAt).format('HH:mm')}</span>
                     <span className="text-xs text-gray-500 dark:text-slate-400 flex flex-row items-center mr-1"><Lucide icon="User" className="h-4 w-4" />{record.player_count || "0"}</span>
                   </div>
                 </div>
@@ -400,7 +400,7 @@ export const CustomMatchPage = () => {
       width: "20%",
       responsive: ["md"],
       render: (text: string, record) => {
-        return <span>{moment(record.date).format("ddd, DD MMM YYYY hh:mm")}</span>;
+        return <span>{moment(record.date).format("ddd, DD MMM YYYY HH:mm")}</span>;
       },
     },
     {
@@ -530,7 +530,7 @@ export const CustomMatchPage = () => {
                         {/* Time Info */}
                         <div className="flex flex-row gap-1 items-center">
                           <Lucide icon="Calendar" className="text-xs text-slate-500 dark:text-slate-400  h-4" />
-                          <span className="text-xs text-slate-700 dark:text-slate-300">{moment(challenger.time).format("ddd, DD MMM YYYY hh:mm")}</span>
+                          <span className="text-xs text-slate-700 dark:text-slate-300">{moment(challenger.time).format("ddd, DD MMM YYYY HH:mm")}</span>
                         </div>
                       </div>
                     </div>
