@@ -58,7 +58,7 @@ export const CustomMatch = ({ seed, roundIndex, seedIndex, round, onDrop, onSeed
         {
           (seed.court || seed.time) &&
           <div className='absolute top-[96px] w-full z-10 flex justify-center cursor-pointer'>
-            <div className='bg-emerald-800 text-white rounded-lg shadow-xl flex flex-row items-center justify-between pl-1 pr-2'>
+            <div className='bg-emerald-800 text-white rounded-lg shadow-xl flex flex-col items-center justify-between pl-1 pr-2'>
               {seed?.court &&
                 <div className='flex items-center'>
                   <Lucide icon="MapPin" className='h-3' />

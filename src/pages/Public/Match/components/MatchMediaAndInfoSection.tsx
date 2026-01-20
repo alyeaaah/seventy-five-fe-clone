@@ -149,15 +149,15 @@ export const MatchMediaAndInfoSection = ({
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 flex flex-col justify-center items-center">
             <div className="text-xl font-bold capitalize">
-              {!data?.data?.tournament_uuid && "Challenger "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}
+              {!data?.data?.tournament_uuid && "Challenger "}Match {data?.data?.seed_index >= 0 && data?.data?.seed_index + 1}
             </div>
             <div className="hidden sm:flex text-sm text-center text-emerald-800">
               {tournamentInfo?.data?.name}
-              {tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round}`}
+              {tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round >= 0 && data?.data?.round + 1}`}
             </div>
             <div className="sm:hidden flex flex-col text-sm text-center text-emerald-800">
               {tournamentInfo?.data?.name}
-              {tournamentInfo?.data?.type == "KNOCKOUT" && <span className="">Round {data?.data?.round}</span>}
+              {tournamentInfo?.data?.type == "KNOCKOUT" && <span className="">Round {data?.data?.round >= 0 && data?.data?.round}</span>}
             </div>
             <div className="text-xs text-center text-gray-600 flex flex-col sm:flex-row items-center justify-center mt-2">
               <div className="flex flex-row items-center sm:mr-2 border rounded-md px-2 py-1 border-gray-400 mb-1">
@@ -166,7 +166,7 @@ export const MatchMediaAndInfoSection = ({
               </div>
               <div className="flex flex-row items-center border rounded-md px-2 py-1  border-gray-400 mb-1">
                 <Lucide icon="Calendar" className="mr-1" />
-                {moment(data?.data?.date).format("dddd, DD MMM YYYY hh:mm")}
+                {moment(data?.data?.date).format("dddd, DD MMM YYYY HH:mm")}
               </div>
             </div>
           </div>
@@ -254,7 +254,7 @@ export const MatchMediaAndInfoSection = ({
                   <Link to={paths.players.info({ uuid: player?.uuid || "" }).$} className="col-span-12 flex flex-col gap-2">
                     <div className="px-2 flex flex-col items-end">
                       <div className="text-xs text-right font-normal capitalize">Height</div>
-                      <div className="text-xs text-right font-medium capitalize">{player?.height}cm</div>
+                      {player?.height ? <div className="text-xs text-right font-medium capitalize">{player?.height}cm</div> : <div className="text-xs text-right font-medium capitalize">N/A</div>}
                     </div>
                     <div className="px-2 flex flex-col items-end">
                       <div className="text-xs text-right font-normal capitalize">Forehand Style</div>
@@ -548,8 +548,8 @@ export const MatchMediaAndInfoSection = ({
             ))}
           </div>
           {/* END: Player XS*/}
-        </div>
-      </div>
+        </div >
+      </div >
 
       <div style={{ position: "fixed", left: "-99999px", top: "-99999px", width: 1080, height: 1920 }}>
         <div
