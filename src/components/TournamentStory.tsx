@@ -86,7 +86,7 @@ export const TournamentStory = ({ tournament, matches }: TournamentStoryProps) =
         <span className="text-sm font-medium">Share Story</span>
       </button>
 
-      <div style={{ position: "fixed", left: "-0.99999px", top: 0, width: 1080, height: 1920 }} className="z-[9999] scale-50">
+      <div style={{ position: "fixed", left: "-099999px", top: 0, width: 1080, height: 1920 }} >
         <div
           ref={storyRef}
           style={{ width: 1080, height: 1920 }}
