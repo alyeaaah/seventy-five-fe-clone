@@ -162,7 +162,7 @@ export const PublicTournament = () => {
                       </div>
                     </div>
                     <div className="mt-4 lg:col-span-1 col-span-3">
-                      {detailTournament?.data && <TournamentStory tournament={detailTournament?.data} />}
+                      {(detailTournament?.data && tournamentMatches?.data) && <TournamentStory tournament={detailTournament?.data} matches={tournamentMatches?.data} />}
                     </div>
                   </div>
                 </div>

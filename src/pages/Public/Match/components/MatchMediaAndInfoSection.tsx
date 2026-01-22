@@ -5,10 +5,13 @@ import { paths } from "@/router/paths";
 import { Divider, Progress } from "antd";
 import { toBlob, toPng } from "html-to-image";
 import moment from "moment";
-import { useCallback, useRef } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import YouTube from "react-youtube";
 import Image from "@/components/Image";
+import { PublicMatchApiHooks } from "../api";
+import { PublicTournamentApiHooks } from "../../Tournament/api";
+import { Menu } from "@/components/Base/Headless";
 
 interface MatchMediaAndInfoSectionProps {
   data: any;
@@ -35,6 +38,46 @@ export const MatchMediaAndInfoSection = ({
 }: MatchMediaAndInfoSectionProps) => {
   const navigate = useNavigate();
   const storyRef = useRef<HTMLDivElement | null>(null);
+  const winnerStoryRef = useRef<HTMLDivElement | null>(null);
+  const currentRound = data?.data?.round >= 0 && data?.data?.round + 1
+  const [matchTitle, setMatchTitle] = useState("");
+  console.log(data);
+
+  const { data: matches } = PublicTournamentApiHooks.useGetTournamentDetailMatches({
+    params: {
+      tournament_uuid: tournamentInfo?.data?.uuid || ""
+    }
+  }, {
+    enabled: !!tournamentInfo?.data?.uuid
+  })
+  let title = "";
+  useEffect(() => {
+    if (matches) {
+
+      const seeds = matches?.data?.filter((item: any) => item.round === 0).length || 0;
+      const totalRound = Math.log2(seeds * 2);
+      const fromRight = (currentRound) - totalRound;
+      switch (fromRight) {
+        case 0:
+          title = "Final Match";
+          break;
+        case 1:
+          title = "Semifinal";
+          break;
+        case 2:
+          title = "Quarterfinal";
+          break;
+        default:
+          title = '';
+          break;
+      }
+      setMatchTitle(title);
+    }
+
+
+
+  }, [matches])
+
 
   const calcOverall = useCallback((player: any) => {
     const skills = player?.skills || {};
@@ -110,18 +153,79 @@ export const MatchMediaAndInfoSection = ({
     }
   }, [downloadDataUrl, matchUuid]);
 
+  const shareOrDownloadWinner = useCallback(async (title: string) => {
+    try {
+      const winner = currentScore?.winner;
+      if (!winner) return;
+
+      if (!winnerStoryRef.current) return;
+
+      const fileBase = `winner-story-${matchUuid || "export"}`;
+
+      const dataUrl = await toPng(winnerStoryRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        skipFonts: true,
+      });
+
+      const blob = await toBlob(winnerStoryRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        skipFonts: true,
+      });
+
+      if (blob) {
+        const file = new File([blob], `${fileBase}.png`, { type: "image/png" });
+
+        if (
+          typeof navigator !== "undefined" &&
+          typeof navigator.canShare === "function" &&
+          typeof navigator.share === "function" &&
+          navigator.canShare({ files: [file] })
+        ) {
+          await navigator.share({
+            files: [file],
+            title: title,
+          });
+          return;
+        }
+      }
+
+      downloadDataUrl(dataUrl, `${fileBase}.png`);
+    } catch (error) {
+      console.error('Error sharing winner:', error);
+    }
+  }, [currentScore, matchUuid]);
+  console.log(scores, 'c')
   return (
     <>
-      <Button
-        variant="outline-primary"
-        size="sm"
-        className="text-emerald-800 border-emerald-800 top-20 right-0 lg:hidden h-fit fixed z-[1]"
-        onClick={() => {
-          void shareOrDownloadStory();
-        }}
-      >
-        <Lucide icon="Share2" />
-      </Button>
+      <div className="lg:hidden fixed top-20 right-0 z-[50]">
+        {matchTitle !== "" ? <Menu>
+          <Menu.Button as={Button} variant="outline-primary" size="sm" className="text-emerald-800 border-emerald-800 h-fit">
+            <Lucide icon="Share2" />
+          </Menu.Button>
+          <Menu.Items className="w-40 right-0 z-[50]">
+            <Menu.Item onClick={() => void shareOrDownloadStory()} className={"text-emerald-800 dark:text-white"}>
+              <Lucide icon="Share2" className="w-4 h-4 mr-2" />
+              Share Match
+            </Menu.Item>
+            <Menu.Item onClick={() => void shareOrDownloadWinner(matchTitle)} className={"text-emerald-800 dark:text-white"}>
+              <Lucide icon="Trophy" className="w-4 h-4 mr-2" />
+              Share Winner
+            </Menu.Item>
+          </Menu.Items>
+        </Menu> : <Button
+          variant="outline-primary"
+          size="sm"
+          className="text-emerald-800 border-emerald-800 top-20 right-0 lg:hidden h-fit fixed z-[1]"
+          onClick={() => {
+            void shareOrDownloadStory();
+          }}
+        >
+          <Lucide icon="Share2" />
+        </Button>}
+
+      </div>
       {data?.data?.youtube_url && (
         <>
           <div className="col-span-12 text-emerald-800 flex flex-row justify-center md:justify-start">
@@ -148,22 +252,40 @@ export const MatchMediaAndInfoSection = ({
         </div>
         <div className="h-10 ml-1.5 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
         <div className="flex-1"></div>
-        <Button
-          variant="outline-primary"
-          className="text-emerald-800 border-emerald-800 lg:flex hidden"
-          onClick={() => {
-            void shareOrDownloadStory();
-          }}
-        >
-          <Lucide icon="Share2" />
-        </Button>
+        <div className="lg:flex hidden">
+          {matchTitle !== "" ? <Menu>
+            <Menu.Button as={Button} variant="outline-primary" className="text-emerald-800 border-emerald-800">
+              <Lucide icon="Share2" />
+            </Menu.Button>
+            <Menu.Items className="w-40 right-0 ">
+              <Menu.Item onClick={() => void shareOrDownloadStory()} className={"text-emerald-800 dark:text-white"}>
+                <Lucide icon="Share2" className="w-4 h-4 mr-2" />
+                Share Match
+              </Menu.Item>
+              <Menu.Item onClick={() => void shareOrDownloadWinner(matchTitle)} className={"text-emerald-800 dark:text-white"}>
+                <Lucide icon="Trophy" className="w-4 h-4 mr-2" />
+                Share Winner
+              </Menu.Item>
+            </Menu.Items>
+          </Menu> :
+            <Button
+              variant="outline-primary"
+              className="text-emerald-800 border-emerald-800 lg:flex hidden"
+              onClick={() => {
+                void shareOrDownloadStory();
+              }}
+            >
+              <Lucide icon="Share2" />
+            </Button>
+          }
+        </div>
       </div>
 
-      <div className=" col-span-12 !z-0 text-emerald-800">
+      <div className=" col-span-12 !z-0 text-emerald-800" key={matchTitle}>
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 flex flex-col justify-center items-center">
-            <div className="text-xl font-bold capitalize">
-              {!data?.data?.tournament_uuid && "Challenger "}Match {data?.data?.seed_index >= 0 && data?.data?.seed_index + 1}
+            <div className="text-xl font-bold capitalize" key={matchTitle}>
+              {!data?.data?.tournament_uuid && "Challenger "}{!!matchTitle ? matchTitle : `Match ${data?.data?.seed_index >= 0 && data?.data?.seed_index + 1}`}
             </div>
             <div className="hidden sm:flex text-sm text-center text-emerald-800">
               {tournamentInfo?.data?.name}
@@ -206,7 +328,7 @@ export const MatchMediaAndInfoSection = ({
             <Divider className="col-span-12 my-2" />
             <div className="col-span-12 flex flex-col items-end">
               <h2 className="text-lg font-bold capitalize">{data?.data?.home_team?.name} </h2>
-              <h3 className="text-base font-normal capitalize">{data?.data?.home_team?.alias}</h3>
+              {/* <h3 className="text-base font-normal capitalize">{data?.data?.home_team?.alias}</h3> */}
             </div>
           </div>
           <div className="col-span-0 hidden sm:col-span-2 sm:flex flex-col justify-center items-center">
@@ -241,7 +363,7 @@ export const MatchMediaAndInfoSection = ({
             <Divider className="col-span-12 my-2" />
             <div className="col-span-12 flex flex-col items-start">
               <h2 className="text-lg font-bold capitalize">{data?.data?.away_team?.name} </h2>
-              <h3 className="text-base font-normal capitalize">{data?.data?.away_team?.alias}</h3>
+              {/* <h3 className="text-base font-normal capitalize">{data?.data?.away_team?.alias}</h3> */}
             </div>
           </div>
           {/* END: Score */}
@@ -685,6 +807,88 @@ export const MatchMediaAndInfoSection = ({
           </div>
 
           <div className="p-16 opacity-90 flex flex-row justify-between">
+            <div className="text-2xl uppercase tracking-tight">seventy<strong>five</strong>.club</div>
+            <div className="text-2xl uppercase tracking-tight">@75<strong>Tennis</strong>Club</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ position: "fixed", left: "-99999px", top: "99999px", width: 1080, height: 1920 }} key={JSON.stringify(currentScore)}>
+        <div
+          ref={winnerStoryRef}
+          style={{ width: 1080, height: 1920 }}
+          className="bg-emerald-800 text-white flex flex-col items-start justify-between overflow-hidden"
+        >
+          <div className="px-16 pt-32">
+            <div className="flex flex-row items-center text-2xl font-semibold uppercase tracking-tight">
+              <IconLogoAlt className="w-16 h-16 mr-3" />
+              <span>Seventy</span>
+              <span className="font-bold ml-2">Five</span>
+            </div>
+            <div className="mt-6 text-[40px] uppercase font-bold tracking-tight">
+              {tournamentInfo?.data?.name || "Challenger"}
+            </div>
+            <div className="mt-2 text-2xl opacity-90 uppercase">
+              {matchTitle}
+            </div>
+          </div>
+
+          <div className="px-16 flex-1 flex flex-col w-full justify-center items-center">
+            <div className="text-8xl mb-8">🏆</div>
+            <div className="text-8xl font-bold mb-4 text-center">
+              {matchTitle.toLowerCase().includes("final") ? "CHAMPS!!" : `${matchTitle} WINNER!`}
+            </div>
+
+            <div className="text-2xl mb-3 text-center opacity-80 flex flex-row items-center justify-center">
+              <Lucide icon="MapPin" className="mr-2 h-8 w-8" /> {data?.data?.court_field?.court?.name} - {data?.data?.court_field?.name}
+            </div>
+            {
+              data?.data?.away_team_score > data?.data?.home_team_score ?
+                <div className="flex flex-col w-full justify-center items-center ">
+                  <div className="flex flex-row border items-center justify-stretch border-[#EBCE56] rounded-xl overflow-hidden w-[60%]">
+                    <div className="flex flex-col px-5 py-4 flex-1 gap-3">
+                      <div className="text-3xl font-semibold  ">{data?.data?.away_team?.players?.[0]?.name}</div>
+                      <div className="text-3xl font-semibold">{data?.data?.away_team?.players?.[1]?.name}</div>
+                    </div>
+                    <div className="flex flex-col h-full bg-[#EBCE56] justify-center items-center px-4 py-5 gap-2">
+                      <div className="text-3xl font-semibold text-emerald-800 uppercase ">{data?.data?.away_team?.name}</div>
+                      <div className="text-xl flex flex-row items-center justify-center text-[#EBCE56] bg-emerald-800 h-fit px-2 py-1 rounded-lg w-20 font-bold">{data?.data?.away_team_score} - {data?.data?.home_team_score}</div>
+                    </div>
+                  </div>
+                  {/* <div className="flex flex-row border items-center justify-stretch border-[#EBCE56] rounded-xl overflow-hidden">
+                    <div className="flex flex-col px-4 py-3 flex-1 gap-2">
+                      <div className="text-2xl font-semibold  ">{data?.data?.home_team?.players?.[0]?.name}</div>
+                      <div className="text-2xl font-semibold">{data?.data?.home_team?.players?.[1]?.name}</div>
+                    </div>
+                    <div className="text-3xl flex items-center justify-center text-emerald-800 bg-white h-fit px-2 py-2 rounded-lg mr-4 w-16 font-bold">{data?.data?.home_team_score}</div>
+                    <div className="flex flex-col h-full bg-[#EBCE56] justify-center px-4">
+                      <div className="text-2xl font-semibold text-emerald-800 ">{data?.data?.home_team?.name}</div>
+                    </div>
+                  </div> */}
+
+                </div>
+                :
+                <div className="flex flex-col w-full justify-center items-center ">
+                  <div className="flex flex-row border items-center justify-stretch border-[#EBCE56] rounded-xl overflow-hidden w-[60%]">
+                    <div className="flex flex-col px-5 py-4 flex-1 gap-3">
+                      <div className="text-3xl font-semibold  ">{data?.data?.home_team?.players?.[0]?.name}</div>
+                      <div className="text-3xl font-semibold">{data?.data?.home_team?.players?.[1]?.name}</div>
+                    </div>
+                    <div className="flex flex-col h-full bg-[#EBCE56] justify-center items-center px-4 py-5 gap-2">
+                      <div className="text-3xl font-semibold text-emerald-800 uppercase ">{data?.data?.home_team?.name}</div>
+                      <div className="text-xl flex flex-row items-center justify-center text-[#EBCE56] bg-emerald-800 h-fit px-2 py-1 rounded-lg w-20 font-bold">{data?.data?.home_team_score} - {data?.data?.away_team_score}</div>
+                    </div>
+                  </div>
+                </div>
+            }
+            <div className="flex flex-col gap-3 my-3">
+              <div className="text-2xl text-center opacity-80 flex flex-row items-center justify-center">
+                <Lucide icon="Calendar" className="mr-2 h-8 w-8" /> {moment(data?.data?.date).format('DD MMMM YYYY HH:mm')}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-16 mb-16 opacity-90 flex flex-row justify-between w-full">
             <div className="text-2xl uppercase tracking-tight">seventy<strong>five</strong>.club</div>
             <div className="text-2xl uppercase tracking-tight">@75<strong>Tennis</strong>Club</div>
           </div>

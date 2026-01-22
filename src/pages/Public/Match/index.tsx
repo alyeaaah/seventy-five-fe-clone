@@ -55,7 +55,9 @@ export const PublicMatchDetail = () => {
 
   const { data: scores, unsubscribe: unsubscribeFirestore } = useMatchScore(
     matchUuid,
-    () => { }
+    () => {
+
+    }
   );
   const handlePopState = useRef((event: PopStateEvent) => {
     if (unsubscribeFirestore) {
@@ -87,8 +89,10 @@ export const PublicMatchDetail = () => {
         />
         <FadeAnimation className="col-span-12 md:col-span-12 grid grid-cols-12 gap-0 h-max" direction="up">
           <div className="col-span-12 grid grid-cols-12 gap-2 h-max">
+            {JSON.stringify(scores)}ssss
             <MatchMediaAndInfoSection
               data={data}
+              key={JSON.stringify(scores)}
               tournamentInfo={tournamentInfo}
               currentScore={currentScore}
               scores={scores || []}
