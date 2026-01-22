@@ -21,7 +21,7 @@ import { encodeBase64, getCurrentMatch } from "@/utils/helper";
 import { PointConfigurationsApiHooks } from "../PointConfig/api";
 import { useDebounceFn } from "ahooks";
 import { queryClient } from "@/utils/react-query";
-import { IconVS } from "@/assets/images/icons";
+import { IconLogoAlt, IconVS } from "@/assets/images/icons";
 import { CustomSkeleton } from "@/components/CustomSkeleton";
 import { clientEnv } from "@/env";
 
@@ -1477,8 +1477,11 @@ export const MatchDetail = () => {
             <div className="grid grid-cols-10 gap-2">
               <div className="col-span-12 aspect-square lg:aspect-auto flex justify-center" key={JSON.stringify(data?.data)}>
                 {/* display qrcode here */}
-                <QRCode value={getQRValue()}
-                  className="aspect-square min-w-full min-h-full lg:min-w-[50%] lg:min-h-fit" />
+                <QRCode
+                  value={getQRValue()}
+                  className="aspect-square min-w-full min-h-full lg:min-w-[50%] lg:min-h-fit"
+                  color="#084930"
+                />
               </div>
             </div>
           </div>
