@@ -7,10 +7,10 @@ export const playerSchema = z.object({
   nickname: z.string(),
   username: z.string(),
   city: z.string().nullish(),
-  media_url: z.string(),
+  media_url: z.string().nullish(),
   avatar_url: z.string().nullish(),
-  height: z.number(),
-  point: z.number(),
+  height: z.number().nullish(),
+  point: z.number().nullish(),
   gender: z.string(),
   level_uuid: z.string().nullish(),
 });

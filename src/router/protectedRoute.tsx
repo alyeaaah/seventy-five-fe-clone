@@ -22,7 +22,7 @@ export function ProtectedRoute(props: Readonly<PropsWithChildren>) {
     const urlRedirect = encodeURIComponent(location.pathname + location.search);
 
     toast.showNotification({
-      text: errorMessage? "Your session expired" : "Unauthorized",
+      text: errorMessage ? "Your session expired" : "Unauthorized",
       duration: 5000,
       icon: "ShieldAlert",
       variant: "danger"
@@ -44,14 +44,14 @@ export function ProtectedRoute(props: Readonly<PropsWithChildren>) {
   if (user.role) {
     //get first index
     const firstPath = location.pathname.split("/").filter(d => !!d).shift();
-    
+
     // if (user.role === "admin" && firstPath == "player") { 
     //   return <Navigate to={paths.administrator.dashboard} />;
     // }
-    if (user.role === "player" && firstPath == "admin") { 
+    if (user.role === "player" && firstPath == "admin") {
       return <Navigate to={paths.player.home} />;
     }
-    if (!["admin", "player"].includes(user.role) ) {
+    if (!["admin", "player"].includes(user.role)) {
       return <Navigate to={paths.landingPage} />;
     }
   }

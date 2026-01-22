@@ -27,6 +27,7 @@ import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { LandingPageApiHooks } from "@/pages/Public/LandingPage/api";
 import { PublicPlayerApiHooks } from "@/pages/Public/Player/api";
 import { paths } from "@/router/paths";
+import { useRouteParams } from "typesafe-routes/react-router";
 
 
 export const ModalCompleteProfile = () => {
@@ -40,6 +41,7 @@ export const ModalCompleteProfile = () => {
   const userData = useAtomValue(userAtom);
   const setUser = useSetAtom(userAtom);
   const setToken = useSetAtom(accessTokenAtom);
+  const [openModal, setOpenModal] = useState<boolean>(true);
 
   const { data } = PlayerHomeApiHooks.useGetPlayersDetail({
     params: {
@@ -182,23 +184,32 @@ export const ModalCompleteProfile = () => {
       <Modal
         classNames={{ body: "rounded-xl bg-gray-50 border" }}
         title={
-          <div className="flex flex-row items-center w-full !text-gray-800 border-b pb-3">
-            <IconLogo className="w-16 h-10 mr-3" />
-            <div className="flex flex-col items-start justify-center">
-              <div className=" text-lg">Complete Your Profile</div>
-              <p className="text-xs font-normal text-gray-500">Complete your profile to get access to Seventy Five's player dashboard and get the best experience!</p>
+          <div className="flex flex-col lg:flex-row items-center w-full justify-center lg:justify-between !text-gray-800 border-b pb-3">
+            <div className="flex flex-row items-center">
+              <IconLogo className="!w-16 min-w-16 h-10 mr-3" />
+              <div className="flex flex-col items-start justify-center">
+                <div className=" text-lg">Complete Your Profile</div>
+                <p className="text-xs font-normal text-gray-500 lg:flex hidden">Complete your profile to get access to Seventy Five's player dashboard and get the best experience!</p>
+              </div>
+            </div>
+            <div className="flex w-full lg:w-fit flex-col pt-2 lg:pt-0">
+              <Button
+                variant="primary"
+                onClick={() => {
+                  navigate(paths.player.referee.index.template)
+                }}
+              >Continue as Referee</Button>
             </div>
           </div>
         }
 
-        open
+        open={openModal}
         closeIcon={false}
         width={"80%"}
         height={"100%"}
         onCancel={() => { }}
         footer={null}
       >
-
         <FormProvider {...methods} key={location.pathname + "_form"}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid grid-cols-12 gap-4">
@@ -1028,7 +1039,7 @@ export const ModalCompleteProfile = () => {
 
                     setToken(null);
                     setUser(null)
-                    navigate(paths.login, { replace: true });
+                    navigate(paths.login({}).$, { replace: true });
                   }}
                   className="sm:mr-2"
                 >
@@ -1038,8 +1049,15 @@ export const ModalCompleteProfile = () => {
                   type="button"
                   variant="outline-secondary"
                   onClick={() => {
-                    methods.reset();
-                    navigate(-1);
+                    if (data?.data?.isReferee) {
+                      setOpenModal(false);
+                    } else {
+
+                      methods.reset();
+                      setToken(null);
+                      setUser(null)
+                      navigate(paths.login({}).$, { replace: true });
+                    }
                   }}
                   className="sm:mr-2"
                 >

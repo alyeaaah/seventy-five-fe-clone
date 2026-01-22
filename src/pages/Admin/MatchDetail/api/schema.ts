@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { playerSchemaList } from "../../Players/api/schema";
+import { playerPartialSchema } from "../../Players/api/schema";
 import { pointSchema } from "../../PointConfig/api/schema";
 import { courtFieldSchema, courtsSchema } from "../../Courts/api/schema";
 
@@ -9,7 +9,7 @@ export const matchTeamSchema = z.object({
   uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
   name: z.string(),
   alias: z.string(),
-  players: z.array(playerSchemaList)
+  players: z.array(playerPartialSchema)
 });
 const playerKudosSchema = z.object({
   kudos: z.string().nullish(),
@@ -62,6 +62,23 @@ export const fullMatchDetailSchema = matchDetailSchema.extend({
   }).nullish()
 })
 
+export const matchTeamPartialSchema = z.object({
+  uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
+  name: z.string(),
+  alias: z.string(),
+  players: z.array(playerPartialSchema).nullish()
+});
+export const updateMatchResponseSchema = matchDetailSchema.extend({
+  home_team: matchTeamPartialSchema.nullish(),
+  away_team: matchTeamPartialSchema.nullish(),
+  point_config: z.object({
+    name:z.string().nullish(),
+    points: z.array(
+      pointSchema.partial()
+    ).nullish()
+  }).nullish()
+})
+
 export const matchScoreFirestoreSchema = z.object({
   refId: z.string().nullish(),
   match_uuid: z.string(),
@@ -91,7 +108,7 @@ export const scoreUpdatePayloadSchema = z.object({
   })).nullish(),
   player_uuid: z.string().nullish(),
   notes: z.string().nullish(),
-  status: z.enum(["INJURY", "NO_SHOW","OTHERS"]).nullish(),
+  status: z.enum(["INJURY", "NO_SHOW","OTHERS","RESET"]).nullish(),
 
 })
 export type MatchDetail = z.infer<typeof matchDetailSchema>;

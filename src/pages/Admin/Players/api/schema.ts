@@ -14,6 +14,18 @@ export const quickAddPlayerPayloadSchema = z.object({
   league_id: z.number().int().min(1, "League is required"),
 });
 
+export const updateAccessPayloadSchema = z.object({
+  username: z.string().min(2, "Username must be at least 2 characters long"),
+  email: z.string().email("Invalid email format"),
+  password: z.string()
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .max(32, { message: "Password must not exceed 32 characters" })
+      .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+      .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+      .regex(/[0-9]/, { message: "Password must contain at least one number" }),
+  isReferee: z.boolean(),
+});
+
 export const playersSchema = z.object({
   uuid: z.string().nullish(),
   name: z.string()
@@ -63,11 +75,12 @@ export const playersSchema = z.object({
   league: playerLeagueSchema.nullish(),
   league_id: z.number().nullish(),
   point: z.number().nullish(),
+  isReferee: z.boolean().default(false).nullish(),
   createdAt: z.string().datetime().nullish(),
   updatedAt: z.string().datetime().nullish(),
   role: z.enum(['PLAYER', 'ADMIN']).nullish()
 });
-export const playerSchemaList = playersSchema.extend({
+export const playerPartialSchema = playersSchema.extend({
   nickname: z.string().nullish(),
   media_url: z.string().nullish(),
   avatar_url: z.string().nullish(),
@@ -232,7 +245,8 @@ export type OrderItem = z.infer<typeof orderItemSchema>;
 export type PlayersPayload = z.infer<typeof playersSchema>;
 export type PlayerAddressPayload = z.infer<typeof playerAddressPayloadSchema>;
 export type PlayerAddress = z.infer<typeof playerAddressSchema>;
-export type PlayerList = z.infer<typeof playerSchemaList>;
+export type PlayerList = z.infer<typeof playerPartialSchema>;
 
 export type QuickAddPlayerPayload = z.infer<typeof quickAddPlayerPayloadSchema>;
+export type UpdateAccessPayload = z.infer<typeof updateAccessPayloadSchema>;
 

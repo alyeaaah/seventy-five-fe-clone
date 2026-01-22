@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { MatchesScoreFirestore, MatchScoreFirestore, matchScoreFirestoreSchema } from "./schema";
 import { clientEnv } from "@/env";
-import { addDoc, arrayUnion, collection, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
+import { addDoc, arrayUnion, collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 import { firestoreDb } from "@/utils/firebase";
@@ -386,7 +386,16 @@ const useUpdateScore = () => {
     },
   );
 }
-
+const useDeleteDocument = () => {
+  return useMutation(
+    async ({ refId }: { refId: string }) => {
+      // delete doc based on refId
+      const docRef = doc(firestoreDb, collectionName, refId);
+      await deleteDoc(docRef);
+      return refId;
+    },
+  );
+}
 const useCreateDocMutation = () => {
   return useMutation(async (newDocumentData: MatchScoreFirestore) => {
     const docRef = await addDoc(
@@ -403,4 +412,4 @@ const generateHmac = () => {
     timestamp: timestamp
   };
 }
-export { useMatchScore, useMatchesScore, useTournamentScore, useAddScore, useAddScores, useUpdateScore, useCreateDocMutation, generateHmac }
+export { useMatchScore, useMatchesScore, useTournamentScore, useAddScore, useAddScores, useUpdateScore, useDeleteDocument, useCreateDocMutation, generateHmac }

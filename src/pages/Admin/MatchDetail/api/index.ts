@@ -13,7 +13,8 @@ export const MatchDetailApiClient = new Zodios(
     endpoints.MatchDetailApi,
     endpoints.MatchScoreUpdateApi,
     endpoints.MatchVideoUpdateApi,
-    endpoints.MatchStatusUpdateApi
+    endpoints.MatchStatusUpdateApi,
+    endpoints.MatchNextRoundApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

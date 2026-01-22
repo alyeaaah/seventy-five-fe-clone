@@ -15,6 +15,7 @@ const schema = z.object({
   FIREBASE_MESSAGING_SENDER_ID: z.string(),
   FIREBASE_SCORE_COLLECTION: z.string(),
   FIREBASE_FIRESTORE_SECRET_KEY: z.string(),
+  VERSION: z.string(),
 });
 
 export const clientEnv = schema.parse({
@@ -31,4 +32,5 @@ export const clientEnv = schema.parse({
   FIREBASE_MESSAGING_SENDER_ID: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_SCORE_COLLECTION: import.meta.env.VITE_FIREBASE_SCORE_COLLECTION,
   FIREBASE_FIRESTORE_SECRET_KEY: import.meta.env.VITE_FIREBASE_FIRESTORE_SECRET_KEY,
+  VERSION: "1.0.0",
 });

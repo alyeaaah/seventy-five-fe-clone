@@ -411,6 +411,14 @@ const slideDown = (
     callback(el);
   }, duration);
 };
+const encodeBase64 = (input: Object): string => {
+  return btoa(encodeURIComponent(JSON.stringify(input)));
+};
+const decodeBase64 = (input: string): Object => {
+  return JSON.parse(decodeURIComponent(atob(input)));
+};
+
+
 
 export {
   cutText,
@@ -432,5 +440,7 @@ export {
   getCurrentMatch,
   imageResizer,
   imageResizerDimension,
-  priceRender
+  priceRender,
+  encodeBase64,
+  decodeBase64
 };

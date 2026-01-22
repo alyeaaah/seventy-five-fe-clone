@@ -37,7 +37,7 @@ export const StandingsComponent = ({ className, league }: StandingsComponentProp
       afterChange={(e) => setSelectedLeague(leagueList?.data?.[e]?.name || '')}
     >
       {leagueList?.data?.map((item) =>
-        <div key={item.id} className="sm:aspect-[16/19] border">
+        <div key={item.id} className="sm:aspect-[16/19]">
           <div className={`flex flex-col justify-center items-center rounded-t-2xl h-20 relative`} style={{ backgroundColor: item.color_scheme ? `#${item.color_scheme}` : sfColor.primary }}>
             <Link to={paths.tournament.standings({ league: item.name }).$} className="flex flex-row justify-center items-center py-3">
               <IconLogoAlt className="w-16 h-12 object-contain text-white mr-2" />

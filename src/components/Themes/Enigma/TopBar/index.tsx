@@ -62,11 +62,11 @@ function Main(props: { layout?: "side-menu" | "simple-menu" | "top-menu" }) {
           {/* BEGIN: Account Menu */}
           <Menu>
             <Menu.Button className="flex flex-row items-center">
-              {userData?.name  ? <span className="text-white z-10 mr-2">Hi, {userData?.name}!</span> : null}
+              {userData?.name ? <span className="text-white z-10 mr-2">Hi, {userData?.name}!</span> : null}
               <div className="block w-8 h-8 overflow-hidden rounded-full text-white shadow-lg image-fit zoom-in intro-x">
-              {userData?.media_url ? <img
-                alt="Midone Tailwind HTML Admin Template"
-                src={userData?.media_url}
+                {userData?.media_url ? <img
+                  alt="Midone Tailwind HTML Admin Template"
+                  src={userData?.media_url}
                 /> : <Lucide icon="CircleUser" className="w-full h-full" />}
               </div>
             </Menu.Button>
@@ -78,7 +78,7 @@ function Main(props: { layout?: "side-menu" | "simple-menu" | "top-menu" }) {
                 </div>
               </Menu.Header>
               <Menu.Divider className="bg-white/[0.08]" />
-              { userData?.role === "admin" && <Menu.Item className="hover:bg-white/5" >
+              {userData?.role === "admin" && <Menu.Item className="hover:bg-white/5" >
                 <Link to={paths.administrator.dashboard} replace={true} target="_blank" className="flex flex-row items-center">
                   <Lucide icon="RefreshCw" className="w-4 h-4 mr-2" /> Admin Dashboard
                 </Link>
@@ -89,7 +89,7 @@ function Main(props: { layout?: "side-menu" | "simple-menu" | "top-menu" }) {
               <Menu.Item className="hover:bg-white/5" onClick={() => {
                 setToken(null);
                 setUser(null)
-                navigate(paths.login, {replace: true});
+                navigate(paths.login({}).$, { replace: true });
               }}>
                 <Lucide icon="ToggleRight" className="w-4 h-4 mr-2" /> Logout
               </Menu.Item>

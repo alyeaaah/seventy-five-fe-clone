@@ -46,7 +46,7 @@ export const PlayerMatchFull = ({ className, match, playerUuid, ...props }: Comp
           <div className="mt-2 z-10 w-full flex space-y-1 flex-col">
             {match?.home_team?.players?.map((player, idx) => (
               <div className="flex flex-row items-center justify-start">
-                <Image src={player?.player?.media_url} className="w-6 h-6 rounded-full mr-2" />
+                <Image src={player?.player?.media_url || ""} className="w-6 h-6 rounded-full mr-2" />
                 {player?.player?.name}
               </div>
             ))}
@@ -59,7 +59,7 @@ export const PlayerMatchFull = ({ className, match, playerUuid, ...props }: Comp
             {match?.away_team?.players?.map((player, idx) => (
               <div className="flex flex-row items-center justify-end">
                 <span className={player?.player?.uuid === playerUuid ? "text-emerald-800 font-bold" : ""}>{player?.player?.name}</span>
-                <Image src={player?.player?.media_url} className="w-6 h-6 rounded-full ml-2" />
+                <Image src={player?.player?.media_url || ""} className="w-6 h-6 rounded-full ml-2" />
               </div>
             ))}
           </div>

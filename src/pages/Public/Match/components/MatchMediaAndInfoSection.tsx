@@ -76,11 +76,15 @@ export const MatchMediaAndInfoSection = ({
       const dataUrl = await toPng(storyRef.current, {
         cacheBust: true,
         pixelRatio: 2,
+
+        skipFonts: true, // ✅ IMPORTANT
       });
 
       const blob = await toBlob(storyRef.current, {
         cacheBust: true,
         pixelRatio: 2,
+
+        skipFonts: true, // ✅ IMPORTANT
       });
 
       if (blob) {
@@ -108,6 +112,16 @@ export const MatchMediaAndInfoSection = ({
 
   return (
     <>
+      <Button
+        variant="outline-primary"
+        size="sm"
+        className="text-emerald-800 border-emerald-800 top-20 right-0 lg:hidden h-fit fixed z-[1]"
+        onClick={() => {
+          void shareOrDownloadStory();
+        }}
+      >
+        <Lucide icon="Share2" />
+      </Button>
       {data?.data?.youtube_url && (
         <>
           <div className="col-span-12 text-emerald-800 flex flex-row justify-center md:justify-start">
@@ -136,12 +150,12 @@ export const MatchMediaAndInfoSection = ({
         <div className="flex-1"></div>
         <Button
           variant="outline-primary"
-          className="text-emerald-800 border-emerald-800"
+          className="text-emerald-800 border-emerald-800 lg:flex hidden"
           onClick={() => {
             void shareOrDownloadStory();
           }}
         >
-          <Lucide icon="Share" />
+          <Lucide icon="Share2" />
         </Button>
       </div>
 

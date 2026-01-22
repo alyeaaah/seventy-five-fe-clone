@@ -3,7 +3,7 @@ import { z } from "zod";
 export const registerSchema = z.object({
   name: z.string({required_error: "Player name is required"}),
   username: z.string({required_error: "Username is required"}),
-  email: z.string({required_error: "Email is required"}),
+  email: z.string({required_error: "Email is required"}).email("Invalid email"),
   phone: z.string({required_error: "Phone is required" })
     .min(8, "Phone must be at least 8 characters long")
     .max(15, "Phone must be at most 15 characters long")

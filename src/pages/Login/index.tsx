@@ -14,12 +14,14 @@ import { Illustration } from "@/assets/images/illustrations/illustrations";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
+import { useRouteParams } from "typesafe-routes/react-router";
 
 function Main() {
   const setUser = useSetAtom(userAtom);
   const setToken = useSetAtom(accessTokenAtom);
   const navigate = useNavigate();
   const { mutate: actionLoginApi, isPending: isLoading } = adminApiHooks.useLogin();
+  const { redirect } = useRouteParams(paths.login);
 
   const [modalAlert, setModalAlert] = useState<AlertProps>({
     open: false,
@@ -47,6 +49,11 @@ function Main() {
         setToken(e.token);
         adminApiClient.get("/user/get").then((res) => {
           setUser(res.data);
+
+          if (redirect && res.data.role != "admin") {
+            navigate(redirect);
+            return;
+          }
           if (res.data.role == "admin") {
             navigate(paths.administrator.dashboard);
           }

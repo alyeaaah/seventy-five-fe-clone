@@ -10,6 +10,7 @@ export const userDataSchema = z.object({
   name: z.string(),
   username: z.string(),
   media_url: z.string().optional(),
+  isReferee: z.boolean().default(false),
   isBlocked: z.boolean(),
   role: z.string(),
   createdAt: z.string().datetime(),

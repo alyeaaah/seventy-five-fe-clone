@@ -34,9 +34,10 @@ const Image_ = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
   const [isError, setIsError] = useState(false);
 
   if (isError) {
-    return <div className={className}>{fallback || <EmptyImage />}</div>;
+    return <div className={`${className} !overflow-hidden`}>{fallback || <EmptyImage />}</div>;
   }
   if (!tags) {
+
     return (
       <img
         onError={(e) => {
@@ -74,7 +75,7 @@ const Image_ = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
 });
 
 const Image = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
-  return <Image_ key={props.src} {...props} />;
+  return <Image_ key={props.src || ""} {...props} />;
 });
 
 export default Image;

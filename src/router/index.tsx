@@ -78,6 +78,7 @@ const PlayerMatches = lazy(() => import("@/pages/Players/Matches").then(m => ({ 
 const PlayerProfile = lazy(() => import("@/pages/Players/Profile").then(m => ({ default: m.PlayerProfile })));
 const PlayerOrderHistory = lazy(() => import("@/pages/Players/OrderHistory").then(m => ({ default: m.PlayerOrderHistory })));
 const PlayerOrderDetail = lazy(() => import("@/pages/Players/OrderHistory/detail").then(m => ({ default: m.PlayerOrderDetail })));
+const PlayerReferee = lazy(() => import("@/pages/Players/Referee").then(m => ({ default: m.PlayerReferee })));
 
 // Public Pages
 const PublicGalleries = lazy(() => import("@/pages/Public/Galleries").then(m => ({ default: m.PublicGalleries })));
@@ -826,6 +827,27 @@ function Router() {
           ),
         },
         {
+          path: paths.player.referee.index.template,
+          children: [
+            {
+              index: true,
+              element: (
+                <LazyWrapper>
+                  <PlayerReferee />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: paths.player.referee.match.template,
+              element: (
+                <LazyWrapper>
+                  <MatchDetail />
+                </LazyWrapper>
+              ),
+            }
+          ]
+        },
+        {
           path: paths.player.matches.index,
           element: (
             <LazyWrapper>
@@ -859,8 +881,9 @@ function Router() {
         },
       ],
     },
+
     {
-      path: paths.login,
+      path: paths.login.template,
       element: (
         <LazyWrapper>
           <Login />

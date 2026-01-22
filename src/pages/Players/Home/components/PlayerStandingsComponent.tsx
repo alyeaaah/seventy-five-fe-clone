@@ -16,12 +16,12 @@ interface ComponentProps extends HTMLAttributes<HTMLDivElement> {
   player?: string | null;
 }
 export const PlayerStandingsComponent = ({ className, title = "Rank", player, league, ...props }: ComponentProps) => {
-   const { data: playerStanding } = PublicPlayerApiHooks.useGetPlayerStandings({
-      queries: {
-        league: league?.name || ''
-      }
-    }, { enabled: !!league });
-  
+  const { data: playerStanding } = PublicPlayerApiHooks.useGetPlayerStandings({
+    queries: {
+      league: league?.name || ''
+    }
+  }, { enabled: !!league });
+
   return (
     <div className={`box rounded-2xl flex flex-col items-center justify-stretch overflow-hidden relative ${className}`} {...props}>
       <div className={`font-semibold uppercase text-xs w-full px-2 py-2 aspect-[9/1] text-white flex items-center`} style={{ backgroundColor: league?.color_scheme ? `#${league?.color_scheme}` : sfColor.primary }}>
@@ -34,7 +34,7 @@ export const PlayerStandingsComponent = ({ className, title = "Rank", player, le
               <div className="w-4 h-4 text-xs font-medium">
                 {index + 1}
               </div>
-              <Image src={pl.media_url} className="w-4 h-4 rounded-full" />
+              <Image src={pl.media_url || undefined} className="w-4 h-4 rounded-full" />
               <div className="ml-2">
                 <div className={`text-xs line-clamp-1 text-ellipsis ${pl.uuid === player ? 'font-bold' : ''}`}>{pl.name}</div>
                 {/* <div className="text-xs text-gray-500">{player.point} Match</div> */}

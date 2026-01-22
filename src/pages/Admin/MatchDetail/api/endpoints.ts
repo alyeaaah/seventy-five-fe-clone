@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { fullMatchDetailSchema, matchStatusEnum, scoreUpdatePayloadSchema } from "./schema";
+import { fullMatchDetailSchema, matchStatusEnum, scoreUpdatePayloadSchema, updateMatchResponseSchema } from "./schema";
 
 const MatchDetailApi = makeEndpoint({
   alias: "getMatchDetail",
@@ -22,6 +22,16 @@ const MatchScoreUpdateApi = makeEndpoint({
   method: "put",
   path: `/match/score-update/:uuid`,
   parameters: parametersBuilder().addBody(scoreUpdatePayloadSchema).build(),
+  response: z
+    .object({
+      data: updateMatchResponseSchema,
+      message: z.string().nullish(),
+    })
+});
+const MatchNextRoundApi = makeEndpoint({
+  alias: "updateMatchNextRoundApi",
+  method: "post",
+  path: `/match/next-round/:uuid`,
   response: z
     .object({
       message: z.string().nullish(),
@@ -59,5 +69,6 @@ export const endpoints = {
   MatchDetailApi,
   MatchScoreUpdateApi,
   MatchVideoUpdateApi,
-  MatchStatusUpdateApi
+  MatchStatusUpdateApi,
+  MatchNextRoundApi
 };

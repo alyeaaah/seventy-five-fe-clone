@@ -140,12 +140,19 @@ export const paths = {
   },
   player: {
     home: "/player",
-
+    referee: {
+      index: route("/player/referee/&:codes?", {
+        codes: stringParser
+      },{}),
+      match: route(`/player/referee/match/:matchUuid`, {
+        matchUuid: stringParser
+      }, {}),
+    },
     matches: {
-      detail: route(`/admin/tournaments/detail/:id`, {
+      detail: route(`/player/tournaments/detail/:id`, {
         id: stringParser
       }, {}),
-      match: route(`/admin/tournaments/match/:matchUuid`, {
+      match: route(`/player/tournaments/match/:matchUuid`, {
         matchUuid: stringParser
       }, {}),
       index: "/player/tournaments", 
@@ -226,5 +233,7 @@ export const paths = {
   },
   register: "/register",
   error: "/error",
-  login: "/login",
+  login: route("/login/&:redirect?", {
+    redirect: stringParser
+  }, {}),
 } as const;

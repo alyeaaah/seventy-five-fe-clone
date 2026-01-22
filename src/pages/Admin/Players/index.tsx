@@ -18,6 +18,7 @@ import Image from "@/components/Image";
 import { imageResizer } from "@/utils/helper";
 import { Menu } from "@/components/Base/Headless";
 import { QuickAddModal } from "./Forms/QuickAddModal";
+import { UpdateAccessModal } from "./Forms/UpdateAccess";
 
 function Players() {
   const screens = useBreakpoint();
@@ -30,6 +31,8 @@ function Players() {
   });
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [isUpdateAccessOpen, setIsUpdateAccessOpen] = useState(false);
+  const [selectedPlayerUuid, setSelectedPlayerUuid] = useState("");
   const { showNotification } = useToast();
   const { mutate: actionDeletePlayer } = PlayersApiHooks.useDeletePlayer({
     params: {
@@ -226,6 +229,13 @@ function Players() {
                   <Lucide icon="UserCog" className="w-4 h-4 mr-2" />
                   Set as {record.role === "PLAYER" ? "Admin" : "Player"}
                 </Menu.Item>
+                <Menu.Item onClick={() => {
+                  setSelectedPlayerUuid(record.uuid || "");
+                  setIsUpdateAccessOpen(true);
+                }}>
+                  <Lucide icon="Contact" className="w-4 h-4 mr-2" />
+                  Update Access
+                </Menu.Item>
                 <Menu.Item onClick={() => handleDeletePlayer(value)} className="text-danger">
                   <Lucide icon="Trash" className="w-4 h-4 mr-2" />
                   Delete
@@ -377,6 +387,14 @@ function Players() {
       />
 
       <QuickAddModal isOpen={isQuickAddOpen} onClose={() => setIsQuickAddOpen(false)} />
+      <UpdateAccessModal
+        isOpen={isUpdateAccessOpen}
+        onClose={() => {
+          setIsUpdateAccessOpen(false);
+          setSelectedPlayerUuid("");
+        }}
+        playerUuid={selectedPlayerUuid}
+      />
     </>
   );
 }

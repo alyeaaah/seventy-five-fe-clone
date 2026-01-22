@@ -2,6 +2,7 @@ import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
 import { playerLeagueSchema, playersPartialSchema, playersSchema } from "@/pages/Players/Home/api/schema";
 import { matchSchema } from "@/pages/Players/Matches/api/schema";
+import { playerPartialSchema } from "@/pages/Admin/Players/api/schema";
 
 const playerDetailApi = makeEndpoint({
   alias: "getPlayerDetail",
@@ -30,7 +31,7 @@ const playerStandingsApi = makeEndpoint({
       league: z.string().nullish(),
     }).build(),
   response: z.object({
-    data: z.array(playersSchema.extend({
+    data: z.array(playerPartialSchema.extend({
       age: z.number().nullish(),
       dateOfBirth: z.string(),
     }))

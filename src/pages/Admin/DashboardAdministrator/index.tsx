@@ -944,9 +944,9 @@ function Main() {
                 </Link>
               </div>
               <div className="mt-5">
-                {upcomingTournaments?.data?.map((tournament) => (
-                  <div className="intro-x box flex flex-row items-center">
-                    <div className="ml-4 h-full w-12 border text-slate-50 bg-emerald-800 rounded-lg py-1 flex flex-col justify-center items-center font-bold text-lg">
+                {upcomingTournaments?.data?.map((tournament, i) => (
+                  <div className="intro-x box flex lg:flex-row flex-col py-4 items-stretch" key={i}>
+                    <div className="lg:ml-4 h-full lg:w-12 border text-slate-50 bg-emerald-800  rounded-lg py-1 lg:px-2 flex flex-col justify-center items-center font-bold text-lg">
                       {moment(tournament.start_date).format('DD')}
                       <span className="text-white text-sm">{moment(tournament.start_date).format('MMM')}</span>
                     </div>

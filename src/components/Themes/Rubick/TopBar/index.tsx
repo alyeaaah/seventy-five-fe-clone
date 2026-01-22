@@ -27,7 +27,7 @@ function Main() {
   const userData = useAtomValue(userAtom);
   const setUser = useSetAtom(userAtom);
   const setToken = useSetAtom(accessTokenAtom);
-  
+
   return (
     <>
       {/* BEGIN: Top Bar */}
@@ -40,7 +40,7 @@ function Main() {
               <Breadcrumb.Link to={!!mainMenuPath ? mainMenuPath : paths.administrator.dashboard} active={false} className="capitalize">{subMenuOf}</Breadcrumb.Link> : <></>
           } */}
           {location.pathname.split("/").length > 2 ? (
-            <Breadcrumb.Link key={3} to={location.pathname.split("/").slice(0,3).join("/")} active={true} className="capitalize">
+            <Breadcrumb.Link key={3} to={location.pathname.split("/").slice(0, 3).join("/")} active={true} className="capitalize">
               {location.pathname.split("/")[2]}
             </Breadcrumb.Link>
           ) : <></>
@@ -234,7 +234,7 @@ function Main() {
               onClick={() => {
                 setToken(null);
                 setUser(null)
-                navigate(paths.login, { replace: true });
+                navigate(paths.login({}).$, { replace: true });
               }}>
               <Lucide icon="ToggleRight" className="w-4 h-4 mr-2" /> Logout
             </Menu.Item>

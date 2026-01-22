@@ -361,7 +361,7 @@ export const PublicShopCart = () => {
         >
           <div className="flex flex-col gap-2 mt-4 items-center">
             <p>Please log in to set your primary address</p>
-            <Link to={paths.login} className="w-1/2">
+            <Link to={`${paths.login({}).$}`} className="w-1/2">
               <Button
                 variant="primary"
                 size="lg"
@@ -457,7 +457,7 @@ export const PublicShopCart = () => {
                 className="w-full bg-emerald-800 rounded-xl whitespace-nowrap shadow-lg text-sm font-bold h-10"
                 onClick={() => {
                   setAskToLoginModal({ ...askToLoginModal, paymentMethod: false });
-                  navigate(paths.login);
+                  navigate(paths.login({}).$);
                 }}
               >
                 Login

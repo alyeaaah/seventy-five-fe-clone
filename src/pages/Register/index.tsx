@@ -70,7 +70,7 @@ export const Register = () => {
           variant: "warning",
           onClose: () => {
             setModalAlert({ ...modalAlert, open: false })
-            navigate(paths.login);
+            navigate(paths.login({}).$);
           },
           buttons: [
             {
@@ -86,7 +86,7 @@ export const Register = () => {
               variant: "primary",
               onClick: () => {
                 setModalAlert({ ...modalAlert, open: false })
-                navigate(paths.login);
+                navigate(paths.login({}).$);
               }
             }
           ]
@@ -122,7 +122,7 @@ export const Register = () => {
                   icon: "CheckCircle",
                   buttons: [],
                 })
-                navigate(paths.login);
+                navigate(paths.login({}).$);
               },
             },
             {

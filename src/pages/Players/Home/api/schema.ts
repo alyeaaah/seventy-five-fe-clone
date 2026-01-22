@@ -58,6 +58,7 @@ export const playersSchema = z.object({
   league: playerLeagueSchema.nullish(),
   league_id: z.number().nullish(),
   point: z.number().optional(),
+  isReferee: z.boolean().default(false),
   createdAt: z.string().datetime().nullish(),
   updatedAt: z.string().datetime().nullish(),
 });
@@ -65,6 +66,8 @@ export const playersPartialSchema = playersSchema.extend({
   email: z.string().nullish(),
   nickname: z.string().nullish(),
   media_url: z.string().nullish(),
+  socialMediaIg: z.string().nullish(),
+  socialMediaX: z.string().nullish(),
   avatar_url: z.string().nullish(),
   level: z.string().nullish(),
   level_uuid: z.string().nullish(),

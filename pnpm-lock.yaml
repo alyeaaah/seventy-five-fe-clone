@@ -62,6 +62,9 @@ importers:
       '@types/react-lottie':
         specifier: ^1.2.10
         version: 1.2.10
+      '@yudiel/react-qr-scanner':
+        specifier: ^2.5.1
+        version: 2.5.1(@types/emscripten@1.41.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.13.2)(zod@3.25.76)
@@ -2454,6 +2457,9 @@ packages:
   '@types/dropzone@5.7.9':
     resolution: {integrity: sha512-c6IlUz+DeQ4gANzJKn8fdP5rO6UyDNOyWLjfPbDRUHCNsXaAVKQOpuOv6LWEyvaK7pLqmoIpvSIlvBgGsk1vGw==}
 
+  '@types/emscripten@1.41.5':
+    resolution: {integrity: sha512-cMQm7pxu6BxtHyqJ7mQZ2kXWV5SLmugybFdHCBbJ5eHzOo6VhBckEgAT3//rP5FwPHNPeEiq4SmQ5ucBwsOo4Q==}
+
   '@types/estree@0.0.39':
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
 
@@ -2547,6 +2553,12 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+
+  '@yudiel/react-qr-scanner@2.5.1':
+    resolution: {integrity: sha512-FWzHaCneu30mQpE80VNWx4IPtBjXFEiTzhwWunZy3afvvAy/x0aVIgYijJKEbROoaAeDfcJ/gIyUCqPBP7bMOw==}
+    peerDependencies:
+      react: ^17 || ^18 || ^19
+      react-dom: ^17 || ^18 || ^19
 
   '@zodios/core@10.9.6':
     resolution: {integrity: sha512-aH4rOdb3AcezN7ws8vDgBfGboZMk2JGGzEq/DtW65MhnRxyTGRuLJRWVQ/2KxDgWvV2F5oTkAS+5pnjKbl0n+A==}
@@ -2679,6 +2691,9 @@ packages:
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
+
+  barcode-detector@3.0.8:
+    resolution: {integrity: sha512-Z9jzzE8ngEDyN9EU7lWdGgV07mcnEQnrX8W9WecXDqD2v+5CcVjt9+a134a5zb+kICvpsrDx6NYA6ay4LGFs8A==}
 
   base16@1.0.0:
     resolution: {integrity: sha512-pNdYkNPiJUnEhnfXV56+sQy8+AaPcG3POZAUnwr4EeqCUZFz4u2PePbo3e5Gj4ziYPCWGUZT9RHisvJKnwFuBQ==}
@@ -4621,6 +4636,9 @@ packages:
   scroll-into-view-if-needed@3.1.0:
     resolution: {integrity: sha512-49oNpRjWRvnU8NyGVmUaYG4jtTkNonFZI86MmGRDqBphEK2EXT9gdEUoQPZhuBM8yWHxCWbobltqYO5M4XrUvQ==}
 
+  sdp@3.2.1:
+    resolution: {integrity: sha512-lwsAIzOPlH8/7IIjjz3K0zYBk7aBVVcvjMwt3M4fLxpjMYyy7i3I97SLHebgn4YBjirkzfp3RvRDWSKsh/+WFw==}
+
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
@@ -4839,6 +4857,10 @@ packages:
   tabulator-tables@5.6.1:
     resolution: {integrity: sha512-DsmaZqEmlQS/NL5ZJbVtoaeYjJgofEFp+2er7+uwKerGwd/E2rZbeQgux4+Ab1dxNJcbptiX7oUiTwogOnUdgQ==}
 
+  tagged-tag@1.0.0:
+    resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
+    engines: {node: '>=20'}
+
   tailwind-merge@2.6.0:
     resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
 
@@ -4926,6 +4948,10 @@ packages:
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
+
+  type-fest@5.4.1:
+    resolution: {integrity: sha512-xygQcmneDyzsEuKZrFbRMne5HDqMs++aFzefrJTgEIKjQ3rekM+RPfFCVq2Gp1VIDqddoYeppCj4Pcb+RZW0GQ==}
+    engines: {node: '>=20'}
 
   typed-array-buffer@1.0.3:
     resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
@@ -5117,6 +5143,10 @@ packages:
   webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
 
+  webrtc-adapter@9.0.3:
+    resolution: {integrity: sha512-5fALBcroIl31OeXAdd1YUntxiZl1eHlZZWzNg3U4Fn+J9/cGL3eT80YlrsWGvj2ojuz1rZr2OXkgCzIxAZ7vRQ==}
+    engines: {node: '>=6.0.0', npm: '>=3.10.0'}
+
   websocket-driver@0.7.4:
     resolution: {integrity: sha512-b17KeDIQVjvb0ssuSDF2cYXSg2iztliJ4B9WdsuB6J952qCPKmnVq4DyW5motImXHDC1cBT/1UezrJVsKw5zjg==}
     engines: {node: '>=0.8.0'}
@@ -5245,6 +5275,11 @@ packages:
 
   zoom-vanilla.js@2.0.6:
     resolution: {integrity: sha512-VKtOyMaNedVTi8uLpUO5JPFE/MgaELQ7BPjzX3APbvEJufr4JRj+c7f+APVcRMr2Rt9wcm7JeLmD/fjU2q5etw==}
+
+  zxing-wasm@2.2.4:
+    resolution: {integrity: sha512-1gq5zs4wuNTs5umWLypzNNeuJoluFvwmvjiiT3L9z/TMlVveeJRWy7h90xyUqCe+Qq0zL0w7o5zkdDMWDr9aZA==}
+    peerDependencies:
+      '@types/emscripten': '>=1.39.6'
 
 snapshots:
 
@@ -7935,6 +7970,8 @@ snapshots:
     dependencies:
       '@types/jquery': 3.5.33
 
+  '@types/emscripten@1.41.5': {}
+
   '@types/estree@0.0.39': {}
 
   '@types/estree@1.0.8': {}
@@ -8025,6 +8062,15 @@ snapshots:
       vite: 5.4.21(@types/node@20.19.27)(sass-embedded@1.96.0)(sass@1.96.0)(terser@5.44.1)
     transitivePeerDependencies:
       - supports-color
+
+  '@yudiel/react-qr-scanner@2.5.1(@types/emscripten@1.41.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      barcode-detector: 3.0.8(@types/emscripten@1.41.5)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      webrtc-adapter: 9.0.3
+    transitivePeerDependencies:
+      - '@types/emscripten'
 
   '@zodios/core@10.9.6(axios@1.13.2)(zod@3.25.76)':
     dependencies:
@@ -8230,6 +8276,12 @@ snapshots:
       regenerator-runtime: 0.11.1
 
   balanced-match@1.0.2: {}
+
+  barcode-detector@3.0.8(@types/emscripten@1.41.5):
+    dependencies:
+      zxing-wasm: 2.2.4(@types/emscripten@1.41.5)
+    transitivePeerDependencies:
+      - '@types/emscripten'
 
   base16@1.0.0: {}
 
@@ -10395,6 +10447,8 @@ snapshots:
     dependencies:
       compute-scroll-into-view: 3.1.1
 
+  sdp@3.2.1: {}
+
   semver@6.3.1: {}
 
   semver@7.7.3: {}
@@ -10685,6 +10739,8 @@ snapshots:
 
   tabulator-tables@5.6.1: {}
 
+  tagged-tag@1.0.0: {}
+
   tailwind-merge@2.6.0: {}
 
   tailwindcss@3.4.19:
@@ -10788,6 +10844,10 @@ snapshots:
   type-fest@2.19.0: {}
 
   type-fest@4.41.0: {}
+
+  type-fest@5.4.1:
+    dependencies:
+      tagged-tag: 1.0.0
 
   typed-array-buffer@1.0.3:
     dependencies:
@@ -10951,6 +11011,10 @@ snapshots:
   web-vitals@4.2.4: {}
 
   webidl-conversions@4.0.2: {}
+
+  webrtc-adapter@9.0.3:
+    dependencies:
+      sdp: 3.2.1
 
   websocket-driver@0.7.4:
     dependencies:
@@ -11184,3 +11248,8 @@ snapshots:
   zod@3.25.76: {}
 
   zoom-vanilla.js@2.0.6: {}
+
+  zxing-wasm@2.2.4(@types/emscripten@1.41.5):
+    dependencies:
+      '@types/emscripten': 1.41.5
+      type-fest: 5.4.1

@@ -59,7 +59,7 @@ export const createAxiosInstance = () => {
 
       if (
         error.response?.status === 401 &&
-        window.location.pathname !== paths.login
+        window.location.pathname !== paths.login({}).$
       ) {
         if (!store.get(unauthorizedErrorMessageAtom)) {
           store.set(unauthorizedErrorMessageAtom, error.response.data.message);
@@ -136,7 +136,7 @@ export function responseUnauthorizedErrorInterceptor(error: any) {
   
   if (
     error.response?.status === 401 &&
-    window.location.pathname !== paths.login
+    window.location.pathname !== paths.login({}).$
   ) {
 
     if (!store.get(unauthorizedErrorMessageAtom)) {

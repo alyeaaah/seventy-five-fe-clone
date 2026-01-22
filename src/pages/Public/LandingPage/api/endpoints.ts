@@ -5,7 +5,7 @@ import { leagueSchema } from "@/pages/Admin/MasterData/League/api/schema";
 import { levelsSchema } from "@/pages/Admin/MasterData/Levels/api/schema";
 import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
 import { merchProductsItemSchema } from "@/pages/Admin/Merchandise/api/schema";
-import { playersSchema } from "@/pages/Admin/Players/api/schema";
+import { playerPartialSchema } from "@/pages/Admin/Players/api/schema";
 import { tournamentsSchema } from "@/pages/Admin/Tournaments/api/schema";
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
@@ -16,7 +16,7 @@ const featuredPlayerApi = makeEndpoint({
   method: "get",
   path: `/public/player/featured`,
   response: z.object({
-    data: z.array(playersSchema)
+    data: z.array(playerPartialSchema)
   })
 });
 const featuredBlogApi = makeEndpoint({

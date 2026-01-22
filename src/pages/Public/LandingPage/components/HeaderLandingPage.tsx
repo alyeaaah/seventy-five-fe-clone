@@ -54,17 +54,17 @@ export const PublicHeader = ({ className, innerClassName }: LandingPageProps) =>
       label: <Link to={paths.news.index}>News</Link>,
     },
     {
-      key: paths.login,
-      label: <Link to={paths.login}>Login</Link>,
+      key: `${paths.login({}).$}`,
+      label: <Link to={`${paths.login({}).$}`}>Login</Link>,
     },
   ];
   if (user?.role === 'admin') {
-    const loginIndex = menuItems.findIndex((item) => item.key === paths.login);
+    const loginIndex = menuItems.findIndex((item) => item.key === `${paths.login({}).$}`);
     menuItems[loginIndex].label = <Link to={paths.administrator.dashboard}>Hi, {user.name}!</Link>;
     menuItems[loginIndex].key = paths.administrator.dashboard;
   }
   if (user?.role === 'player') {
-    const loginIndex = menuItems.findIndex((item) => item.key === paths.login);
+    const loginIndex = menuItems.findIndex((item) => item.key === `${paths.login({}).$}`);
     menuItems[loginIndex].label = <Link to={paths.player.home}>Hi, {user.name}!</Link>;
     menuItems[loginIndex].key = paths.player.home;
   }

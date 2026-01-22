@@ -1,7 +1,7 @@
 import Lucide from "@/components/Base/Lucide";
 import Button, { Variant } from "@/components/Base/Button";
 import { FormInput } from "@/components/Base/Form";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import moment from "moment";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
@@ -12,27 +12,28 @@ import Image from "@/components/Image";
 import { MatchDetailApiHooks } from "./api";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { TournamentsApiHooks } from "../Tournaments/api";
-import { Divider, Progress, Skeleton } from "antd";
-import { useAddScore, useAddScores, useMatchScore, useUpdateScore } from "./api/firestore";
+import { Divider, Progress, QRCode, Skeleton } from "antd";
+import { useAddScore, useAddScores, useDeleteDocument, useMatchScore, useUpdateScore } from "./api/firestore";
 import { MatchScoreFirestore, matchStatusEnum, MatchTeam, ScoreUpdatePayload } from "./api/schema";
 import { gameScoreValue } from "@/utils/faker";
 import YouTube from "react-youtube";
-import { getCurrentMatch } from "@/utils/helper";
+import { encodeBase64, getCurrentMatch } from "@/utils/helper";
 import { PointConfigurationsApiHooks } from "../PointConfig/api";
 import { useDebounceFn } from "ahooks";
 import { queryClient } from "@/utils/react-query";
 import { IconVS } from "@/assets/images/icons";
 import { CustomSkeleton } from "@/components/CustomSkeleton";
+import { clientEnv } from "@/env";
 
 export const MatchDetail = () => {
   const navigate = useNavigate();
   const queryParams = useRouteParams(paths.administrator.tournaments.match);
   const { matchUuid } = queryParams;
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
-  const [modalNotes, setModalNotes] = useState("");
   const { showNotification } = useToast();
   const [youtubeUrl, setYoutubeUrl] = useState("")
-  const [youtubePreviewUrl, setYoutubePreviewUrl] = useState("")
+  const [youtubePreviewUrl, setYoutubePreviewUrl] = useState("");
+  const [hostUrl, setHostUrl] = useState("");
   const { data } = MatchDetailApiHooks.useGetMatchDetail({
     params: {
       uuid: matchUuid
@@ -42,6 +43,9 @@ export const MatchDetail = () => {
     },
     retry: false
   });
+  useEffect(() => {
+    setHostUrl(window.location.origin);
+  }, [data]);
   const { data: tournamentInfo } = TournamentsApiHooks.useGetTournamentsDetail({
     params: {
       uuid: data?.data?.tournament_uuid || ""
@@ -49,6 +53,10 @@ export const MatchDetail = () => {
   }, {
     enabled: !!data?.data?.tournament_uuid
   });
+  const current = {
+    round: data?.data?.round != undefined && data?.data?.round != null ? data?.data?.round + 1 : 0,
+    match: data?.data?.seed_index != undefined && data?.data?.seed_index != null ? data?.data?.seed_index + 1 : 0
+  }
 
   const { data: detailPointConfig } = PointConfigurationsApiHooks.useGetPointConfigurationsDetail(
     {
@@ -64,7 +72,60 @@ export const MatchDetail = () => {
       uuid: matchUuid
     },
   }, {
-    retry: false
+    retry: false,
+    onSuccess: (ds, e, s) => {
+      if (ds.data.winner_team_uuid || ds.message == "reload") {
+        queryClient.invalidateQueries({
+          queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
+        });
+      }
+    }
+  });
+  const { mutate: updateNextRoundApi } = MatchDetailApiHooks.useUpdateMatchNextRoundApi({
+    params: {
+      uuid: matchUuid
+    }
+  }, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
+      });
+      queryClient.invalidateQueries({
+        queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsDetail"),
+      });
+      setModalAlert({
+        icon: "CheckCircle",
+        onClose: () => {
+          navigate(paths.administrator.tournaments.detail({
+            id: tournamentInfo?.data?.uuid || ""
+          }).$)
+          setModalAlert(undefined)
+        },
+        open: true,
+        title: "Update Success!",
+        description: "Tournament has been updated successfully",
+        dismissable: false,
+        buttons: [
+          {
+            label: "Continue",
+            onClick: () => {
+              navigate(paths.administrator.tournaments.detail({
+                id: tournamentInfo?.data?.uuid || ""
+              }).$)
+              setModalAlert(undefined)
+            },
+            variant: "primary"
+          },
+          {
+            label: "Stay in this page",
+            onClick: () => {
+              setModalAlert(undefined)
+            },
+            variant: "secondary"
+          },
+        ]
+      })
+    }
   });
   const { mutate: updateVideoApi } = MatchDetailApiHooks.useUpdateMatchVideoApi({
     params: {
@@ -106,6 +167,35 @@ export const MatchDetail = () => {
   const { mutate: addScore } = useAddScore();
   const { mutate: addMultipleScores } = useAddScores();
   const { mutate: updateScoreFirebase } = useUpdateScore();
+  const { mutate: deleteScore } = useDeleteDocument();
+
+  useEffect(() => {
+    const scoreOfSet = {
+      home: currentScore?.prev.set_score_home ? Number(currentScore?.prev.set_score_home) : 0,
+      away: currentScore?.prev.set_score_away ? Number(currentScore?.prev.set_score_away) : 0
+    }
+    if (scoreOfSet.home >= 6 || scoreOfSet.away >= 6) {
+      queryClient.invalidateQueries({
+        queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentMatches"),
+      });
+      if (!data?.data?.winner_team_uuid) {
+        updateScoreApi({
+          home_team_score: scoreOfSet.home,
+          away_team_score: scoreOfSet.away,
+          game_scores: scores?.map(score => ({
+            set: score.set,
+            game_score_home: score.game_score_home,
+            game_score_away: score.game_score_away
+          }))
+        })
+      }
+    }
+
+  }, [currentScore])
   const updateScore = (matchUuid: string, team: "home" | "away", score: "UP" | "DOWN") => {
     if (
       !data ||
@@ -233,6 +323,35 @@ export const MatchDetail = () => {
           } else if (game_score_home == "AD" || game_score_home == "WIN") {
             updatedScore.game_score_home = "40";
           }
+          else if (game_score_home == "0") {
+            if (!updatedScore.set || updatedScore.set <= 1) {
+              return;
+            }
+            setModalAlert({
+              icon: "ShieldAlert",
+              open: true,
+              title: "Are you sure?",
+              description: "Are you sure you want to back to previous game score?",
+              onClose: () => setModalAlert(undefined),
+              buttons: [{
+                label: "Yes, back to previous game score",
+                onClick: () => {
+                  deleteScore({ refId: updatedScore.refId || "" });
+                  setModalAlert(undefined);
+                },
+                variant: "outline-primary"
+              },
+              {
+                main: true,
+                autoFocus: true,
+                label: "No, keep the current score",
+                onClick: () => {
+                  setModalAlert(undefined);
+                },
+                variant: "primary"
+              }]
+            })
+          }
         }
       } else {
         if (score == "UP") {
@@ -260,8 +379,38 @@ export const MatchDetail = () => {
           if (!isNaN(Number(game_score_away)) && Number(game_score_away) > 0) {
             const gameScoreIndex = gameScoreValue.findIndex(gs => gs == game_score_away) - 1
             updatedScore.game_score_away = gameScoreValue[gameScoreIndex];
+
           } else if (game_score_away == "AD" || game_score_away == "WIN") {
             updatedScore.game_score_away = "40";
+          }
+          else if (game_score_away == "0") {
+            if (!updatedScore.set || updatedScore.set <= 1) {
+              return;
+            }
+            setModalAlert({
+              icon: "ShieldAlert",
+              open: true,
+              title: "Are you sure?",
+              description: "Are you sure you want to back to previous game score?",
+              onClose: () => setModalAlert(undefined),
+              buttons: [{
+                label: "Yes, back to previous game score",
+                onClick: () => {
+                  deleteScore({ refId: updatedScore.refId || "" });
+                  setModalAlert(undefined);
+                },
+                variant: "outline-primary"
+              },
+              {
+                main: true,
+                autoFocus: true,
+                label: "No, keep the current score",
+                onClick: () => {
+                  setModalAlert(undefined);
+                },
+                variant: "primary"
+              }]
+            })
           }
         }
       }
@@ -336,13 +485,24 @@ export const MatchDetail = () => {
             }))
           })
         }, 300);
-        queryClient.invalidateQueries({
-          queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
-        });
 
-        queryClient.invalidateQueries({
-          queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentMatches"),
-        });
+        // setTimeout(() => {
+
+        //   queryClient.invalidateQueries({
+        //     queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
+        //   });
+
+        //   queryClient.invalidateQueries({
+        //     queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentMatches"),
+        //   });
+        // }, 2000);
+        // queryClient.invalidateQueries({
+        //   queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
+        // });
+
+        // queryClient.invalidateQueries({
+        //   queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentMatches"),
+        // });
       } else if ((updatedScore.game_score_home == "WIN" && Number(updatedScore.prev?.set_score_home || "0") >= 5) || (updatedScore.game_score_away == "WIN" && Number(updatedScore.prev?.set_score_away || "0") >= 5)) {
         const matchScore = {
           ...updatedScore,
@@ -359,15 +519,6 @@ export const MatchDetail = () => {
           newMatchData: matchScore
         });
         setTimeout(() => {
-          updateScoreUseDebounce({
-            home_team_score: matchScore.prev.set_score_home,
-            away_team_score: matchScore.prev.set_score_away,
-            game_scores: scores?.map(score => ({
-              set: score.set,
-              game_score_home: score.game_score_home,
-              game_score_away: score.game_score_away
-            }))
-          })
 
           unsubscribeFirestore();
         }, 300);
@@ -379,6 +530,23 @@ export const MatchDetail = () => {
         });
       }
     }
+  }
+  const handleResetMatch = () => {
+    for (const sc of scores) {
+      deleteScore({ refId: sc.refId || "" });
+    }
+    updateScoreApi({
+      home_team_score: "0",
+      away_team_score: "0",
+      status: "RESET",
+      game_scores: []
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
+        });
+      }
+    })
   }
   const generateAbandonedScore = (
     { matchUuid, team }:
@@ -521,7 +689,7 @@ export const MatchDetail = () => {
         const lastSetScore = restScores[restScores.length - 1].prev;
         fetchScores().then(fetchedScores => {
           fetchedScores = fetchedScores.sort((a, b) => a.set - b.set);
-          updateScoreUseDebounce({
+          updateScoreApi({
             home_team_score: lastSetScore.set_score_home,
             away_team_score: lastSetScore.set_score_away,
             // remove last index of scores
@@ -535,6 +703,10 @@ export const MatchDetail = () => {
             status: retirement || (player_uuid ? "OTHERS" : undefined),
             player_uuid
           });
+        }).then(() => {
+          queryClient.invalidateQueries({
+            queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
+          });
         });
       }
     });
@@ -543,7 +715,7 @@ export const MatchDetail = () => {
   const openModalNoShow = (team: MatchTeam, matchUuid: string, pos: "home" | "away") => {
     setModalAlert({
       title: "Are you sure?",
-      description: `${team.name} (${team.alias}) players is not showing up. The match will be declared as a win for the other team and can't be undone.`,
+      description: `${team.name} players is not showing up. The match will be declared as a win for the other team and can't be undone.`,
       icon: "Drama",
       open: true,
       onClose: () => {
@@ -589,7 +761,7 @@ export const MatchDetail = () => {
   const openModalRetirement = (team: MatchTeam, matchUuid: string, pos: "home" | "away") => {
     setModalAlert({
       title: "Retire",
-      description: `Are you sure you want to retire ${team.name} ${team.alias}?\n This action will end the match and can't be undone`,
+      description: `Are you sure you want to retire ${team.name}?\n This action will end the match and can't be undone`,
       buttons: [
         {
           label: "Retire",
@@ -685,19 +857,27 @@ export const MatchDetail = () => {
       },
     });
   }
+  const getQRValue = () => {
+    const codes = encodeBase64({
+      mUU: data?.data?.uuid,
+      d: new Date().toISOString()
+    });
+    const url = `${hostUrl}${paths.player.referee.index({ codes }).$}`;
+    return url;
+  }
   return (
     <>
       <div className="hidden sm:flex flex-row items-center mt-8 intro-y justify-between">
         <div>
           <h2 className="mr-auto text-lg font-bold capitalize flex items-center min-w-0">
-            <span className="truncate max-w-[45%]">{data?.data?.home_team?.name} {data?.data?.home_team?.alias}</span>
+            <span className="truncate max-w-[45%]">{data?.data?.home_team?.name}</span>
             <span className="border rounded-md border-emerald-800 text-emerald-800 font-medium text-xs px-1 py-0.5 mx-1">VS</span>
-            <span className="truncate max-w-[45%]">{data?.data?.away_team?.name} {data?.data?.away_team?.alias}</span>
+            <span className="truncate max-w-[45%]">{data?.data?.away_team?.name}</span>
           </h2>
           <h2 className="mr-auto text-xs mt-1">
-            <span className="text-xs font-normal mr-1 bg-emerald-800 text-white rounded-lg px-2 py-0.5">{!data?.data?.tournament_uuid && "Challenger "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}</span>
+            <span className="text-xs font-normal mr-1 bg-emerald-800 text-white rounded-lg px-2 py-0.5">{!data?.data?.tournament_uuid && "Challenger "}Match {current.match}</span>
             <span className="inline-block align-bottom max-w-full truncate">
-              {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round}`}
+              {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${current.round}`}
             </span>
           </h2>
         </div>
@@ -707,23 +887,54 @@ export const MatchDetail = () => {
       {/* BEGIN: HTML Table Data */}
       <div className="grid grid-cols-12 gap-4">
         <div className="p-1 sm:p-5 mt-5 intro-y box col-span-12 sm:col-span-8">
-          <div className="grid grid-cols-12 gap-4">
+          <div className="grid grid-cols-12 gap-4 relative">
+            <div className="absolute top-0 right-0 w-fit h-fit text-xs z-10"
+              onClick={() => {
+                setModalAlert({
+                  icon: "Activity",
+                  title: `Version ${clientEnv.VERSION}`,
+                  description: "",
+                  open: true,
+                  onClose: () => {
+                    setModalAlert(undefined);
+                  },
+                  buttons: [{
+                    label: "Reset Match",
+                    onClick: () => {
+                      handleResetMatch();
+                      setModalAlert(undefined);
+                    },
+                    variant: "outline-danger"
+                  },
+                  {
+                    label: "Close",
+                    onClick: () => {
+                      setModalAlert(undefined);
+                    },
+                    variant: "primary"
+                  }]
+                })
+              }}>
+              v{clientEnv.VERSION}
+            </div>
             <div className="col-span-12 flex flex-col justify-center items-center">
               <div className="text-xl font-bold capitalize">
-                {!data?.data?.tournament_uuid && "Challenger "}Match {data?.data?.tournament_uuid && data?.data?.seed_index}
+                {!data?.data?.tournament_uuid && "Challenger "}
+                Match&nbsp;
+                {current.match}
               </div>
-              <div className="hidden sm:flex text-sm text-center text-emerald-800">
-                {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round}`}
+              <div className="hidden sm:flex text-sm text-center text-emerald-800 dark:text-[#EBCE56]">
+                {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${current.round}`}
               </div>
-              <div className="sm:hidden flex flex-col text-sm text-center text-emerald-800">
-                {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && <span className="">Round {data?.data?.round}</span>}
+              <div className="sm:hidden flex flex-col text-sm text-center text-emerald-800 dark:text-[#EBCE56]">
+                {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && <span className="">Round {current.round}</span>}
               </div>
               <div className="text-xs text-center text-gray-600 flex flex-col sm:flex-row items-center justify-center mt-2">
-                <div className="flex flex-row items-center sm:mr-2 border rounded-md px-2 py-1 border-gray-400 mb-1">
+                <div className="flex flex-row items-center sm:mr-2 border rounded-md px-2 py-1 border-gray-400 mb-1 dark:border-white dark:text-white">
                   <Lucide icon="MapPin" className="mr-1" />
                   {`${data?.data?.court_field?.court?.name} - ${data?.data?.court_field?.name}`}
                 </div>
-                <div className="flex flex-row items-center border rounded-md px-2 py-1  border-gray-400 mb-1">
+                <div className="flex flex-row items-center border rounded-md px-2 py-1  border-gray-400 mb-1 dark:border-white dark:text-white">
                   <Lucide icon="Calendar" className="mr-1" />
                   {moment(data?.data?.date).format('dddd, DD MMM YYYY')}
                 </div>
@@ -754,6 +965,18 @@ export const MatchDetail = () => {
                     }}
                   >
                     <Lucide icon="Pause" /> Pause
+                  </Button>
+                  )
+                }
+                {
+                  data?.data?.status == "ENDED" && (<Button
+                    className="px-2 py-1 my-2 w-full rounded-md text-xs"
+                    variant="primary"
+                    onClick={() => {
+                      updateNextRoundApi(undefined);
+                    }}
+                  >
+                    <Lucide icon="BetweenHorizontalStart" />&nbsp;Update Next Round
                   </Button>
                   )
                 }
@@ -868,8 +1091,8 @@ export const MatchDetail = () => {
               {/* END: Score Left Side */}
               <Divider className="col-span-12" />
               <div className="col-span-12 flex flex-col items-end w-full min-w-0">
-                <h2 className="text-lg font-bold capitalize w-full truncate">{data?.data?.home_team?.name} </h2>
-                <h3 className="text-base font-normal capitalize w-full truncate">{data?.data?.home_team?.alias}</h3>
+                <h2 className="text-lg font-bold capitalize text-end w-full truncate">{data?.data?.home_team?.name} </h2>
+                {/* <h3 className="text-base font-normal capitalize text-end w-full truncate">{data?.data?.home_team?.alias}</h3> */}
               </div>
             </div>
             <div className="col-span-0 hidden sm:col-span-2 sm:flex flex-col justify-center items-center">
@@ -945,7 +1168,7 @@ export const MatchDetail = () => {
               <Divider className="col-span-12" />
               <div className="col-span-12 flex flex-col items-start w-full min-w-0">
                 <h2 className="text-lg font-bold capitalize w-full truncate">{data?.data?.away_team?.name} </h2>
-                <h3 className="text-base font-normal capitalize w-full truncate">{data?.data?.away_team?.alias}</h3>
+                {/* <h3 className="text-base font-normal capitalize w-full truncate">{data?.data?.away_team?.alias}</h3> */}
               </div>
             </div>
             {/* END: Score */}
@@ -1157,31 +1380,31 @@ export const MatchDetail = () => {
                 Point History
                 <Divider className="mb-1 mt-1" />
               </div>
-              <div className="col-span-4 sm:col-span-2 bg-slate-200 rounded-tl-lg"></div>
-              <div className="py-2 col-span-4 sm:col-span-5 flex justify-center bg-slate-200">
+              <div className="col-span-4 sm:col-span-2 bg-slate-200 rounded-tl-lg dark:bg-slate-800"></div>
+              <div className="py-2 col-span-4 sm:col-span-5 flex justify-center bg-slate-200 dark:bg-slate-800">
                 <span className="text-sm font-medium capitalize w-full truncate text-center">{data?.data?.home_team?.name}</span>
               </div>
-              <div className="py-2 col-span-4 sm:col-span-5 flex justify-center bg-slate-200 rounded-tr-lg">
+              <div className="py-2 col-span-4 sm:col-span-5 flex justify-center bg-slate-200 rounded-tr-lg dark:bg-slate-800">
                 <span className="text-sm font-medium capitalize w-full truncate text-center">{data?.data?.away_team?.name}</span>
               </div>
               {(scores || []).sort((a, b) => a.set - b.set).slice(0, -1).map((setScore, i) => (
                 <Fragment key={setScore.refId}>
-                  <div className={`py-1 col-span-4 sm:col-span-2 flex justify-end items-center px-2 ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
+                  <div className={`py-1 col-span-4 sm:col-span-2 flex justify-end items-center px-2 ${i % 2 === 0 ? "bg-slate-100 dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800"}`}>
                     <span className="text-end font-medium capitalize text-slate-500 text-xs">Game {setScore.set}</span>
                   </div>
-                  <div className={`col-span-4 sm:col-span-5 flex justify-center items-center ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
+                  <div className={`col-span-4 sm:col-span-5 flex justify-center items-center ${i % 2 === 0 ? "bg-slate-100 dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800"}`}>
                     <span className={`text-sm font-medium capitalize ${setScore.game_score_home > setScore.game_score_away || setScore.game_score_home == "AD" ? "text-success" : "text-danger"}`}>
                       {setScore.game_score_home == "WIN" ? (setScore.game_score_away == "40" ? "AD" : "40") : setScore.game_score_home}
                     </span>
                   </div>
-                  <div className={`col-span-4 sm:col-span-5 flex justify-center items-center ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
+                  <div className={`col-span-4 sm:col-span-5 flex justify-center items-center ${i % 2 === 0 ? "bg-slate-100 dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800"}`}>
                     <span className={`text-sm font-medium capitalize ${setScore.game_score_away > setScore.game_score_home || setScore.game_score_away == "AD" ? "text-success" : "text-danger"}`}>
                       {setScore.game_score_away == "WIN" ? (setScore.game_score_home == "40" ? "AD" : "40") : setScore.game_score_away}
                     </span>
                   </div>
                 </Fragment>
               ))}
-              {(scores || []).sort((a, b) => a.set - b.set).slice(0, -1).length == 0 && <div className="col-span-12 bg-gray-100 p-4 text-center text-xs">
+              {(scores || []).sort((a, b) => a.set - b.set).slice(0, -1).length == 0 && <div className="col-span-12 bg-gray-100 p-4 text-center text-xs dark:bg-slate-800">
                 The set is live, but this point determines the match winner.<br />Currently, Set not concluded.
               </div>}
             </div>
@@ -1193,10 +1416,10 @@ export const MatchDetail = () => {
                 <Divider className="mb-0 mt-1" />
               </div>
               <div className="sm:col-span-4 col-span-5">
-                <span className="text-sm font-medium capitalize">Win: <span className="text-success">+{tournamentInfo ? detailPointConfig?.data?.points?.find(r => r.round === data?.data?.round)?.win_point : data?.data?.point_config?.points?.find(r => r.round === 1)?.win_point} Point</span></span>
+                <span className="text-sm font-medium capitalize">Win: <span className="text-success">+{tournamentInfo ? detailPointConfig?.data?.points?.find(r => r.round === current.round)?.win_point : data?.data?.point_config?.points?.find(r => r.round === 1)?.win_point} Point</span></span>
               </div>
               <div className="sm:col-span-4 col-span-5">
-                <span className="text-sm font-medium capitalize">Lose: <span className="text-danger">+{tournamentInfo ? detailPointConfig?.data?.points?.find(r => r.round === data?.data?.round)?.lose_point : data?.data?.point_config?.points?.find(r => r.round === 1)?.lose_point} Point</span></span>
+                <span className="text-sm font-medium capitalize">Lose: <span className="text-danger">+{tournamentInfo ? detailPointConfig?.data?.points?.find(r => r.round === current.round)?.lose_point : data?.data?.point_config?.points?.find(r => r.round === 1)?.lose_point} Point</span></span>
               </div>
             </div>
           </div>
@@ -1206,7 +1429,7 @@ export const MatchDetail = () => {
                 {youtubePreviewUrl || data?.data?.youtube_url ?
                   <YouTube videoId={(youtubePreviewUrl || data?.data?.youtube_url)?.split("?v=").pop()} iframeClassName={"w-full min-h-56 aspect-video"} />
                   :
-                  <div className="w-full min-h-56 rounded-lg bg-slate-50 flex flex-col items-center justify-center border-slate-300 border-dotted border text-slate-700">
+                  <div className="w-full min-h-56 rounded-lg bg-slate-50 dark:bg-slate-800 dark:text-slate-200 flex flex-col items-center justify-center border-slate-300 border-dotted border text-slate-700">
                     <Lucide icon="MonitorPlay" className="w-12 h-12 mb-1" />
                     Your video will be displayed here
                   </div>
@@ -1247,6 +1470,15 @@ export const MatchDetail = () => {
                 >
                   Save
                 </Button>
+              </div>
+            </div>
+          </div>
+          <div className="p-5 box col-span-12 h-fit">
+            <div className="grid grid-cols-10 gap-2">
+              <div className="col-span-12 aspect-square lg:aspect-auto flex justify-center" key={JSON.stringify(data?.data)}>
+                {/* display qrcode here */}
+                <QRCode value={getQRValue()}
+                  className="aspect-square min-w-full min-h-full lg:min-w-[50%] lg:min-h-fit" />
               </div>
             </div>
           </div>

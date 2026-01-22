@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { playerDetailSchema, playerSchemaList, PlayersPayload, playersSchema, quickAddPlayerPayloadSchema } from "./schema";
+import { playerDetailSchema, playerPartialSchema, PlayersPayload, playersSchema, quickAddPlayerPayloadSchema, updateAccessPayloadSchema } from "./schema";
 import moment from "moment";
 import { playersPartialSchema } from "@/pages/Players/Home/api/schema";
 
@@ -17,7 +17,7 @@ const PlayersListApi = makeEndpoint({
   }).build(),
   response: z
     .object({
-      data: z.array(playerSchemaList),
+      data: z.array(playerPartialSchema),
       currentPage: z.number(),
       totalRecords: z.number(),
       totalPages: z.number()
@@ -30,7 +30,7 @@ const PlayersDetailApi = makeEndpoint({
   path: `/player/detail/:uuid`,
   response: z
     .object({
-      data: playerSchemaList,
+      data: playerPartialSchema,
     })
 });
 
@@ -50,7 +50,7 @@ const PlayersUpdateApi = makeEndpoint({
   parameters: parametersBuilder().addBody(playersSchema).build(),
   response: z
     .object({
-      data: playerSchemaList,
+      data: playerPartialSchema,
     })
 });
 
@@ -63,7 +63,7 @@ const PlayersChangeRoleApi = makeEndpoint({
   })).build(),
   response: z
     .object({
-      data: playerSchemaList,
+      data: playerPartialSchema,
     })
 });
 
@@ -98,6 +98,17 @@ const PlayersQuickAddApi = makeEndpoint({
   }),
 });
 
+const PlayersUpdateAccessApi = makeEndpoint({
+  alias: "updatePlayerAccess",
+  method: "put",
+  path: `/player/update-access/:uuid`,
+  parameters: parametersBuilder().addBody(updateAccessPayloadSchema).build(),
+  response: z
+    .object({
+      data: playerPartialSchema,
+    })
+});
+
 export const endpoints = {
   PlayersListApi,
   PlayersCreateApi,
@@ -106,5 +117,6 @@ export const endpoints = {
   PlayersDetailApi,
   PlayersToggleFeaturedApi,
   PlayersChangeRoleApi,
-  PlayersQuickAddApi
+  PlayersQuickAddApi,
+  PlayersUpdateAccessApi
 };
