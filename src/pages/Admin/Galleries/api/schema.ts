@@ -21,6 +21,7 @@ export const galleriesMediaSchema = z.object({
   blog_uuid: z.string().nullish(),
   match_uuid: z.string().nullish(),
   tournament_uuid: z.string().nullish(),
+  createdAt: z.string().nullish(),
   playerGalleries: z.array(galleryPlayersSchema).nullish()
 });
 

@@ -166,9 +166,10 @@ export const PublicNews = () => {
               />
               <div className="flex flex-col w-full justify-center ml-2">
                 <h3 className="text-sm font-semibold text-emerald-800 text-ellipsis line-clamp-2">{gallery.name}</h3>
+                {!gallery.name && <div className="border border-emerald-800 rounded-md w-fit text-emerald-800 text-xs px-2 py-0.5 font-medium"> Gallery</div>}
                 <div className="flex flex-row items-center mt-1 max-w-full text-gray-500 text-[11px] font-light">
                   <Lucide icon="Calendar" className="h-4 flex" />
-                  <span className="flex flex-row ml-1 items-center justify-center !line-clamp-1 !text-ellipsis">{moment(gallery.featured_at).format('DD MMM YYYY')}&nbsp;by {gallery.name}</span>
+                  <span className="flex flex-row ml-1 items-center justify-center !line-clamp-1 !text-ellipsis">{moment(gallery.createdAt || "").format('DD MMM YYYY')}&nbsp;by {"Admin"}</span>
                 </div>
               </div>
             </div>
