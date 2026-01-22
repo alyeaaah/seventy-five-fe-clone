@@ -8,7 +8,7 @@ import Link from "antd/es/typography/Link";
 import { HTMLProps } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const FooterComponent = ({className}: HTMLProps<HTMLDivElement>) => {
+export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
   const navigate = useNavigate();
 
   return (
@@ -67,16 +67,16 @@ export const FooterComponent = ({className}: HTMLProps<HTMLDivElement>) => {
           <div className="flex flex-col items-start justify-start !text-white font-medium pt-3">
             <ul>
               <li className='py-1 '>
-                <Link href="https://www.instagram.com/seventyfive.id/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Instagram' className='w-5' />&nbsp;Instagram</Link>
+                <Link href="https://www.instagram.com/75TennisClub/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Instagram' className='w-5' />&nbsp;Instagram</Link>
               </li>
               <li className='py-1 '>
-                <Link href="https://www.instagram.com/seventyfive.id/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Youtube' className='w-5' />&nbsp;Youtube</Link>
+                <Link href="https://www.youtube.com/@75TennisClub" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Youtube' className='w-5' />&nbsp;Youtube</Link>
               </li>
               <li className='py-1 '>
-                <Link href="https://www.instagram.com/seventyfive.id/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconTiktok className='w-5' />&nbsp;Tiktok</Link>
+                <Link href="https://www.tiktok.com/@75tennisclub" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconTiktok className='w-5' />&nbsp;Tiktok</Link>
               </li>
               <li className='py-1 '>
-                <Link href="https://www.instagram.com/seventyfive.id/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconXTwitter className='w-5' />&nbsp;Twitter / X</Link>
+                <Link href="https://www.instagram.com/75tennisclub/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconXTwitter className='w-5' />&nbsp;Twitter / X</Link>
               </li>
             </ul>
           </div>
