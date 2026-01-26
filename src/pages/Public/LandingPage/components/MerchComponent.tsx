@@ -35,7 +35,7 @@ export const MerchComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <Lucide icon="ShoppingBag" className="h-16 w-16 text-emerald-800/60 mb-4" />
-            <h3 className="text-emerald-800 text-lg font-medium mb-2">No Merchandise Available</h3>
+            <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Merchandise Available</h3>
             <p className="text-emerald-800/80 text-sm text-center">There are currently no merchandise items to display. Check back later!</p>
           </div>
         ) : (

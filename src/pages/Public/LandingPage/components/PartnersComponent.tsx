@@ -39,7 +39,7 @@ export const PartnersComponent = ({ className, hideTitle }: PartnersComponentPro
         {!data?.data || data.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <Lucide icon="Users" className="h-16 w-16 text-emerald-800/60 mb-4" />
-            <h3 className="text-emerald-800 text-lg font-medium mb-2">No Partners or Sponsors Available</h3>
+            <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Partners or Sponsors Available</h3>
             <p className="text-emerald-800/80 text-sm text-center">There are currently no official partners or sponsors to display.</p>
           </div>
         ) : (

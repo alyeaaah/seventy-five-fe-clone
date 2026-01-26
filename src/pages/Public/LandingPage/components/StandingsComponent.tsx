@@ -139,7 +139,7 @@ export const StandingsComponent = ({ className, league }: StandingsComponentProp
       </div>
       <div className="flex flex-col items-center justify-center py-12 px-4 border rounded-2xl flex-1">
         <Lucide icon="Trophy" className="h-16 w-16 text-emerald-800/60 mb-4" />
-        <h3 className="text-emerald-800 text-lg font-medium mb-2">No Leagues Available</h3>
+        <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Leagues Available</h3>
         <p className="text-emerald-800/80 text-sm text-center">There are currently no leagues to display. Check back later!</p>
       </div>
     </>

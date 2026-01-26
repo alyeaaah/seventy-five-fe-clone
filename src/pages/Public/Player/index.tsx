@@ -91,24 +91,24 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
                 <p className="text-2xl font-bold item-end [text-shadow:0px_0px_4px_#EBCE56] z-[1] flex items-center justify-end leading-6">&nbsp;{data?.data?.point}</p>
               </div>
             </div>
-            <Link to={`https://www.instagram.com/${data?.data?.socialMediaIg}`} target="_blank" className="flex flex-row items-center w-full bg-[#EBCE56] rounded-xl p-4">
+            {data?.data?.socialMediaIg && <Link to={`https://www.instagram.com/${data?.data?.socialMediaIg}`} target="_blank" className="flex flex-row items-center w-full bg-[#EBCE56] rounded-xl p-4">
               <Lucide icon="Instagram" className="h-6 w-6 " />
               <div className="flex flex-col ml-2">
                 <span className="text-sm font-semibold text-emerald-800">
                   @{data?.data?.socialMediaIg}
                 </span>
               </div>
-            </Link>
-            <Link to={`https://twitter.com/${data?.data?.socialMediaX}`} target="_blank" className="flex flex-row items-center w-full bg-[#EBCE56] rounded-xl p-4">
+            </Link>}
+            {data?.data?.socialMediaX && <Link to={`https://twitter.com/${data?.data?.socialMediaX}`} target="_blank" className="flex flex-row items-center w-full bg-[#EBCE56] rounded-xl p-4">
               <IconXTwitter className="h-6 w-6 text-emerald-800" />
               <div className="flex flex-col ml-2">
                 <span className="text-sm font-semibold text-emerald-800">
                   @{data?.data?.socialMediaX}
                 </span>
               </div>
-            </Link>
+            </Link>}
           </div>
-          <div className="flex flex-col h-fit space-y-2 mt-4 md:mt-8">
+          <div className="lg:flex flex-col h-fit space-y-2 mt-4 md:mt-8 aspect-square hidden">
             <PlayerStandingsComponent
               className="w-full h-full"
               title="Intermediate Rank"
@@ -139,16 +139,16 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
                   {data?.data?.gender === 'm' ? <IconMan className="h-10 w-8 fill-emerald-800" /> : <IconWoman className="h-10 w-8 fill-emerald-800" />}
                   <div className="flex flex-col ml-2">
                     <span className="text-sm font-semibold">Age </span>
-                    <span className="text-xs text-gray-500">{data?.data?.dateOfBirth && (
-                      moment().diff(moment(data?.data?.dateOfBirth), 'years')
-                    )} Years old</span>
+                    <span className="text-xs text-gray-500">{data?.data?.dateOfBirth ? (
+                      moment().diff(moment(data?.data?.dateOfBirth || new Date()), 'years') + ' Years old'
+                    ) : '-'}</span>
                   </div>
                 </div>
                 <div className="md:col-span-4 col-span-6 flex flex-row items-center w-full">
                   <IconHeight className="h-10 w-8 fill-emerald-800" />
                   <div className="flex flex-col ml-2">
                     <span className="text-sm font-semibold">Height</span>
-                    <span className="text-xs text-gray-500">{data?.data?.height}cm</span>
+                    <span className="text-xs text-gray-500">{data?.data?.height ? data?.data?.height + 'cm' : '-'}</span>
                   </div>
                 </div>
                 <div className="md:col-span-4 col-span-6 flex flex-row items-center w-full">
@@ -273,6 +273,14 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
               </div>
             </div>
 
+            <div className="lg:hidden flex-col space-y-2 mt-4 md:mt-8 aspect-square flex col-span-12">
+              <PlayerStandingsComponent
+                className="w-full h-full"
+                title="Intermediate Rank"
+                player={data?.data?.uuid}
+                league={data?.data?.league}
+              />
+            </div>
             <div className="col-span-12 text-emerald-800 grid grid-cols-12 gap-x-4 mt-4 h-fit">
               <div className="col-span-12 text-emerald-800 flex flex-row h-fit mb-2">
                 <IconLogoAlt className="h-10 w-20" />
@@ -298,12 +306,12 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
               <div className="col-span-12 flex flex-row overflow-x-scroll space-x-4 rounded-2xl">
                 {featuredPlayer?.data?.map((item, idx) => (
                   <div key={idx} className="flex flex-row justify-center items-center uppercase text-emerald-800  font-semibold py-2 mb-4 relative">
-                    <img src={item.media_url || (item.gender === 'm' ? defaultAvatar.m : defaultAvatar.f)} alt="" className="w-24 h-24 rounded-full mr-1 border-4 z-[1]" />
+                    <img src={item.media_url || (item.gender === 'm' ? defaultAvatar.m : defaultAvatar.f)} alt="" className="w-24 h-24 rounded-full mr-1 border-4 z-[1] bg-white" />
                     <div className="font-bold text-white bg-emerald-800 rounded-r-full -ml-4 pl-4 z-0 line-clamp-1 w-64 leading-6 text-ellipsis py-1.5">
                       {item.name}
                       <span className="text-sm font-semibold absolute bottom-4 left-24 text-emerald-800 flex flex-row items-center">
                         {item.nickname} &nbsp;
-                        <span className="text-[10px] text-emerald-800 px-1.5 border border-emerald-800 leading-4 rounded italic flex flex-row items-center">{item.level}</span></span>
+                        <span className="text-[10px] text-emerald-800 px-1.5 border border-emerald-800 leading-4 rounded italic flex flex-row items-center">{item.level || "N/A"}</span></span>
                     </div>
                   </div>
                 ))}

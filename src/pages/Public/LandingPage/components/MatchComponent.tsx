@@ -43,7 +43,7 @@ export const UpcomingMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
       {!data?.data || data.data.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 px-4">
           <Lucide icon="Calendar" className="h-16 w-16 text-emerald-800/60 mb-4" />
-          <h3 className="text-emerald-800 text-lg font-medium mb-2">No Upcoming Matches</h3>
+          <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Upcoming Matches</h3>
           <p className="text-emerald-800/80 text-sm text-center">There are currently no upcoming matches scheduled. Check back later!</p>
         </div>
       ) : (

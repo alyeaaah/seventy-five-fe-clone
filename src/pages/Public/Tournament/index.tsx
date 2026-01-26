@@ -116,7 +116,7 @@ export const PublicTournament = () => {
               <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
                 <div className="col-span-12 flex flex-col items-center justify-center py-12 px-4rounded-2xl">
                   <Lucide icon="Trophy" className="h-16 w-16 text-emerald-800/60 mb-4" />
-                  <h3 className="text-emerald-800 text-lg font-medium mb-2">No Tournament Available</h3>
+                  <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Tournament Available</h3>
                   <p className="text-emerald-800/80 text-sm text-center">Please come back later once the tournament is available.</p>
                 </div>
               </div>

@@ -84,7 +84,7 @@ export const FeaturedPlayer = ({ className, title }: FeaturedPlayerProps) => {
         {!featuredPlayer?.data || featuredPlayer.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 h-[360px]">
             <Lucide icon="User" className="h-16 w-16 text-emerald-800/60 mb-4" />
-            <h3 className="text-emerald-800 text-lg font-medium mb-2">No Featured Players</h3>
+            <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Featured Players</h3>
             <p className="text-emerald-800/80 text-sm text-center">There are currently no featured players available.</p>
           </div>
         ) : (
