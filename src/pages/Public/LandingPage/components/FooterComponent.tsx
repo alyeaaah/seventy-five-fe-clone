@@ -2,6 +2,7 @@ import { IconLogo, IconTiktok, IconXTwitter } from "@/assets/images/icons";
 import Button from "@/components/Base/Button";
 import Lucide from "@/components/Base/Lucide";
 import LayoutWrapper from "@/components/LayoutWrapper";
+import { clientEnv } from "@/env";
 import { paths } from "@/router/paths";
 import { Footer } from "antd/es/layout/layout";
 import Link from "antd/es/typography/Link";
@@ -64,7 +65,7 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
             Social Media
           </div>
           <div className='w-4 h-0.5 bg-[#EBCE56]'></div>
-          <div className="flex flex-col items-start justify-start !text-white font-medium pt-3">
+          <div className="flex flex-col items-start justify-between !text-white font-medium pt-3">
             <ul>
               <li className='py-1 '>
                 <Link href="https://www.instagram.com/75TennisClub/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Instagram' className='w-5' />&nbsp;Instagram</Link>
@@ -77,6 +78,10 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
               </li>
               <li className='py-1 '>
                 <Link href="https://www.instagram.com/75tennisclub/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconXTwitter className='w-5' />&nbsp;Twitter / X</Link>
+              </li>
+
+              <li className='pt-8 '>
+                <Link href="#" className="flex flex-row !text-white text-xs hover:!text-[#EBCE56] items-center">Version {clientEnv.VERSION}</Link>
               </li>
             </ul>
           </div>

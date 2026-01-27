@@ -14,7 +14,8 @@ export const PublicPlayerApiClient = new Zodios(
     endpoints.playerRelatedApi,
     endpoints.playerStandingsApi,
     endpoints.playerRankApi,
-    endpoints.playerMatchesApi
+    endpoints.playerMatchesApi,
+    endpoints.playerStatsApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

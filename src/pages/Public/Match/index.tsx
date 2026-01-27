@@ -9,7 +9,7 @@ import { paths } from "@/router/paths";
 import { IconLogo, IconLogoAlt } from "@/assets/images/icons";
 import { PartnersComponent } from "../LandingPage/components/PartnersComponent";
 import { PublicTournamentApiHooks } from "../Tournament/api";
-import { useMatchScore } from "@/pages/Admin/MatchDetail/api/firestore";
+import { useDeleteDocument, useMatchScore } from "@/pages/Admin/MatchDetail/api/firestore";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/utils/store";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
@@ -52,10 +52,21 @@ export const PublicMatchDetail = () => {
   }, {
     enabled: !!data?.data?.tournament_uuid
   });
+  const { mutateAsync: deleteScore } = useDeleteDocument()
 
   const { data: scores, unsubscribe: unsubscribeFirestore } = useMatchScore(
     matchUuid,
-    () => {
+    (d) => {
+      const sor = d.sort((a, b) => a.set - b.set);
+      const sfil = sor.filter(s => s.set == 1 && !(s.game_score_away == "AD" || s.game_score_home == "AD")).map((dd) => ({ set: dd.set, refId: dd.refId }));
+      console.log(sfil);
+      sfil.map(sfl => {
+        if (sfl.refId) {
+
+          deleteScore({ refId: sfl.refId })
+        }
+      });
+
 
     }
   );
@@ -89,7 +100,6 @@ export const PublicMatchDetail = () => {
         />
         <FadeAnimation className="col-span-12 md:col-span-12 grid grid-cols-12 gap-0 h-max" direction="up">
           <div className="col-span-12 grid grid-cols-12 gap-2 h-max">
-            {JSON.stringify(scores)}ssss
             <MatchMediaAndInfoSection
               data={data}
               key={JSON.stringify(scores)}

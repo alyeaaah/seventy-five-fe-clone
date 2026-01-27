@@ -918,12 +918,14 @@ export const MatchDetail = () => {
               v{clientEnv.VERSION}
             </div>
             <div className="col-span-12 flex flex-col justify-center items-center">
-              <div className="text-xl font-bold capitalize">
+              <div
+                className="text-xl font-bold capitalize"
+                onClick={() => navigate(paths.administrator.tournaments.detail({ id: data?.data?.tournament_uuid || "" }).$)}>
                 {!data?.data?.tournament_uuid && "Challenger "}
                 Match&nbsp;
                 {current.match}
               </div>
-              <div className="hidden sm:flex text-sm text-center text-emerald-800 dark:text-[#EBCE56]">
+              <div className="hidden sm:flex text-sm text-center text-emerald-800 dark:text-[#EBCE56]" onClick={() => navigate(paths.administrator.tournaments.detail({ id: data?.data?.tournament_uuid || "" }).$)}>
                 {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${current.round}`}
               </div>
               <div className="sm:hidden flex flex-col text-sm text-center text-emerald-800 dark:text-[#EBCE56]">
@@ -936,7 +938,7 @@ export const MatchDetail = () => {
                 </div>
                 <div className="flex flex-row items-center border rounded-md px-2 py-1  border-gray-400 mb-1 dark:border-white dark:text-white">
                   <Lucide icon="Calendar" className="mr-1" />
-                  {moment(data?.data?.date).format('dddd, DD MMM YYYY')}
+                  {moment(data?.data?.date).format('dddd, DD MMM YYYY HH:mm')}
                 </div>
               </div>
               <div className="flex">

@@ -40,6 +40,15 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
     },
     retry: false
   });
+  const { data: playerStats } = PublicPlayerApiHooks.useGetPlayerStats({
+    params: {
+      uuid: (isPreview ? userData?.uuid : uuid) || ""
+    },
+  }, {
+    onSuccess: () => {
+    },
+    retry: false
+  })
   const { data: matches } = PublicPlayerApiHooks.useGetPlayerMatches({
     params: {
       player_uuid: (isPreview ? userData?.uuid : uuid) || ""
@@ -50,10 +59,10 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
     retry: false
   });
   const { data: featuredPlayer } = LandingPageApiHooks.useGetFeaturedPlayer();
-  const stats = {
+  const stats = playerStats?.data || {
     matches: 0,
     wins: 0,
-    losses: 0,
+    loses: 0,
     tournaments: 0,
     titles: 0,
   }
@@ -74,10 +83,10 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
               <p className="text-2xl font-bold item-end">{data?.data?.name}</p>
               <p className="text-lg font-semibold text-gray-500">{data?.data?.nickname}</p>
             </div>
-            <div className="bg-emerald-800 flex flex-row items-center text-white rounded-lg px-3 py-1 italic font-semibold">
+            {data?.data?.level && <div className="bg-emerald-800 flex flex-row items-center text-white rounded-lg px-3 py-1 italic font-semibold">
               <Lucide icon="Indent" className="mr-1" />
               <span>{data?.data?.level}</span>
-            </div>
+            </div>}
           </div>
           <div className="flex flex-col h-fit space-y-4 mt-4 md:mt-4">
             <div className="flex flex-row space-x-4 items-stretch">
@@ -258,8 +267,8 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
               </div>
               <div className="md:col-span-2 col-span-6 border-4 rounded-xl border-emerald-800 p-0 aspect-square flex flex-col justify-center items-center relative overflow-hidden [text-shadow:2px_2px_1px_#EBCE56] [box-shadow:2px_2px_1px_#EBCE56]">
                 <IconPlayerLoseAlt className="w-2/3 h-4/5 text-emerald-800 fill-emerald-800 absolute opacity-20 right-0 bottom-0 z-0" />
-                <p className="text-5xl font-bold z-[1]">{stats.losses}</p>
-                <p className="text-sm font-semibold z-[1]">Losses</p>
+                <p className="text-5xl font-bold z-[1]">{stats.loses}</p>
+                <p className="text-sm font-semibold z-[1]">Loses</p>
               </div>
               <div className="md:col-span-2 col-span-6 border-4 rounded-xl border-emerald-800 p-0 aspect-square flex flex-col justify-center items-center relative overflow-hidden [text-shadow:2px_2px_1px_#EBCE56] [box-shadow:2px_2px_1px_#EBCE56]">
                 <IconTournament className="w-2/3 h-4/5 text-emerald-800 fill-emerald-800 absolute opacity-20 right-0 bottom-0 z-0" />
@@ -305,7 +314,11 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
               </div>
               <div className="col-span-12 flex flex-row overflow-x-scroll space-x-4 rounded-2xl">
                 {featuredPlayer?.data?.map((item, idx) => (
-                  <div key={idx} className="flex flex-row justify-center items-center uppercase text-emerald-800  font-semibold py-2 mb-4 relative">
+                  <div
+                    key={idx}
+                    className="flex flex-row justify-center items-center uppercase text-emerald-800  font-semibold py-2 mb-4 relative"
+                    onClick={() => navigate(paths.players.info({ uuid: item.uuid || "" }).$)}
+                  >
                     <img src={item.media_url || (item.gender === 'm' ? defaultAvatar.m : defaultAvatar.f)} alt="" className="w-24 h-24 rounded-full mr-1 border-4 z-[1] bg-white" />
                     <div className="font-bold text-white bg-emerald-800 rounded-r-full -ml-4 pl-4 z-0 line-clamp-1 w-64 leading-6 text-ellipsis py-1.5">
                       {item.name}

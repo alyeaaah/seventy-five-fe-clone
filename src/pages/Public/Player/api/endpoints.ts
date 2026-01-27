@@ -3,6 +3,7 @@ import { z } from "zod";
 import { playerLeagueSchema, playersPartialSchema, playersSchema } from "@/pages/Players/Home/api/schema";
 import { matchSchema } from "@/pages/Players/Matches/api/schema";
 import { playerPartialSchema } from "@/pages/Admin/Players/api/schema";
+import { playerStatsSchema } from "./schema";
 
 const playerDetailApi = makeEndpoint({
   alias: "getPlayerDetail",
@@ -21,6 +22,16 @@ const playerRelatedApi = makeEndpoint({
     data: z.array(playersSchema)
   })
 });
+
+const playerStatsApi = makeEndpoint({
+  alias: "getPlayerStats",
+  method: "get",
+  path: `/public/player/stats/:uuid`,
+  response: z.object({
+    data: playerStatsSchema
+  })
+});
+
 const playerStandingsApi = makeEndpoint({
   alias: "getPlayerStandings",
   method: "get",
@@ -61,6 +72,7 @@ const playerMatchesApi = makeEndpoint({
 export const endpoints = {
   playerDetailApi,
   playerRelatedApi,
+  playerStatsApi,
   playerStandingsApi,
   playerRankApi,
   playerMatchesApi

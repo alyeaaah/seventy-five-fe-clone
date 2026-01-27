@@ -41,7 +41,6 @@ export const MatchMediaAndInfoSection = ({
   const winnerStoryRef = useRef<HTMLDivElement | null>(null);
   const currentRound = data?.data?.round >= 0 && data?.data?.round + 1
   const [matchTitle, setMatchTitle] = useState("");
-  console.log(data);
 
   const { data: matches } = PublicTournamentApiHooks.useGetTournamentDetailMatches({
     params: {
@@ -196,7 +195,6 @@ export const MatchMediaAndInfoSection = ({
       console.error('Error sharing winner:', error);
     }
   }, [currentScore, matchUuid]);
-  console.log(scores, 'c')
   return (
     <>
       <div className="lg:hidden fixed top-20 right-0 z-[50]">
@@ -284,14 +282,14 @@ export const MatchMediaAndInfoSection = ({
       <div className=" col-span-12 !z-0 text-emerald-800" key={matchTitle}>
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 flex flex-col justify-center items-center">
-            <div className="text-xl font-bold capitalize" key={matchTitle}>
+            <div className="text-xl font-bold capitalize" key={matchTitle} onClick={() => navigate(paths.tournament.index({ uuid: data?.data?.tournament_uuid }).$)}>
               {!data?.data?.tournament_uuid && "Challenger "}{!!matchTitle ? matchTitle : `Match ${data?.data?.seed_index >= 0 && data?.data?.seed_index + 1}`}
             </div>
-            <div className="hidden sm:flex text-sm text-center text-emerald-800">
+            <div className="hidden sm:flex text-sm text-center text-emerald-800" onClick={() => navigate(paths.tournament.index({ uuid: data?.data?.tournament_uuid }).$)}>
               {tournamentInfo?.data?.name}
               {tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${data?.data?.round >= 0 && data?.data?.round + 1}`}
             </div>
-            <div className="sm:hidden flex flex-col text-sm text-center text-emerald-800">
+            <div className="sm:hidden flex flex-col text-sm text-center text-emerald-800" onClick={() => navigate(paths.tournament.index({ uuid: data?.data?.tournament_uuid }).$)}>
               {tournamentInfo?.data?.name}
               {tournamentInfo?.data?.type == "KNOCKOUT" && <span className="">Round {data?.data?.round >= 0 && data?.data?.round}</span>}
             </div>
@@ -687,7 +685,7 @@ export const MatchMediaAndInfoSection = ({
         </div >
       </div >
 
-      <div style={{ position: "fixed", left: "-99999px", top: "-99999px", width: 1080, height: 1920 }}>
+      <div style={{ position: "fixed", left: "-0.99999px", top: "-99999px", width: 1080, height: 1920 }}>
         <div
           ref={storyRef}
           style={{ width: 1080, height: 1920 }}
@@ -813,7 +811,7 @@ export const MatchMediaAndInfoSection = ({
         </div>
       </div>
 
-      <div style={{ position: "fixed", left: "-99999px", top: "99999px", width: 1080, height: 1920 }} key={JSON.stringify(currentScore)}>
+      <div style={{ position: "fixed", right: "-99999px", top: "-99999px", width: 1080, height: 1920 }} key={JSON.stringify(currentScore)}>
         <div
           ref={winnerStoryRef}
           style={{ width: 1080, height: 1920 }}
