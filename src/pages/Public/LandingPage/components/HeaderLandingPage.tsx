@@ -50,6 +50,10 @@ export const PublicHeader = ({ className, innerClassName }: LandingPageProps) =>
       label: <Link to={paths.galleries.index}>Gallery</Link>,
     },
     {
+      key: paths.wallOfFame.index,
+      label: <Link to={paths.wallOfFame.index}>Wall of Fame</Link>,
+    },
+    {
       key: paths.news.index,
       label: <Link to={paths.news.index}>News</Link>,
     },

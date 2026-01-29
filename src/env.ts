@@ -4,6 +4,7 @@ const schema = z.object({
   AUTH_COOKIE_NAME: z.string(),
   SECRET_KEY: z.string(),
   API_BASE_URL: z.string().transform((url) => url.replace(/\/$/, "")),
+  SOCKET_URL: z.string().transform((url) => url.replace(/\/$/, "")),
   // GOOGLE_MAP_API_KEY: z.string(),
   BASENAME: z.string(),
   FIREBASE_API_KEY: z.string(),
@@ -22,6 +23,7 @@ export const clientEnv = schema.parse({
   SECRET_KEY: import.meta.env.VITE_SECRET_KEY,
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
   AUTH_COOKIE_NAME: import.meta.env.VITE_AUTH_COOKIE_NAME,
+  SOCKET_URL: import.meta.env.VITE_API_BASE_URL,
   BASENAME: import.meta.env.VITE_BASENAME,
   FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -32,5 +34,5 @@ export const clientEnv = schema.parse({
   FIREBASE_MESSAGING_SENDER_ID: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_SCORE_COLLECTION: import.meta.env.VITE_FIREBASE_SCORE_COLLECTION,
   FIREBASE_FIRESTORE_SECRET_KEY: import.meta.env.VITE_FIREBASE_FIRESTORE_SECRET_KEY,
-  VERSION: "1.0.1",
+  VERSION: "1.0.2",
 });

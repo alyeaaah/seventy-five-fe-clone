@@ -220,6 +220,12 @@ export const paths = {
       tag: stringParser
     }, {}),
   },
+  wallOfFame: {
+    index: "/wall-of-fame",
+    detail: route(`/wall-of-fame/detail/:uuid`, {
+      uuid: stringParser
+    }, {}),
+  },
   shop: {
     index: "/shop",
     detail: route(`/shop/detail/:uuid`, {
