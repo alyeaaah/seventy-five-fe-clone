@@ -47,7 +47,7 @@ export const playersSchema = z.object({
       "Phone can only contain numbers"
     ),
   media_url: z.string()
-    .min(2, "Image is required"),
+    .min(2, "Image is required").or(z.string().nullish()),
   avatar_url: z.string().nullish(),
   dateOfBirth: z.string().date().nullish(),
   placeOfBirth: z.string().nullish(),

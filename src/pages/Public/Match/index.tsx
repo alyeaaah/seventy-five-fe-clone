@@ -17,6 +17,7 @@ import { Helmet as HelmetBase } from "react-helmet";
 import Modal from "antd/es/modal/Modal";
 import { KudosModal } from "@/pages/Players/Components/KudosModal";
 import { MatchMediaAndInfoSection } from "./components/MatchMediaAndInfoSection";
+import { useMatchSocket } from "@/hooks/useMatchSocket";
 
 export const PublicMatchDetail = () => {
   const Helmet = HelmetBase as unknown as ComponentType<any>;
@@ -24,6 +25,13 @@ export const PublicMatchDetail = () => {
   const queryParams = useRouteParams(paths.tournament.match);
   const { matchUuid } = queryParams;
   const userData = useAtomValue(userAtom);
+
+  // WebSocket for real-time match scores
+  const { matches: realtimeMatches, isConnected: wsConnected } = useMatchSocket();
+
+  // Get real-time scores for current match
+  const realtimeScores = realtimeMatches.find(m => m.matchUuid === matchUuid)?.score || [];
+
   const [modalKudos, setModalKudos] = useState<{
     open: boolean;
     matchUuid: string;
@@ -77,7 +85,16 @@ export const PublicMatchDetail = () => {
     event.preventDefault();
   });
   window.addEventListener("popstate", handlePopState.current);
-  const currentScore = getCurrentMatch(scores || []);
+
+  // Use real-time scores if available, otherwise fallback to Firestore scores
+  const currentScore = getCurrentMatch(realtimeScores.length > 0 ? realtimeScores.map(score => ({
+    ...score,
+    tournament_uuid: data?.data?.tournament_uuid || "",
+    with_ad: false,
+    match_uuid: matchUuid || "",
+    last_updated_at: new Date().toISOString(),
+    prev: { set_score_home: "0", set_score_away: "0" }
+  })) : (scores || []));
   const getPlayerKudos = (playerUuid: string) => {
     return userData?.uuid ? (data?.data?.player_kudos?.filter((item) => item.player_uuid === playerUuid) || []) : [];
   }
@@ -102,10 +119,17 @@ export const PublicMatchDetail = () => {
           <div className="col-span-12 grid grid-cols-12 gap-2 h-max">
             <MatchMediaAndInfoSection
               data={data}
-              key={JSON.stringify(scores)}
+              key={JSON.stringify(realtimeScores.length > 0 ? realtimeScores : scores)}
               tournamentInfo={tournamentInfo}
               currentScore={currentScore}
-              scores={scores || []}
+              scores={realtimeScores.length > 0 ? realtimeScores.map(score => ({
+                ...score,
+                tournament_uuid: data?.data?.tournament_uuid || "",
+                with_ad: false,
+                match_uuid: matchUuid || "",
+                last_updated_at: new Date().toISOString(),
+                prev: { set_score_home: "0", set_score_away: "0" }
+              })) : (scores || [])}
               matchUuid={matchUuid || ""}
               userData={userData}
               showGiveKudosButton={showGiveKudosButton}

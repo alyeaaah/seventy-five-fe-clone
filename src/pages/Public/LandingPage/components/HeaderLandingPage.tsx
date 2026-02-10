@@ -22,11 +22,6 @@ export const PublicHeader = ({ className, innerClassName }: LandingPageProps) =>
   const location = useLocation();
   const user = useAtomValue(userAtom);
 
-  const { data } = PublicTournamentApiHooks.useGetFeaturedTournament({
-    queries: {
-      limit: 10
-    }
-  });
   const menuItems = [
     {
       key: paths.landingPage,

@@ -9,7 +9,6 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import YouTube from "react-youtube";
 import Image from "@/components/Image";
-import { PublicMatchApiHooks } from "../api";
 import { PublicTournamentApiHooks } from "../../Tournament/api";
 import { Menu } from "@/components/Base/Headless";
 
@@ -47,7 +46,7 @@ export const MatchMediaAndInfoSection = ({
       tournament_uuid: tournamentInfo?.data?.uuid || ""
     }
   }, {
-    enabled: !!tournamentInfo?.data?.uuid
+    enabled: false //!!tournamentInfo?.data?.uuid
   })
   let title = "";
   useEffect(() => {

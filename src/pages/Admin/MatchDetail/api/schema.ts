@@ -97,20 +97,22 @@ export const matchesScoreFirestoreSchema = z.object({
   match_uuid: z.string().nullish(),
   matchScore: z.array(matchScoreFirestoreSchema)
 })
-
+export const gameScoreSchema = z.object({
+  set: z.number().default(1),
+  game: z.number().default(1),
+  game_score_home: z.string().or(z.number()).default("0"),
+  game_score_away: z.string().or(z.number()).default("0"),
+})
 export const scoreUpdatePayloadSchema = z.object({
   home_team_score: z.string().or(z.number()).default("0"),
   away_team_score: z.string().or(z.number()).default("0"),
-  game_scores: z.array(z.object({
-    set: z.number(),
-    game_score_home: z.string().or(z.number()).default("0"),
-    game_score_away: z.string().or(z.number()).default("0"),
-  })).nullish(),
+  game_scores: z.array(gameScoreSchema).nullish(),
   player_uuid: z.string().nullish(),
   notes: z.string().nullish(),
   status: z.enum(["INJURY", "NO_SHOW","OTHERS","RESET"]).nullish(),
-
 })
+
+export type GameScoreData = z.infer<typeof gameScoreSchema>;
 export type MatchDetail = z.infer<typeof matchDetailSchema>;
 export type MatchScoreFirestore = z.infer<typeof matchScoreFirestoreSchema>;
 export type MatchesScoreFirestore = z.infer<typeof matchesScoreFirestoreSchema>;
