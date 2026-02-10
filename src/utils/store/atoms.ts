@@ -5,6 +5,7 @@ import { atom } from "jotai";
 import { userData } from "@/pages/Login/api/schema";
 import { CartProduct } from "../schema";
 import { PlayerAddress } from "@/pages/Admin/Players/api/schema";
+import { ScoreUpdatePayload } from "@/pages/Admin/MatchDetail/api/schema";
 
 // Shared cookie storage implementation (digunakan di atoms dan stores)
 export const cookieStorage = {
@@ -71,4 +72,12 @@ export const cartAtom = atomWithStorage<CartProduct[]>(
   createJSONStorage(() => cookieStorage),
   { getOnInit: true },
 );
+
+export const matchScoresAtom = atomWithStorage<ScoreUpdatePayload[]>(
+  "matchScores",
+  [],
+  createJSONStorage(() => cookieStorage),
+  { getOnInit: true },
+);
+matchScoresAtom.debugLabel = "matchScoresAtom";
   
