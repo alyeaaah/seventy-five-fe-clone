@@ -32,8 +32,8 @@ class SocketService {
       console.log('Attempting to connect to WebSocket at:', clientEnv.SOCKET_URL);
       console.log('Using secret key:', clientEnv.SOCKET_SECRET_KEY ? 'Provided' : 'Missing');
 
-      // Simple connection to base URL
-      this.socket = io('http://localhost:3000', {
+      // Connect using the environment variable
+      this.socket = io(clientEnv.SOCKET_URL, {
         auth: {
           secretKey: clientEnv.SOCKET_SECRET_KEY
         }
