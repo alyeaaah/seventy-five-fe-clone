@@ -9,15 +9,13 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import YouTube from "react-youtube";
 import Image from "@/components/Image";
-import { PublicMatchApiHooks } from "../api";
 import { PublicTournamentApiHooks } from "../../Tournament/api";
 import { Menu } from "@/components/Base/Headless";
+import { useScore } from "@/utils/score.util";
 
 interface MatchMediaAndInfoSectionProps {
   data: any;
   tournamentInfo: any;
-  currentScore: any;
-  scores: any[];
   matchUuid: string;
   userData: any;
   showGiveKudosButton: (playerUuid: string) => boolean;
@@ -28,8 +26,6 @@ interface MatchMediaAndInfoSectionProps {
 export const MatchMediaAndInfoSection = ({
   data,
   tournamentInfo,
-  currentScore,
-  scores,
   matchUuid,
   userData,
   showGiveKudosButton,
@@ -42,12 +38,16 @@ export const MatchMediaAndInfoSection = ({
   const currentRound = data?.data?.round >= 0 && data?.data?.round + 1
   const [matchTitle, setMatchTitle] = useState("");
 
+  const { getCurrentMatchScores, getCurrentGameScore } = useScore();
+  const currentMatchScore = getCurrentMatchScores(matchUuid);
+  const currentGameScore = getCurrentGameScore(currentMatchScore?.game_scores || []);
+
   const { data: matches } = PublicTournamentApiHooks.useGetTournamentDetailMatches({
     params: {
       tournament_uuid: tournamentInfo?.data?.uuid || ""
     }
   }, {
-    enabled: !!tournamentInfo?.data?.uuid
+    enabled: false //!!tournamentInfo?.data?.uuid
   })
   let title = "";
   useEffect(() => {
@@ -154,8 +154,8 @@ export const MatchMediaAndInfoSection = ({
 
   const shareOrDownloadWinner = useCallback(async (title: string) => {
     try {
-      const winner = currentScore?.winner;
-      if (!winner) return;
+      // const winner = currentMatchScore?.winner;
+      // if (!winner) return;
 
       if (!winnerStoryRef.current) return;
 
@@ -194,7 +194,7 @@ export const MatchMediaAndInfoSection = ({
     } catch (error) {
       console.error('Error sharing winner:', error);
     }
-  }, [currentScore, matchUuid]);
+  }, [currentMatchScore, matchUuid]);
   return (
     <>
       <div className="lg:hidden fixed top-20 right-0 z-[50]">
@@ -233,12 +233,21 @@ export const MatchMediaAndInfoSection = ({
             </div>
             <div className="h-10 ml-1.5 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
           </div>
-          <div className="col-span-12 rounded-3xl overflow-hidden aspect-video" key={data?.data?.youtube_url}>
+          <div className="col-span-12 rounded-3xl overflow-hidden aspect-video relative" key={data?.data?.youtube_url}>
             <YouTube
               videoId={data?.data?.youtube_url?.split("?v=").pop()}
               iframeClassName="w-full h-full"
               className="w-full h-full"
             />
+            <div className="absolute bottom-0 right-0 bg-emerald-800 h-9 font-semibold px-4 py-2 rounded-tl-lg cursor-pointer hover:bg-emerald-700 transition-colors"
+              onClick={() => {
+                const videoId = data?.data?.youtube_url?.split("?v=").pop();
+                if (videoId) {
+                  navigate(paths.matchFullscreen({ match: matchUuid }).$);
+                }
+              }}>
+              Full Screen
+            </div>
           </div>
         </>
       )}
@@ -310,15 +319,15 @@ export const MatchMediaAndInfoSection = ({
             <div className="col-span-12 flex flex-row justify-end items-center">
               <div className="flex flex-col">
                 <div
-                  className={`border font-bold text-emerald-800 bg-white border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl ${["WIN", "LOSE"].includes(currentScore?.game_score_home + "") ? "text-lg" : "text-3xl"
+                  className={`border font-bold text-emerald-800 bg-white border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl ${["WIN", "LOSE"].includes(currentGameScore?.game_score_home + "") ? "text-lg" : "text-3xl"
                     }`}
                 >
-                  {currentScore?.game_score_home || 0}
+                  {currentGameScore?.game_score_home || 0}
                 </div>
               </div>
               <div className="flex flex-col ml-2 ">
                 <div className="border text-3xl font-bold text-white bg-emerald-800 border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl">
-                  {currentScore?.prev?.set_score_home || 0}
+                  {currentMatchScore?.home_team_score || 0}
                 </div>
               </div>
             </div>
@@ -334,8 +343,8 @@ export const MatchMediaAndInfoSection = ({
               <IconVS className="h-16 w-full text-warning absolute top-0 -left-0.5" />
               <IconVS className="h-16 w-full text-emerald-800 absolute top-0 left-0.5" />
             </div>
-            {![(currentScore?.game_score_away as any), (currentScore?.game_score_home as any)].includes("WIN") ? (
-              <h1 className="text-xs font-bold">Game {currentScore?.set || 1}</h1>
+            {![(currentGameScore?.game_score_away as any), (currentGameScore?.game_score_home as any)].includes("WIN") ? (
+              <h1 className="text-xs font-bold">Game {currentGameScore?.game || 1}</h1>
             ) : (
               <h1 className="text-xs font-bold">Match Ended</h1>
             )}
@@ -345,15 +354,15 @@ export const MatchMediaAndInfoSection = ({
             <div className="col-span-12 flex flex-row justify-start items-center">
               <div className="flex flex-col mr-2">
                 <div className="border text-3xl font-bold text-white bg-emerald-800 border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl">
-                  {currentScore?.prev?.set_score_away || 0}
+                  {currentMatchScore?.away_team_score || 0}
                 </div>
               </div>
               <div className="flex flex-col">
                 <div
-                  className={`border font-bold text-emerald-800 bg-white border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl ${["WIN", "LOSE"].includes(currentScore?.game_score_away + "") ? "text-lg" : "text-3xl"
+                  className={`border font-bold text-emerald-800 bg-white border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl ${["WIN", "LOSE"].includes(currentGameScore?.game_score_away + "") ? "text-lg" : "text-3xl"
                     }`}
                 >
-                  {currentScore?.game_score_away || 0}
+                  {currentGameScore?.game_score_away || 0}
                 </div>
               </div>
             </div>
@@ -507,11 +516,11 @@ export const MatchMediaAndInfoSection = ({
           <div className="col-span-2 hidden sm:flex flex-col justify-start items-center">
             {/* sort and remove first index */}
             <div className="rounded-xl overflow-hidden border">
-              {(scores || [])
-                .sort((a: any, b: any) => b.set - a.set)
-                .slice(1)
+              {(currentMatchScore?.game_scores || [])
+                .sort((a: any, b: any) => a.game - b.game)
+                .slice(0, -1)
                 .map((setScore: any, i: number) => (
-                  <div key={setScore.refId} className="flex flex-row font-semibold">
+                  <div key={i} className="flex flex-row font-semibold">
                     <div className={`flex justify-center items-center w-8 ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
                       <span
                         className={`text-sm capitalize ${setScore.game_score_home > setScore.game_score_away || setScore.game_score_home == "AD"
@@ -523,7 +532,7 @@ export const MatchMediaAndInfoSection = ({
                       </span>
                     </div>
                     <div className={`flex justify-center items-center w-20 py-2 ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
-                      <span className="text-center capitalize text-slate-500 text-xs">Game {setScore.set}</span>
+                      <span className="text-center capitalize text-slate-500 text-xs">Game {setScore.game}</span>
                     </div>
                     <div className={` flex justify-center items-center w-8 ${i % 2 === 0 ? "bg-slate-100" : "bg-slate-50"}`}>
                       <span
@@ -716,8 +725,8 @@ export const MatchMediaAndInfoSection = ({
               <div className="flex flex-row justify-between items-center">
                 <div className="flex flex-col gap-3 w-[40%]">
                   <div className="flex flex-row items-center justify-start gap-2">
-                    <div className="text-7xl font-bold leading-none">{currentScore?.game_score_home || 0}</div>
-                    <div className="text-3xl font-semibold opacity-90 border-2 rounded-lg w-12 text-center py-1">{currentScore?.prev?.set_score_home || 0}</div>
+                    <div className="text-7xl font-bold leading-none">{currentGameScore?.game_score_home || 0}</div>
+                    <div className="text-3xl font-semibold opacity-90 border-2 rounded-lg w-12 text-center py-1">{currentMatchScore?.home_team_score || 0}</div>
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center w-[20%]">
@@ -725,8 +734,8 @@ export const MatchMediaAndInfoSection = ({
                 </div>
                 <div className="flex flex-col gap-3 w-[40%] items-end">
                   <div className="flex flex-row items-center justify-start gap-2">
-                    <div className="text-3xl font-semibold opacity-90 border-2 rounded-lg w-12 text-center py-1">{currentScore?.prev?.set_score_away || 0}</div>
-                    <div className="text-7xl font-bold leading-none">{currentScore?.game_score_away || 0}</div>
+                    <div className="text-3xl font-semibold opacity-90 border-2 rounded-lg w-12 text-center py-1">{currentMatchScore?.away_team_score || 0}</div>
+                    <div className="text-7xl font-bold leading-none">{currentGameScore?.game_score_away || 0}</div>
                   </div>
                 </div>
               </div>
@@ -811,7 +820,7 @@ export const MatchMediaAndInfoSection = ({
         </div>
       </div>
 
-      <div style={{ position: "fixed", right: "-99999px", top: "-99999px", width: 1080, height: 1920 }} key={JSON.stringify(currentScore)}>
+      <div style={{ position: "fixed", right: "-99999px", top: "-99999px", width: 1080, height: 1920 }} key={JSON.stringify(currentMatchScore)}>
         <div
           ref={winnerStoryRef}
           style={{ width: 1080, height: 1920 }}

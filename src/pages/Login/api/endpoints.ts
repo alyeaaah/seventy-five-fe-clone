@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { loginPayloadSchema, mediaUploadPayloadSchema, userDataSchema } from "./schema";
+import { loginPayloadSchema, forgotPasswordPayloadSchema, resetPasswordPayloadSchema, mediaUploadPayloadSchema, userDataSchema } from "./schema";
 
 const loginApi = makeEndpoint({
   alias: "login",
@@ -9,6 +9,26 @@ const loginApi = makeEndpoint({
   parameters: parametersBuilder().addBody(loginPayloadSchema).build(),
   response: z.object({
     token: z.string(),
+  }),
+});
+
+const forgotPasswordApi = makeEndpoint({
+  alias: "forgotPassword",
+  method: "post",
+  path: "/auth/forgot-password",
+  parameters: parametersBuilder().addBody(forgotPasswordPayloadSchema).build(),
+  response: z.object({
+    message: z.string(),
+  }),
+});
+
+const resetPasswordApi = makeEndpoint({
+  alias: "resetPassword",
+  method: "post",
+  path: "/auth/reset-password",
+  parameters: parametersBuilder().addBody(resetPasswordPayloadSchema).build(),
+  response: z.object({
+    message: z.string(),
   }),
 });
 
@@ -37,6 +57,8 @@ const mediaUploadApi = makeEndpoint({
 
 export const endpoints = {
   loginApi,
+  forgotPasswordApi,
+  resetPasswordApi,
   userDataApi,
   mediaUploadApi
 };

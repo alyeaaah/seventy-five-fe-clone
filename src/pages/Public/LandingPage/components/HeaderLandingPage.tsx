@@ -22,11 +22,6 @@ export const PublicHeader = ({ className, innerClassName }: LandingPageProps) =>
   const location = useLocation();
   const user = useAtomValue(userAtom);
 
-  const { data } = PublicTournamentApiHooks.useGetFeaturedTournament({
-    queries: {
-      limit: 10
-    }
-  });
   const menuItems = [
     {
       key: paths.landingPage,
@@ -48,6 +43,10 @@ export const PublicHeader = ({ className, innerClassName }: LandingPageProps) =>
     {
       key: paths.galleries.index,
       label: <Link to={paths.galleries.index}>Gallery</Link>,
+    },
+    {
+      key: paths.wallOfFame.index,
+      label: <Link to={paths.wallOfFame.index}>Wall of Fame</Link>,
     },
     {
       key: paths.news.index,

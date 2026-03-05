@@ -34,7 +34,7 @@ const FriendlyMatchSteps = ({ step }: FriendlyMatchStepsProps) => {
     {
       title: 'Done',
       status: 'wait',
-      icon: <Lucide icon="BadgeCheck"/>,
+      icon: <Lucide icon="BadgeCheck" />,
     },
   ]
   return (

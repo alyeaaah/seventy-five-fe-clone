@@ -5,6 +5,14 @@ import { courtFieldSchema, courtsSchema } from "../../Courts/api/schema";
 
 export const matchStatusEnum = z.enum(["UPCOMING", "ONGOING", "PAUSED", "ENDED"]);
 
+export const gameScoreSchema = z.object({
+  set: z.number().default(1),
+  game: z.number().default(1),
+  status: z.enum(["ENDED", "ONGOING", "PAUSED"]).default("PAUSED"),
+  game_score_home: z.string().or(z.number()).default("0"),
+  game_score_away: z.string().or(z.number()).default("0"),
+})
+
 export const matchTeamSchema = z.object({
   uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
   name: z.string(),
@@ -43,6 +51,7 @@ export const matchDetailSchema = z.object({
   court_field: courtFieldSchema.extend({
     court: courtsSchema.nullish()
   }).nullish(),
+  game_scores: z.array(gameScoreSchema).nullish(),
   court_uuid: z.string().nullish(),
   date: z.string().optional(),
   player_kudos: z.array(playerKudosSchema).nullish(),
@@ -101,16 +110,14 @@ export const matchesScoreFirestoreSchema = z.object({
 export const scoreUpdatePayloadSchema = z.object({
   home_team_score: z.string().or(z.number()).default("0"),
   away_team_score: z.string().or(z.number()).default("0"),
-  game_scores: z.array(z.object({
-    set: z.number(),
-    game_score_home: z.string().or(z.number()).default("0"),
-    game_score_away: z.string().or(z.number()).default("0"),
-  })).nullish(),
+  match_uuid: z.string(),
+  game_scores: z.array(gameScoreSchema).nullish(),
   player_uuid: z.string().nullish(),
   notes: z.string().nullish(),
   status: z.enum(["INJURY", "NO_SHOW","OTHERS","RESET"]).nullish(),
-
 })
+
+export type GameScoreData = z.infer<typeof gameScoreSchema>;
 export type MatchDetail = z.infer<typeof matchDetailSchema>;
 export type MatchScoreFirestore = z.infer<typeof matchScoreFirestoreSchema>;
 export type MatchesScoreFirestore = z.infer<typeof matchesScoreFirestoreSchema>;

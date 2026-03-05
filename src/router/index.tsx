@@ -12,6 +12,8 @@ const DashboardAdministrator = lazy(() => import("@/pages/Admin/DashboardAdminis
 const LandingPage = lazy(() => import("../pages/Public/LandingPage").then(m => ({ default: m.LandingPage })));
 const Login = lazy(() => import("../pages/Login"));
 const Register = lazy(() => import("../pages/Register").then(m => ({ default: m.Register })));
+const ForgotPassword = lazy(() => import("../pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("../pages/ResetPassword"));
 const ErrorPage = lazy(() => import("../pages/ErrorPage"));
 
 // Admin Master Data
@@ -79,6 +81,7 @@ const PlayerProfile = lazy(() => import("@/pages/Players/Profile").then(m => ({ 
 const PlayerOrderHistory = lazy(() => import("@/pages/Players/OrderHistory").then(m => ({ default: m.PlayerOrderHistory })));
 const PlayerOrderDetail = lazy(() => import("@/pages/Players/OrderHistory/detail").then(m => ({ default: m.PlayerOrderDetail })));
 const PlayerReferee = lazy(() => import("@/pages/Players/Referee").then(m => ({ default: m.PlayerReferee })));
+const TournamentPlayerDetail = lazy(() => import("@/pages/Players/Matches/Tournaments").then(m => ({ default: m.TournamentPlayerDetail })));
 
 // Public Pages
 const PublicGalleries = lazy(() => import("@/pages/Public/Galleries").then(m => ({ default: m.PublicGalleries })));
@@ -89,11 +92,13 @@ const PublicTournament = lazy(() => import("@/pages/Public/Tournament").then(m =
 const PublicStandingPage = lazy(() => import("@/pages/Public/Tournament/StandingPage").then(m => ({ default: m.PublicStandingPage })));
 const PublicChallenger = lazy(() => import("@/pages/Public/Challenger").then(m => ({ default: m.PublicChallenger })));
 const PublicMatchDetail = lazy(() => import("@/pages/Public/Match").then(m => ({ default: m.PublicMatchDetail })));
+const FullScreenMatch = lazy(() => import("@/pages/FullScreenMatch").then(m => ({ default: m.FullScreenMatch })));
 const PublicPlayer = lazy(() => import("@/pages/Public/Player").then(m => ({ default: m.PublicPlayer })));
 const PublicShop = lazy(() => import("@/pages/Public/Shop").then(m => ({ default: m.PublicShop })));
 const PublicShopDetail = lazy(() => import("@/pages/Public/Shop/detail").then(m => ({ default: m.PublicShopDetail })));
 const PublicShopCart = lazy(() => import("@/pages/Public/Shop/Cart").then(m => ({ default: m.PublicShopCart })));
 const PublicShopCheckout = lazy(() => import("@/pages/Public/Shop/Cart/checkout").then(m => ({ default: m.PublicShopCheckout })));
+const PublicWallOfFame = lazy(() => import("@/pages/Public/WallOfFame").then(m => ({ default: m.PublicWallOfFame })));
 
 const PublicLayout = lazy(() => import("./PublicLayout").then(m => ({ default: m.PublicLayout })));
 
@@ -255,6 +260,26 @@ function Router() {
             ),
           },
         ]
+      },
+      {
+        children: [
+          {
+            path: paths.wallOfFame.index,
+            element: (
+              <LazyWrapper>
+                <PublicWallOfFame />
+              </LazyWrapper>
+            ),
+          },
+          {
+            path: paths.wallOfFame.detail.template,
+            element: (
+              <LazyWrapper>
+                <PublicWallOfFame />
+              </LazyWrapper>
+            ),
+          },
+        ],
       },
       {
         children: [
@@ -856,6 +881,14 @@ function Router() {
           ),
         },
         {
+          path: paths.player.matches.tournament.template,
+          element: (
+            <LazyWrapper>
+              <TournamentPlayerDetail />
+            </LazyWrapper>
+          ),
+        },
+        {
           path: paths.player.orders.index,
           element: (
             <LazyWrapper>
@@ -887,6 +920,30 @@ function Router() {
       element: (
         <LazyWrapper>
           <Login />
+        </LazyWrapper>
+      ),
+    },
+    {
+      path: paths.forgotPassword,
+      element: (
+        <LazyWrapper>
+          <ForgotPassword />
+        </LazyWrapper>
+      ),
+    },
+    {
+      path: paths.matchFullscreen.template,
+      element: (
+        <LazyWrapper>
+          <FullScreenMatch />
+        </LazyWrapper>
+      )
+    },
+    {
+      path: paths.resetPassword.template,
+      element: (
+        <LazyWrapper>
+          <ResetPassword />
         </LazyWrapper>
       ),
     },

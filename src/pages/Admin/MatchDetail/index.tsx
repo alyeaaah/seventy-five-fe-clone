@@ -1,29 +1,30 @@
 import Lucide from "@/components/Base/Lucide";
 import Button, { Variant } from "@/components/Base/Button";
 import { FormInput } from "@/components/Base/Form";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import moment from "moment";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { useToast } from "@/components/Toast/ToastContext";
 import { useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
-import Image from "@/components/Image";
 import { MatchDetailApiHooks } from "./api";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { TournamentsApiHooks } from "../Tournaments/api";
-import { Divider, Progress, QRCode, Skeleton } from "antd";
-import { useAddScore, useAddScores, useDeleteDocument, useMatchScore, useUpdateScore } from "./api/firestore";
-import { MatchScoreFirestore, matchStatusEnum, MatchTeam, ScoreUpdatePayload } from "./api/schema";
-import { gameScoreValue } from "@/utils/faker";
+import { Divider, Image, Progress, QRCode } from "antd";
+import { useAtom } from "jotai";
+import { matchScoresAtom } from "@/utils/store/atoms";
+import { useScore } from "@/utils/score.util";
+import { matchStatusEnum, MatchTeam, ScoreUpdatePayload } from "./api/schema";
 import YouTube from "react-youtube";
-import { encodeBase64, getCurrentMatch } from "@/utils/helper";
+import { encodeBase64 } from "@/utils/helper";
 import { PointConfigurationsApiHooks } from "../PointConfig/api";
 import { useDebounceFn } from "ahooks";
 import { queryClient } from "@/utils/react-query";
-import { IconLogoAlt, IconVS } from "@/assets/images/icons";
+import { IconVS } from "@/assets/images/icons";
 import { CustomSkeleton } from "@/components/CustomSkeleton";
 import { clientEnv } from "@/env";
+import { useMatchSocket } from "@/hooks/useMatchSocket";
 
 export const MatchDetail = () => {
   const navigate = useNavigate();
@@ -152,29 +153,81 @@ export const MatchDetail = () => {
     }
   );
 
-  const { data: scores, unsubscribe: unsubscribeFirestore, isLoading: isLoadingScore, fetchScores } = useMatchScore(
-    matchUuid,
-    () => { }
-  );
-  const handlePopState = useRef((event: PopStateEvent) => {
-    if (unsubscribeFirestore) {
-      unsubscribeFirestore();
+  const [matchScores, setMatchScores] = useAtom(matchScoresAtom);
+  const [isLoadingScore, setIsLoadingScore] = useState(false);
+  const {
+    updateGameScore,
+    deleteScore,
+    resetMatchScores,
+    getCurrentGameScore,
+    getCurrentMatchScores,
+    toggleGameStatus,
+    setScore
+  } = useScore();
+
+  // WebSocket integration for real-time score updates
+  const { matches, isConnected, error: socketError } = useMatchSocket();
+
+  const currentMatchScore = getCurrentMatchScores(matchUuid);
+  const currentGameScores = currentMatchScore?.game_scores || [];
+  const currentScore = getCurrentGameScore(currentGameScores);
+
+  // Handle real-time score updates from WebSocket
+  useEffect(() => {
+    if (data?.data?.game_scores?.length && matches.length <= 0) {
+      const updatedScoreData: ScoreUpdatePayload = {
+        match_uuid: matchUuid,
+        home_team_score: data.data.game_scores.filter(g => g.game_score_home === "WIN").length.toString(),
+        away_team_score: data.data.game_scores.filter(g => g.game_score_away === "WIN").length.toString(),
+        game_scores: data.data.game_scores.map(game => ({
+          set: game.set,
+          game: game.game,
+          game_score_home: game.game_score_home,
+          game_score_away: game.game_score_away,
+          status: (game as any).status || "PAUSED" as const,
+          last_updated_at: new Date().toISOString()
+        }))
+      };
+      setScore(updatedScoreData, true);
     }
-    event.preventDefault();
-  });
-  window.addEventListener("popstate", handlePopState.current);
-  const currentScore = getCurrentMatch(scores || []);
-  const { mutate: addScore } = useAddScore();
-  const { mutate: addMultipleScores } = useAddScores();
-  const { mutate: updateScoreFirebase } = useUpdateScore();
-  const { mutate: deleteScore } = useDeleteDocument();
+    if (isConnected && matches.length > 0) {
+      // Find the match update for current match
+      const matchUpdate = matches.find(match => match.matchUuid === matchUuid);
+      if (matchUpdate) {
+        // Update local state with WebSocket data
+        const updatedScoreData: ScoreUpdatePayload = {
+          match_uuid: matchUuid,
+          home_team_score: matchUpdate.score.filter(g => g.game_score_home === "WIN").length.toString(),
+          away_team_score: matchUpdate.score.filter(g => g.game_score_away === "WIN").length.toString(),
+          game_scores: matchUpdate.score.map(game => ({
+            set: game.set,
+            game: game.game,
+            game_score_home: game.game_score_home,
+            game_score_away: game.game_score_away,
+            status: (game as any).status || "PAUSED" as const,
+            last_updated_at: new Date().toISOString()
+          }))
+        };
+
+        // Update score using the utility function (skip API call since we received from WebSocket)
+        setScore(updatedScoreData, true);
+        // console.log("ssss");
+
+        // showNotification({
+        //   text: "Score updated in real-time",
+        //   variant: "info",
+        //   duration: 1000
+        // });
+      }
+    }
+  }, [matches, isConnected, matchUuid, data]);
 
   useEffect(() => {
-    const scoreOfSet = {
-      home: currentScore?.prev.set_score_home ? Number(currentScore?.prev.set_score_home) : 0,
-      away: currentScore?.prev.set_score_away ? Number(currentScore?.prev.set_score_away) : 0
-    }
-    if (scoreOfSet.home >= 6 || scoreOfSet.away >= 6) {
+    // Calculate set scores from game scores
+    const homeSetScore = currentGameScores.filter(score => score.game_score_home === "WIN").length;
+    const awaySetScore = currentGameScores.filter(score => score.game_score_away === "WIN").length;
+
+    if (homeSetScore >= 6 || awaySetScore >= 6) {
       queryClient.invalidateQueries({
         queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
       });
@@ -184,19 +237,22 @@ export const MatchDetail = () => {
       });
       if (!data?.data?.winner_team_uuid) {
         updateScoreApi({
-          home_team_score: scoreOfSet.home,
-          away_team_score: scoreOfSet.away,
-          game_scores: scores?.map(score => ({
+          match_uuid: matchUuid,
+          home_team_score: homeSetScore,
+          away_team_score: awaySetScore,
+          game_scores: currentGameScores?.map(score => ({
             set: score.set,
+            game: score.game,
             game_score_home: score.game_score_home,
-            game_score_away: score.game_score_away
+            game_score_away: score.game_score_away,
+            status: score.status
           }))
         })
       }
     }
 
   }, [currentScore])
-  const updateScore = (matchUuid: string, team: "home" | "away", score: "UP" | "DOWN") => {
+  const updateScore = (matchUuid: string, team: "home" | "away", direction: "UP" | "DOWN") => {
     if (
       !data ||
       !!data?.data?.winner_team_uuid ||
@@ -206,336 +262,27 @@ export const MatchDetail = () => {
       return;
     }
 
-    let baseData: MatchScoreFirestore = {
-      match_uuid: matchUuid,
-      tournament_uuid: data?.data?.tournament_uuid || "",
-      set: 1,
-      game_score_home: "0",
-      game_score_away: "0",
-      last_updated_at: new Date().toISOString(),
-      with_ad: data?.data?.with_ad || false,
-      prev: {
-        set_score_home: "0",
-        set_score_away: "0"
-      }
-    }
-    const tieBreak = currentScore?.prev?.set_score_away == 5 && currentScore?.prev?.set_score_home == 5;
+    updateGameScore({
+      matchUuid,
+      team,
+      direction,
+      withAd: data?.data?.with_ad || false,
+      raceTo: 6 // Default to 6 since race_to property doesn't exist yet
+    });
+  };
 
-    if (!currentScore) {
-      addScore({
-        newMatchData: {
-          ...baseData,
-          game_score_home: team == "home" ? "15" : "0",
-          game_score_away: team == "away" ? "15" : "0",
-        }
-      })
-      return;
-    }
+  const deleteScoreHandler = (setNumber: number, gameNumber?: number) => {
+    deleteScore(matchUuid, setNumber, gameNumber);
+  };
 
-    let updatedScore: MatchScoreFirestore = {
-      ...currentScore,
-      with_ad: data?.data?.with_ad || false,
-    };
-    const { game_score_home, game_score_away, with_ad } = currentScore;
-    if ([game_score_home, game_score_away].includes("WIN")) {
-      return;
-    }
+  const resetMatchHandler = () => {
+    resetMatchScores(matchUuid);
+  };
 
-    if (tieBreak) {
-      if (team == "home") {
-        // update tie break home team
-        if (score == "UP") {
-          // check if the game score is above 6 and diff 2 point with the away team game score
-          const nextHomeScore = Number(game_score_home) + 1;
-          if (nextHomeScore > 6 && (nextHomeScore - Number(game_score_away)) > 1) {
-            // update the game score
-            updatedScore.game_score_home = "WIN";
-          } else {
-            updatedScore.game_score_home = nextHomeScore.toString();
-          }
-        } else {
-          const nextHomeScore = Number(game_score_home) - 1;
-          if (Number(game_score_away) > 6 && (Number(game_score_away) - nextHomeScore) > 1) {
-            // check if the game score is above 6 and diff 2 point with the away team game score
-            updatedScore.game_score_away = "WIN";
-            updatedScore.game_score_home = nextHomeScore.toString();
-          }
-          else if (Number(game_score_home) > 0) {
-            // check if the game score is 0
-            updatedScore.game_score_home = (Number(game_score_home) - 1).toString();
-          }
-        }
-      } else {
-        // update tie break away team
-        if (score == "UP") {
-          // check if the game score is above 6 and diff 2 point with the home team game score      
-          const nextAwayScore = Number(game_score_away) + 1;
-          if (nextAwayScore > 6 && (nextAwayScore - Number(game_score_home)) > 1) {
-            // update the game score
-            updatedScore.game_score_away = "WIN";
-          } else {
-            updatedScore.game_score_away = (Number(game_score_away) + 1).toString();
-          }
-        } else {
-          const nextAwayScore = Number(game_score_away) - 1;
-          if (Number(game_score_home) > 6 && (Number(game_score_home) - nextAwayScore) > 1) {
-            // check if the game score is above 6 and diff 2 point with the away team game score
-            updatedScore.game_score_home = "WIN";
-            updatedScore.game_score_away = nextAwayScore.toString();
-          }
-          else if (Number(game_score_away) > 0) {
-            // check if the game score is 0
-            updatedScore.game_score_away = (Number(game_score_away) - 1).toString();
-          }
-        }
-      }
-    }
-
-    else {
-      // non tie break
-      if (team == "home") {
-        // update home team score based on score up or down
-        if (score == "UP") {
-          // increase home score
-          if (game_score_home == "40") {
-            if (with_ad) {
-              if (game_score_away == "40") {
-                updatedScore.game_score_home = "AD";
-              } else if (game_score_away == "AD") {
-                updatedScore.game_score_home = "40";
-                updatedScore.game_score_away = "40";
-              } else {
-                updatedScore.game_score_home = "WIN";
-              }
-            } else {
-              updatedScore.game_score_home = "WIN";
-            }
-          } else {
-            const gameScoreIndex = gameScoreValue.findIndex(gs => gs == game_score_home) + 1;
-            updatedScore.game_score_home = gameScoreValue[gameScoreIndex];
-          }
-        } else {
-          // decrease home score
-          // check if the game score is 0
-          if (!isNaN(Number(game_score_home)) && Number(game_score_home) > 0) {
-            const gameScoreIndex = gameScoreValue.findIndex(gs => gs == game_score_home) - 1
-            updatedScore.game_score_home = gameScoreValue[gameScoreIndex];
-          } else if (game_score_home == "AD" || game_score_home == "WIN") {
-            updatedScore.game_score_home = "40";
-          }
-          else if (game_score_home == "0") {
-            if (!updatedScore.set || updatedScore.set <= 1) {
-              return;
-            }
-            setModalAlert({
-              icon: "ShieldAlert",
-              open: true,
-              title: "Are you sure?",
-              description: "Are you sure you want to back to previous game score?",
-              onClose: () => setModalAlert(undefined),
-              buttons: [{
-                label: "Yes, back to previous game score",
-                onClick: () => {
-                  deleteScore({ refId: updatedScore.refId || "" });
-                  setModalAlert(undefined);
-                },
-                variant: "outline-primary"
-              },
-              {
-                main: true,
-                autoFocus: true,
-                label: "No, keep the current score",
-                onClick: () => {
-                  setModalAlert(undefined);
-                },
-                variant: "primary"
-              }]
-            })
-          }
-        }
-      } else {
-        if (score == "UP") {
-          // increase away score
-          if (game_score_away == "40") {
-            if (with_ad) {
-              if (game_score_home == "40") {
-                updatedScore.game_score_away = "AD";
-              } else if (game_score_home == "AD") {
-                updatedScore.game_score_away = "40";
-                updatedScore.game_score_home = "40";
-              } else {
-                updatedScore.game_score_away = "WIN";
-              }
-            } else {
-              updatedScore.game_score_away = "WIN";
-            }
-          } else {
-            const gameScoreIndex = gameScoreValue.findIndex(gs => gs == game_score_away) + 1;
-            updatedScore.game_score_away = gameScoreValue[gameScoreIndex];
-          }
-        } else {
-          // decrease away score
-          // check if the game score is 0
-          if (!isNaN(Number(game_score_away)) && Number(game_score_away) > 0) {
-            const gameScoreIndex = gameScoreValue.findIndex(gs => gs == game_score_away) - 1
-            updatedScore.game_score_away = gameScoreValue[gameScoreIndex];
-
-          } else if (game_score_away == "AD" || game_score_away == "WIN") {
-            updatedScore.game_score_away = "40";
-          }
-          else if (game_score_away == "0") {
-            if (!updatedScore.set || updatedScore.set <= 1) {
-              return;
-            }
-            setModalAlert({
-              icon: "ShieldAlert",
-              open: true,
-              title: "Are you sure?",
-              description: "Are you sure you want to back to previous game score?",
-              onClose: () => setModalAlert(undefined),
-              buttons: [{
-                label: "Yes, back to previous game score",
-                onClick: () => {
-                  deleteScore({ refId: updatedScore.refId || "" });
-                  setModalAlert(undefined);
-                },
-                variant: "outline-primary"
-              },
-              {
-                main: true,
-                autoFocus: true,
-                label: "No, keep the current score",
-                onClick: () => {
-                  setModalAlert(undefined);
-                },
-                variant: "primary"
-              }]
-            })
-          }
-        }
-      }
-    }
-
-    if (currentScore.refId) {
-      updateScoreFirebase({
-        refId: currentScore.refId, newMatchData: {
-          ...updatedScore,
-          game_score_away:
-            !tieBreak ?
-              (updatedScore.game_score_away == "WIN" ?
-                (updatedScore.game_score_home == "40" ? "AD" : "40") :
-                updatedScore.game_score_away) :
-              (updatedScore.game_score_away == "WIN" ?
-                (Number(updatedScore.game_score_home) + 2).toString() :
-                updatedScore.game_score_away),
-          game_score_home:
-            !tieBreak ?
-              (updatedScore.game_score_home == "WIN" ?
-                (updatedScore.game_score_away == "40" ? "AD" : "40") :
-                updatedScore.game_score_home) :
-              (updatedScore.game_score_home == "WIN" ?
-                (Number(updatedScore.game_score_away) + 2).toString() :
-                updatedScore.game_score_home),
-          last_updated_at: new Date().toISOString(),
-        }
-      });
-
-      if (updatedScore.game_score_home != "WIN" && updatedScore.game_score_away != "WIN") {
-
-        setTimeout(() => {
-
-          updateScoreUseDebounce({
-            home_team_score: updatedScore.prev.set_score_home,
-            away_team_score: updatedScore.prev.set_score_away,
-            game_scores: scores?.map(score => (score.set == updatedScore.set ? {
-              set: updatedScore.set,
-              game_score_home: updatedScore.game_score_home,
-              game_score_away: updatedScore.game_score_away
-            } :
-              {
-                set: score.set,
-                game_score_home: score.game_score_home,
-                game_score_away: score.game_score_away
-              }))
-          })
-        }, 300);
-      }
-      if ((updatedScore.game_score_home == "WIN" && Number(updatedScore.prev?.set_score_home || "0") < 5) || (updatedScore.game_score_away == "WIN" && Number(updatedScore.prev?.set_score_away || "0") < 5)) {
-        const matchScore = {
-          ...baseData,
-          set: currentScore?.set + 1,
-          last_updated_at: new Date().toISOString(),
-          prev: {
-            set_score_home: updatedScore.game_score_home == "WIN" ? Number(updatedScore.prev?.set_score_home || "") + 1 : updatedScore.prev?.set_score_home,
-            set_score_away: updatedScore.game_score_away == "WIN" ? Number(updatedScore.prev?.set_score_away || "") + 1 : updatedScore.prev?.set_score_away
-          }
-        }
-        addScore({
-          newMatchData: matchScore
-        });
-        // updateScoreApi
-        setTimeout(() => {
-          updateScoreUseDebounce({
-            home_team_score: matchScore.prev.set_score_home,
-            away_team_score: matchScore.prev.set_score_away,
-            game_scores: scores?.map(score => ({
-              set: score.set,
-              game_score_home: score.game_score_home,
-              game_score_away: score.game_score_away
-            }))
-          })
-        }, 300);
-
-        // setTimeout(() => {
-
-        //   queryClient.invalidateQueries({
-        //     queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
-        //   });
-
-        //   queryClient.invalidateQueries({
-        //     queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentMatches"),
-        //   });
-        // }, 2000);
-        // queryClient.invalidateQueries({
-        //   queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
-        // });
-
-        // queryClient.invalidateQueries({
-        //   queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentMatches"),
-        // });
-      } else if ((updatedScore.game_score_home == "WIN" && Number(updatedScore.prev?.set_score_home || "0") >= 5) || (updatedScore.game_score_away == "WIN" && Number(updatedScore.prev?.set_score_away || "0") >= 5)) {
-        const matchScore = {
-          ...updatedScore,
-          game_score_away: updatedScore.game_score_away == "WIN" ? updatedScore.game_score_away : "LOSE",
-          game_score_home: updatedScore.game_score_home == "WIN" ? updatedScore.game_score_home : "LOSE",
-          set: currentScore?.set + 1,
-          last_updated_at: new Date().toISOString(),
-          prev: {
-            set_score_home: updatedScore.game_score_home == "WIN" ? Number(updatedScore.prev?.set_score_home || "") + 1 : updatedScore.prev?.set_score_home,
-            set_score_away: updatedScore.game_score_away == "WIN" ? Number(updatedScore.prev?.set_score_away || "") + 1 : updatedScore.prev?.set_score_away
-          }
-        }
-        addScore({
-          newMatchData: matchScore
-        });
-        setTimeout(() => {
-
-          unsubscribeFirestore();
-        }, 300);
-        queryClient.invalidateQueries({
-          queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
-        });
-        queryClient.invalidateQueries({
-          queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentMatches"),
-        });
-      }
-    }
-  }
   const handleResetMatch = () => {
-    for (const sc of scores) {
-      deleteScore({ refId: sc.refId || "" });
-    }
+    resetMatchHandler();
     updateScoreApi({
+      match_uuid: matchUuid,
       home_team_score: "0",
       away_team_score: "0",
       status: "RESET",
@@ -546,172 +293,20 @@ export const MatchDetail = () => {
           queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
         });
       }
-    })
-  }
-  const generateAbandonedScore = (
-    { matchUuid, team }:
-      { matchUuid: string, team: "home" | "away", }): MatchScoreFirestore[] => {
-    const currentMatchScore = {
-      ...currentScore,
-      game_score_away: team === "home" ? (currentScore?.game_score_home == "40" ? "AD" : "40") : currentScore?.game_score_away,
-      game_score_home: team === "away" ? (currentScore?.game_score_away == "40" ? "AD" : "40") : currentScore?.game_score_home,
-      set: (currentScore?.set || 0)
-    };
-    const currentSetScore = {
-      home: team === "away" ? +(currentMatchScore?.prev?.set_score_home || 0) + 1 : +(currentScore?.prev.set_score_home || 0),
-      away: team === "home" ? +(currentMatchScore?.prev?.set_score_away || 0) + 1 : +(currentScore?.prev.set_score_away || 0)
-    }
-    let usingTieBreak = false;
-    if ((team === "away" && currentSetScore.away === 5) || (team === "home" && currentSetScore.home === 5)) {
-      usingTieBreak = true;
-    }
-    const restSetScore: MatchScoreFirestore[] = [currentMatchScore as MatchScoreFirestore];
-    let tempSetScore = 0;
-    if (team === "away") {
-      // loop from current set score to 5
-      tempSetScore = currentSetScore.home;
-      let setCounter = currentMatchScore?.set || 0;
-      for (let i = currentSetScore.home; i < (!usingTieBreak ? 6 : 5); i++) {
-        restSetScore.push(
-          {
-            ...currentMatchScore as MatchScoreFirestore,
-            game_score_home: "40",
-            game_score_away: "0",
-            set: setCounter + 1,
-            last_updated_at: new Date().toISOString(),
-            with_ad: false,
-            prev: {
-              set_score_home: tempSetScore,
-              set_score_away: currentSetScore.away
-            }
-          }
-        );
-        setCounter++;
-        tempSetScore++;
-      }
-    }
-    else if (team === "home") {
-      // loop from current set score to 5
-      tempSetScore = currentSetScore.away;
-      let setCounter = currentScore?.set || 0;
-      for (let i = currentSetScore.away; i < (!usingTieBreak ? 6 : 5); i++) {
-        setCounter++;
-        restSetScore.push(
-          {
-            ...currentMatchScore as MatchScoreFirestore,
-            game_score_home: "0",
-            game_score_away: "40",
-            set: setCounter,
-            last_updated_at: new Date().toISOString(),
-            with_ad: false,
-            prev: {
-              set_score_home: currentSetScore.home,
-              set_score_away: tempSetScore
-            }
-          }
-        );
-        tempSetScore++;
-      }
-    }
-    // console.log("RESTSETSCORE BEFORE TIEBREAK", JSON.parse(JSON.stringify(restSetScore)));
+    });
+  };
 
-    // if using tie break, add the last game score
-    if (usingTieBreak) {
-      const lastGame = restSetScore[restSetScore.length - 1];
-      restSetScore.push(
-        {
-          ...lastGame,
-          game_score_home: team === "away" ? "7" : "0",
-          game_score_away: team === "home" ? "7" : "0",
-          set: lastGame.set + 1,
-          last_updated_at: new Date().toISOString(),
-          prev: {
-            set_score_home: team === "away" ? currentSetScore.home : currentSetScore.home,
-            set_score_away: team === "home" ? currentSetScore.away : currentSetScore.away,
-          }
-        }
-      );
-      tempSetScore++;
-    }
-    // console.log("RESTSETSCORE BEFORE FINALIZE", JSON.parse(JSON.stringify(restSetScore)));
-
-    // finalize score to determine winner
-    const lastGame = restSetScore[restSetScore.length - 1];
-    restSetScore.push(
-      {
-        ...lastGame,
-        game_score_home: team === "away" ? "WIN" : "LOSE",
-        game_score_away: team === "home" ? "WIN" : "LOSE",
-        set: lastGame.set + 1,
-        last_updated_at: new Date().toISOString(),
-        prev: {
-          set_score_home: team === "away" ? +lastGame.prev.set_score_home + 1 : lastGame.prev.set_score_home,
-          set_score_away: team === "home" ? +lastGame.prev.set_score_away + 1 : lastGame.prev.set_score_away,
-        }
-      }
-    );
-    // console.log("RESTSETSCORE", JSON.parse(JSON.stringify(restSetScore)));
-
-    return restSetScore;
-  }
   const setRetirement = (
     { matchUuid, team, player_uuid, notes, retirement }:
       { matchUuid: string, team: "home" | "away", player_uuid?: string, notes?: string, retirement?: "INJURY" | "NO_SHOW" }) => {
-    const restScores = generateAbandonedScore({ matchUuid, team });
-    // return;
-    if (restScores.length === 0) {
-      showNotification({
-        text: "No scores to add",
-        duration: 3000,
-      });
-      return;
-    }
-    const firstScore = restScores[0];
-    updateScoreFirebase({
-      refId: currentScore?.refId || "",
-      newMatchData: firstScore
-    }, {
-      onError: (error) => {
-        console.log("ERROR", error);
-        showNotification({
-          text: "Failed to update score",
-          duration: 3000,
-        });
-      }
-    })
-    // remove firstScore from restScores
-    restScores.shift();
-    // add score to firestore from restScores synchronously, use await if needed
-    addMultipleScores({
-      newMatchDataArray: restScores,
-    }, {
-      onSuccess: () => {
-        const lastSetScore = restScores[restScores.length - 1].prev;
-        fetchScores().then(fetchedScores => {
-          fetchedScores = fetchedScores.sort((a, b) => a.set - b.set);
-          updateScoreApi({
-            home_team_score: lastSetScore.set_score_home,
-            away_team_score: lastSetScore.set_score_away,
-            // remove last index of scores
-            game_scores: fetchedScores?.slice(0, -1).map(score =>
-            ({
-              set: score.set,
-              game_score_home: score.game_score_home,
-              game_score_away: score.game_score_away
-            })) || [],
-            notes,
-            status: retirement || (player_uuid ? "OTHERS" : undefined),
-            player_uuid
-          });
-        }).then(() => {
-          queryClient.invalidateQueries({
-            queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
-          });
-        });
-      }
+    // TODO: Implement retirement logic with score utility
+    showNotification({
+      text: "Retirement feature needs to be implemented",
+      variant: "info",
+      duration: 3000
     });
+  };
 
-  }
   const openModalNoShow = (team: MatchTeam, matchUuid: string, pos: "home" | "away") => {
     setModalAlert({
       title: "Are you sure?",
@@ -722,7 +317,7 @@ export const MatchDetail = () => {
         setModalAlert(undefined);
       },
       buttons: [
-        ...(team.players.map((player, index) => ({
+        ...(team.players.map((player: any) => ({
           label: player?.name || "",
           onClick: () => {
             setRetirement({
@@ -747,17 +342,18 @@ export const MatchDetail = () => {
             });
             setModalAlert(undefined);
           },
-          variant: "pending"
+          variant: "pending" as Variant
         },
         {
           label: "Cancel",
           autoFocus: true,
           onClick: () => setModalAlert(undefined),
-          variant: "secondary"
-        },
+          variant: "secondary" as Variant
+        }
       ]
     });
-  }
+  };
+
   const openModalRetirement = (team: MatchTeam, matchUuid: string, pos: "home" | "away") => {
     setModalAlert({
       title: "Retire",
@@ -765,7 +361,7 @@ export const MatchDetail = () => {
       buttons: [
         {
           label: "Retire",
-          onClick: (notes) => {
+          onClick: (notes: string) => {
             setRetirement({
               matchUuid,
               team: pos,
@@ -774,12 +370,12 @@ export const MatchDetail = () => {
             });
             setModalAlert(undefined);
           },
-          variant: "danger",
+          variant: "danger" as Variant,
           autoFocus: false
         },
         {
           label: "Retire with Injury",
-          onClick: (notes) => {
+          onClick: (notes: string) => {
             setModalAlert((prev) => ({
               ...(prev as AlertProps),
               open: false,
@@ -788,13 +384,13 @@ export const MatchDetail = () => {
               openModalRetirePlayer(team, matchUuid, pos, notes);
             }, 200);
           },
-          variant: "danger",
+          variant: "danger" as Variant,
           autoFocus: false
         },
         {
           label: "Cancel",
           onClick: () => setModalAlert(undefined),
-          variant: "secondary"
+          variant: "secondary" as Variant
         }
       ],
       icon: "Ghost",
@@ -806,9 +402,9 @@ export const MatchDetail = () => {
         placeholder: "Enter reason",
         label: "Reason",
         value: ""
-      },
+      }
     });
-  }
+  };
   const openModalRetirePlayer = (team: MatchTeam, matchUuid: string, pos: "home" | "away", notes?: string) => {
     setModalAlert({
       title: "Retire with Injury",
@@ -928,6 +524,22 @@ export const MatchDetail = () => {
               <div className="hidden sm:flex text-sm text-center text-emerald-800 dark:text-[#EBCE56]" onClick={() => navigate(paths.administrator.tournaments.detail({ id: data?.data?.tournament_uuid || "" }).$)}>
                 {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${current.round}`}
               </div>
+              {/* WebSocket Connection Status */}
+              <div className="flex items-center justify-center text-xs">
+                <div className={`flex items-center px-2 py-1 rounded-full ${isConnected
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  }`}>
+                  <div className={`w-2 h-2 rounded-full mr-1 ${isConnected ? 'bg-green-500' : 'bg-red-500'
+                    }`} />
+                  {isConnected ? 'Live' : 'Offline'}
+                </div>
+                {socketError && (
+                  <span className="text-red-600 dark:text-red-400 ml-2">
+                    Connection Error
+                  </span>
+                )}
+              </div>
               <div className="sm:hidden flex flex-col text-sm text-center text-emerald-800 dark:text-[#EBCE56]">
                 {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && <span className="">Round {current.round}</span>}
               </div>
@@ -947,6 +559,7 @@ export const MatchDetail = () => {
                     className="px-2 py-1 my-2 w-full rounded-md text-xs"
                     variant="outline-primary"
                     onClick={() => {
+                      toggleGameStatus(matchUuid);
                       updateStatusApi({
                         status: matchStatusEnum.Values.ONGOING
                       });
@@ -961,6 +574,7 @@ export const MatchDetail = () => {
                     className="px-2 py-1 my-2 w-full rounded-md text-xs"
                     variant="outline-warning"
                     onClick={() => {
+                      toggleGameStatus(matchUuid);
                       updateStatusApi({
                         status: matchStatusEnum.Values.PAUSED
                       });
@@ -978,7 +592,7 @@ export const MatchDetail = () => {
                       updateNextRoundApi(undefined);
                     }}
                   >
-                    <Lucide icon="BetweenHorizontalStart" />&nbsp;Update Next Round
+                    <Lucide icon="BetweenHorizontalStart" />&nbsp;End this match
                   </Button>
                   )
                 }
@@ -988,22 +602,8 @@ export const MatchDetail = () => {
                     variant="primary"
                     onClick={() => {
                       if (data?.data?.status == "UPCOMING") {
-                        addScore({
-                          newMatchData: {
-                            match_uuid: matchUuid,
-                            tournament_uuid: tournamentInfo?.data?.uuid || "",
-                            set: 1,
-                            game_score_home: "0",
-                            game_score_away: "0",
-                            last_updated_at: new Date().toISOString(),
-                            with_ad: data?.data?.with_ad,
-                            prev: {
-                              set_score_home: "0",
-                              set_score_away: "0"
-                            }
-                          }
-                        })
                       }
+                      toggleGameStatus(matchUuid);
                       updateStatusApi({
                         status: matchStatusEnum.Values.ONGOING
                       });
@@ -1066,7 +666,7 @@ export const MatchDetail = () => {
                     </Button>
                   </CustomSkeleton>
                   <div className="border text-3xl font-bold text-white bg-emerald-800 border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl">
-                    {currentScore?.prev?.set_score_home || 0}
+                    {currentMatchScore?.home_team_score || "0"}
                   </div>
                   <CustomSkeleton
                     active={true}
@@ -1103,7 +703,7 @@ export const MatchDetail = () => {
                 <IconVS className="h-16 w-full text-emerald-800 absolute top-0 left-0.5" />
               </div>
               {![currentScore?.game_score_away, currentScore?.game_score_home].includes("WIN") ?
-                <h1 className="text-xs font-bold">Set {currentScore?.set || 1}</h1>
+                <h1 className="text-xs font-bold">Game {currentScore?.game || 1}</h1>
                 :
                 <h1 className="text-xs font-bold">Match Ended</h1>
               }
@@ -1125,7 +725,7 @@ export const MatchDetail = () => {
                     No Show
                   </Button>
                   <div className="border text-3xl font-bold text-white bg-emerald-800 border-emerald-800 w-14 h-14 flex items-center justify-center rounded-xl">
-                    {currentScore?.prev?.set_score_away || 0}
+                    {currentMatchScore?.away_team_score || "0"}
                   </div>
                   <Button
                     className="px-1 py-0 w-full rounded-xl mt-1  h-[22px] text-xs text-center sm:flex hidden"
@@ -1389,10 +989,10 @@ export const MatchDetail = () => {
               <div className="py-2 col-span-4 sm:col-span-5 flex justify-center bg-slate-200 rounded-tr-lg dark:bg-slate-800">
                 <span className="text-sm font-medium capitalize w-full truncate text-center">{data?.data?.away_team?.name}</span>
               </div>
-              {(scores || []).sort((a, b) => a.set - b.set).slice(0, -1).map((setScore, i) => (
-                <Fragment key={setScore.refId}>
+              {(currentGameScores || []).sort((a: any, b: any) => a.set - b.set).slice(0, -1).map((setScore: any, i: any) => (
+                <Fragment key={i}>
                   <div className={`py-1 col-span-4 sm:col-span-2 flex justify-end items-center px-2 ${i % 2 === 0 ? "bg-slate-100 dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800"}`}>
-                    <span className="text-end font-medium capitalize text-slate-500 text-xs">Game {setScore.set}</span>
+                    <span className="text-end font-medium capitalize text-slate-500 text-xs">Game {setScore.game}</span>
                   </div>
                   <div className={`col-span-4 sm:col-span-5 flex justify-center items-center ${i % 2 === 0 ? "bg-slate-100 dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800"}`}>
                     <span className={`text-sm font-medium capitalize ${setScore.game_score_home > setScore.game_score_away || setScore.game_score_home == "AD" ? "text-success" : "text-danger"}`}>
@@ -1406,7 +1006,7 @@ export const MatchDetail = () => {
                   </div>
                 </Fragment>
               ))}
-              {(scores || []).sort((a, b) => a.set - b.set).slice(0, -1).length == 0 && <div className="col-span-12 bg-gray-100 p-4 text-center text-xs dark:bg-slate-800">
+              {(currentGameScores || []).sort((a: any, b: any) => a.set - b.set).slice(0, -1).length == 0 && <div className="col-span-12 bg-gray-100 p-4 text-center text-xs dark:bg-slate-800">
                 The set is live, but this point determines the match winner.<br />Currently, Set not concluded.
               </div>}
             </div>

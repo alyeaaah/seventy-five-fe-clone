@@ -6,25 +6,19 @@ import { PublicBlogApiHooks } from "../Blog/api";
 import Lucide from "@/components/Base/Lucide";
 import moment from "moment";
 import { FadeAnimation } from "@/components/Animations";
-import { useEffect, useRef, useState } from "react";
-import { CarouselRef } from "antd/es/carousel";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { paths } from "@/router/paths";
 import { IconLogoAlt } from "@/assets/images/icons";
-import { DraggableBracket, TournamentDrawingUtils } from "@/components/TournamentDrawing";
-import { IMatch, IRound } from "@/components/TournamentDrawing/interfaces";
-import { convertTournamentMatchToMatch } from "@/utils/drawing.util";
-import { TournamentStory } from "@/components/TournamentStory";
-
-
+import TournamentDetailCard from "@/components/Tournament/TournamentDetailCard";
+import { accessTokenAtom, userAtom } from "@/utils/store";
+import { useAtomValue } from "jotai";
 export const PublicTournament = () => {
   const navigate = useNavigate();
   const queryParams = useRouteParams(paths.tournament.index);
   const { uuid } = queryParams;
-  const sliderRef = useRef<CarouselRef>(null);
-  const { data: liveMatch } = PublicTournamentApiHooks.useGetOngoingMatch();
-  const [knockoutRound, setKnockoutRound] = useState<IRound[]>([]);
-  const { convertMatchToRound } = TournamentDrawingUtils;
+  const accessToken = useAtomValue(accessTokenAtom);
+  const user = useAtomValue(userAtom);
+  const userIsLogin = !!(accessToken && user);
 
   const { data } = PublicTournamentApiHooks.useGetFeaturedTournament(
     {
@@ -33,7 +27,17 @@ export const PublicTournament = () => {
       }
     }, {}
   );
-  const { data: detailTournament } = PublicTournamentApiHooks.useGetTournamentDetail(
+  const { data: detailTournament } = !userIsLogin ? PublicTournamentApiHooks.useGetTournamentDetail(
+    {
+      params: {
+        uuid: uuid || data?.data?.[0]?.uuid || ''
+      }
+    },
+    {
+      enabled: !!data?.data?.[0]?.uuid,
+      retry: false
+    }
+  ) : PublicTournamentApiHooks.useGetTournamentDetailAuth(
     {
       params: {
         uuid: uuid || data?.data?.[0]?.uuid || ''
@@ -44,25 +48,7 @@ export const PublicTournament = () => {
       retry: false
     }
   );
-  const { data: tournamentMatches } = PublicTournamentApiHooks.useGetTournamentDetailMatches(
-    {
-      params: {
-        tournament_uuid: uuid || data?.data?.[0]?.uuid || ''
-      }
-    },
-    {
-      enabled: !!data?.data?.[0]?.uuid,
-      retry: false
-    }
-  );
-  useEffect(() => {
-    if (tournamentMatches?.data) {
-      const knockoutMatches = tournamentMatches?.data.filter((match) => match.groupKey === null || match.groupKey === undefined);
 
-      const convertedKnockoutMatches: IMatch[] = convertTournamentMatchToMatch(knockoutMatches);
-      setKnockoutRound(convertMatchToRound(convertedKnockoutMatches));
-    }
-  }, [tournamentMatches])
   const { data: tournamentSponsors } = PublicTournamentApiHooks.useGetTournamentDetailSponsors(
     {
       params: {
@@ -91,14 +77,14 @@ export const PublicTournament = () => {
           <div className="col-span-12 mt-4">
             <div className="col-span-12 flex flex-row overflow-scroll gap-2 mt-2 rounded-xl">
               {data?.data?.map((tournament, index) => (
-                <div key={index} className={`flex min-w-96 max-w-96 flex-row rounded-2xl bg-gray-100 hover:bg-emerald-800 group cursor-pointer border-emerald-800 ${detailTournament?.data?.uuid === tournament.uuid ? 'border-4' : ''}`} onClick={() => navigate(`${paths.tournament.index({ uuid: tournament.uuid || "" }).$}`)}>
+                <div key={index} className={`flex min-w-96 max-w-96 flex-row rounded-2xl bg-gray-100 hover:bg-emerald-800 group cursor-pointer border-emerald-800 ${uuid === tournament.uuid ? 'border-4' : ''}`} onClick={() => navigate(`${paths.tournament.index({ uuid: tournament.uuid || "" }).$}`)}>
                   <img
                     src={imageResizerDimension(tournament.media_url, 220, "h")}
                     className="flex w-32 object-cover aspect-square rounded-xl"
                   />
                   <div className="flex flex-col justify-center w-full mx-2">
                     <h3 className="text-sm font-semibold text-emerald-800 group-hover:text-[#EBCE56] text-ellipsis line-clamp-2">{tournament.name}</h3>
-                    <span className="text-gray-500 group-hover:text-gray-100 text-[11px] font-light text-ellipsis line-clamp-3">{tournament.description}</span>
+                    <span className="text-gray-500 group-hover:text-gray-100 text-[11px] font-light text-ellipsis line-clamp-3" dangerouslySetInnerHTML={{ __html: tournament.description || "" }}></span>
                   </div>
                 </div>
               ))}
@@ -112,83 +98,9 @@ export const PublicTournament = () => {
                 Tournament
               </div>
             </div>
-            {!detailTournament?.data ? (
-              <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
-                <div className="col-span-12 flex flex-col items-center justify-center py-12 px-4rounded-2xl">
-                  <Lucide icon="Trophy" className="h-16 w-16 text-emerald-800/60 mb-4" />
-                  <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Tournament Available</h3>
-                  <p className="text-emerald-800/80 text-sm text-center">Please come back later once the tournament is available.</p>
-                </div>
-              </div>
-            ) : (
-              <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
-                <div className="col-span-12 sm:col-span-8">
-                  <h2 className="text-2xl font-bold relative pb-2">
-                    {detailTournament?.data.name}
-                    <div className="w-8 bottom-0 absolute border-b-4 border-b-emerald-800"></div>
-                  </h2>
-                  <h4 className="text-sm font-light text-gray-500 py-4 " dangerouslySetInnerHTML={{ __html: detailTournament?.data.description || "" }}></h4>
-                  <div className="grid grid-cols-3 gap-y-2">
-                    <a className="col-span-3 md:col-span-1 text-gray-500 hover:text-emerald-800 text-[11px] font-light flex flex-row items-center" href={`https://www.google.com/maps/search/?api=1&query=${detailTournament?.data.court_info?.lat},${detailTournament?.data.court_info?.long}`} target="_blank" rel="noreferrer">
-                      <div className="h-full aspect-square p-2  w-12">
-                        <Lucide icon="MapPin" className="h-full w-full" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-sm">{detailTournament?.data.court_info?.name}</span>
-                        <span className="text-xs font-normal text-ellipsis line-clamp-2">{detailTournament?.data.court_info?.address}</span>
-                        <span className="text-xs font-light">{detailTournament?.data.court_info?.city}</span>
-                      </div>
-                    </a>
-                    <div className="col-span-3 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
-                      <div className="h-full aspect-square p-2  w-12">
-                        <Lucide icon="Calendar" className="h-full w-full" />
-                      </div>
-                      <div className="flex flex-col flex-1">
-                        {moment(detailTournament?.data.start_date).format('DD MMM YYYY') === moment(detailTournament?.data.end_date).format('DD MMM YYYY') ?
-                          <span className="font-semibold text-sm">{moment(detailTournament?.data.start_date).format('DD MMM YYYY')}</span> :
-                          <span className="font-semibold text-sm">{moment(detailTournament?.data.start_date).format('DD MMM')} -  {moment(detailTournament?.data.end_date).format('DD MMM YYYY')}</span>
-                        }
-                        <span className="text-xs font-semibold text-emerald-800">{moment(detailTournament?.data.start_date).format('HH:mm')} - {moment(detailTournament?.data.end_date).format('HH:mm')}</span>
-                        <span className="text-xs font-normal">GMT +7</span>
-                      </div>
-                    </div>
-                    <div className="col-span-3 md:col-span-1 text-gray-500 text-[11px] font-light flex flex-row items-center">
-                      <div className="h-full aspect-square p-2 w-12">
-                        <Lucide icon="GitPullRequest" className="h-full w-full" />
-                      </div>
-                      <div className="flex flex-col flex-1">
-                        <span className="font-semibold text-sm">Level</span>
-                        <span className="text-xs text-emerald-800 font-semibold">{detailTournament?.data.level} {detailTournament && detailTournament.data.strict_level === false ? "Open" : ""}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 lg:col-span-1 col-span-3">
-                      {(detailTournament?.data && tournamentMatches?.data) && <TournamentStory tournament={detailTournament?.data} matches={tournamentMatches?.data} />}
-                    </div>
-                  </div>
-                </div>
-                <div className="col-span-12 sm:col-span-4">
-                  <img src={imageResizerDimension(detailTournament?.data.media_url || '', 420, "h")} className="flex w-full object-contain h-auto rounded-xl border" />
-                </div>
-                <div className="col-span-12 text-emerald-800 flex flex-row my-4">
-                  <IconLogoAlt className="h-10 w-20" />
-                  <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
-                    <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
-                    <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>MATCHES
-                  </div>
-                </div>
-                <div className="col-span-12 h-fit overflow-x-scroll" key={JSON.stringify(knockoutRound)}>
-                  <DraggableBracket
-                    rounds={knockoutRound}
-                    readOnly
-                    className=""
-                    setRounds={() => null}
-                    onSeedClick={(seed) => {
-                      navigate(paths.tournament.match({ matchUuid: seed.uuid }).$)
-                    }}
-                  />
-                </div>
-              </div>
-            )}
+            <TournamentDetailCard
+              tournamentUuid={uuid || data?.data?.[0]?.uuid || ""}
+            />
           </div>
         </FadeAnimation>
         <FadeAnimation className="col-span-4 md:flex flex-col space-y-2 hidden" direction="down">

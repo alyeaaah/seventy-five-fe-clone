@@ -30,13 +30,13 @@ const TournamentSteps = ({ step, tournamentUuid, showGroup = false, tournamentTy
           navigate(paths.administrator.tournaments.new.index);
         }
         break;
-      case 2:
+      case 3:
         // Add Players - requires tournamentUuid
         if (tournamentUuid) {
           navigate(paths.administrator.tournaments.new.players({ id: tournamentUuid }).$);
         }
         break;
-      case 3:
+      case 2:
         // Points - requires tournamentUuid
         if (tournamentUuid) {
           navigate(paths.administrator.tournaments.new.points({ id: tournamentUuid }).$);
@@ -80,14 +80,14 @@ const TournamentSteps = ({ step, tournamentUuid, showGroup = false, tournamentTy
       icon: <Lucide icon="FilePlus2" className="w-full h-full" />,
     },
     {
-      title: 'Add Players',
-      status: 'wait',
-      icon: <IconPlayer size="small" />,
-    },
-    {
       title: 'Points',
       status: 'wait',
       icon: <IconPoints size="small" />,
+    },
+    {
+      title: 'Add Players',
+      status: 'wait',
+      icon: <IconPlayer size="small" />,
     },
   ];
 

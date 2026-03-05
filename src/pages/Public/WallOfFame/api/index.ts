@@ -1,4 +1,3 @@
-
 import { Zodios } from "@zodios/core";
 import { endpoints } from "./endpoints";
 import { ZodiosHooks } from "@zodios/react";
@@ -7,16 +6,14 @@ import { clientEnv } from "@/env";
 export { endpoints };
 
 
-export const adminApiClient = new Zodios(
+export const PublicWallOfFameApiClient = new Zodios(
   clientEnv.API_BASE_URL,
   [
-    endpoints.loginApi,
-    endpoints.forgotPasswordApi,
-    endpoints.resetPasswordApi,
-    endpoints.userDataApi,
-    endpoints.mediaUploadApi
+    endpoints.FeaturedWallOfFameApi,
+    endpoints.WallOfFameDetailApi,
+    endpoints.WallOfFameListApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );
 
-export const adminApiHooks = new ZodiosHooks("login", adminApiClient);
+export const PublicWallOfFameApiHooks = new ZodiosHooks("publicWallOfFame", PublicWallOfFameApiClient);

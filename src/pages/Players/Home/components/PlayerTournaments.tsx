@@ -18,9 +18,9 @@ export const PlayerTournaments = ({ className, tournament, ...props }: Component
   const [modalJoin, setModalJoin] = useState(false);
   return (
     <div className={`box w-full inline-block mr-4 shadow-lg rounded-xl  overflow-hidden ${className}`} {...props}>
-      <Link to={paths.tournament.index({ uuid: tournament.uuid || "" }).$} className="flex flex-row overflow-hidden">
+      <Link to={paths.player.matches.tournament({ tournamentId: tournament.uuid || "" }).$} className="flex flex-row overflow-hidden">
         <div className="w-32 h-fit border overflow-hidden relative">
-        <img src={tournament.media_url} className="w-full h-[80px] mr-1 object-cover" />
+          <img src={tournament.media_url} className="w-full h-[80px] mr-1 object-cover" />
         </div>
         <div className="flex flex-col w-full">
           <div className="px-4 pt-2 text-xs font-medium flex justify-between">

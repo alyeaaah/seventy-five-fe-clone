@@ -58,7 +58,7 @@ export const TournamentForm = (props: Props) => {
         icon: "CheckSquare",
         variant: "success",
       });
-      navigate(paths.administrator.tournaments.new.players({ id: data.data.uuid || tournamentUuid }).$);
+      navigate(paths.administrator.tournaments.new.points({ id: data.data.uuid || tournamentUuid }).$);
     },
     retry: false
   });
@@ -89,6 +89,7 @@ export const TournamentForm = (props: Props) => {
           end_date: data.data.end_date,
           media_url: data.data.media_url,
           strict_level: data.data.strict_level,
+          draft_pick: data.data.draft_pick || false,
           level: data.data.level || "",
           level_uuid: data.data.level_uuid,
           type: data.data.type || "KNOCKOUT",
@@ -102,7 +103,8 @@ export const TournamentForm = (props: Props) => {
             uuid: "",
             description: "",
           }],
-          // points: data.data.points,
+          show_bracket: data.data.show_bracket || false,
+          commitment_fee: data.data.commitment_fee || 0,
         });
       }
     },
@@ -122,7 +124,7 @@ export const TournamentForm = (props: Props) => {
           icon: "CheckSquare",
           variant: "success",
         });
-        navigate(paths.administrator.tournaments.new.players({ id: result.data.uuid || tournamentUuid }).$);
+        navigate(paths.administrator.tournaments.new.points({ id: result.data.uuid || tournamentUuid }).$);
       },
       onError: (e: any) => {
         showNotification({
@@ -144,12 +146,15 @@ export const TournamentForm = (props: Props) => {
       end_date: data?.data?.end_date || new Date(),
       media_url: data?.data?.media_url || undefined,
       strict_level: data?.data?.strict_level || false,
+      draft_pick: data?.data?.draft_pick || false,
       level: data?.data?.level || undefined,
       level_uuid: data?.data?.level_uuid || "",
       court_uuid: data?.data?.court_uuid || "",
       league_id: data?.data?.league_id || "",
       total_group: data?.data?.total_group || 0,
       type: data?.data?.type || "KNOCKOUT",
+      show_bracket: data?.data?.show_bracket || false,
+      commitment_fee: data?.data?.commitment_fee || 0,
       rules: data?.data?.rules?.map((rule) => ({
         uuid: rule.uuid || undefined,
         description: rule.description || "",
@@ -640,6 +645,92 @@ export const TournamentForm = (props: Props) => {
                     }
                   />
                 </div>
+                <div className="col-span-12 lg:col-span-3 mb-2 pl-4">
+                  <FormLabel htmlFor="modal-form-1">Draft Pick</FormLabel>
+                  <Controller
+                    name="draft_pick"
+                    control={control}
+                    render={({ field, fieldState }) =>
+                      <div className="flex items-center pt-2">
+                        <FormSwitch>
+                          <FormSwitch.Input
+                            id="checkbox-switch-8"
+                            type="checkbox"
+                            checked={field.value || false}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                          <FormSwitch.Label htmlFor="checkbox-switch-8">
+                            {field.value ? "Yes" : "No"}
+                          </FormSwitch.Label>
+                        </FormSwitch>
+                        {!!fieldState.error && (
+                          <FormHelp className={"text-danger"}>
+                            {fieldState.error.message || "Form is not valid"}
+                          </FormHelp>
+                        )}
+                      </div>
+                    }
+                  />
+                </div>
+                <div className="col-span-12 lg:col-span-3 mb-2">
+                  <FormLabel htmlFor="modal-form-1">Commitment Fee</FormLabel>
+                  <Controller
+                    name="commitment_fee"
+                    control={control}
+                    render={({ field, fieldState }) =>
+                      <>
+
+                        <FormInput
+                          id="commitment-fee"
+                          name="commitment_fee"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={field.value}
+                          className={clsx({
+                            "border-danger": !!fieldState.error,
+                          })}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          placeholder="0.00"
+
+                        />
+                        {!!fieldState.error && (
+                          <FormHelp className={"text-danger"}>
+                            {fieldState.error.message || "Form is not valid"}
+                          </FormHelp>
+                        )}
+                      </>
+                    }
+                  />
+                </div>
+                <div className="col-span-12 lg:col-span-3 mb-2 pl-4">
+                  <FormLabel htmlFor="modal-form-1">Show Bracket</FormLabel>
+                  <Controller
+                    name="show_bracket"
+                    control={control}
+                    render={({ field, fieldState }) =>
+                      <div className="flex items-center pt-2">
+                        <FormSwitch>
+                          <FormSwitch.Input
+                            id="checkbox-switch-9"
+                            type="checkbox"
+                            checked={field.value || false}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                          <FormSwitch.Label htmlFor="checkbox-switch-9">
+                            {field.value ? "Yes" : "No"}
+                          </FormSwitch.Label>
+                        </FormSwitch>
+                        {!!fieldState.error && (
+                          <FormHelp className={"text-danger"}>
+                            {fieldState.error.message || "Form is not valid"}
+                          </FormHelp>
+                        )}
+                      </div>
+                    }
+                  />
+                </div>
+
               </div>
             </div>
             <div className="col-span-12 lg:col-span-6 box h-fit p-4 grid grid-cols-12 ">
@@ -740,7 +831,7 @@ export const TournamentForm = (props: Props) => {
                   type="button"
                   variant="outline-secondary"
                   onClick={() => {
-                    navigate(paths.administrator.tournaments.new.players({ id: tournamentUuid }).$);
+                    navigate(paths.administrator.tournaments.new.points({ id: tournamentUuid }).$);
 
                   }}
                   className="w-[46%] lg:w-auto lg:mr-2"

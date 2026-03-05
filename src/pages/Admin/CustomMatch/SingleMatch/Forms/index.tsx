@@ -633,7 +633,8 @@ export const CustomMatchForm = (props: Props) => {
                   type="button"
                   className={`sm:w-auto sm:mr-2 ${customMatchUuid ? "hidden" : ""}`}
                   onClick={() => {
-                    addMoreMatch();
+                    // addMoreMatch();
+                    console.log(customMatchesPayloadSchema.parse(getValues()));
                   }}
                 >
                   <Lucide icon="PlusCircle" className="w-4 h-4 mr-2" />

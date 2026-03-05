@@ -14,7 +14,7 @@ export const teamSchema = z.object({
   name: z.string().nullish(),
   alias: z.string().nullish(),
   uuid: z.string().nullish(),
-  players: z.array(playersSchema.partial())
+  players: z.array(playersSchema.partial().nullish())
 });
 export const customMatchPayloadSchema = matchDetailSchema.extend({
     id: z.number(),
