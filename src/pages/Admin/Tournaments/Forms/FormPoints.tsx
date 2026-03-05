@@ -19,6 +19,7 @@ import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import 'react-quill/dist/quill.snow.css';
 import TournamentSteps from "../Components/TournamentSteps";
 import { PointConfigurationsApiHooks } from "../../PointConfig/api";
+import RoundTable from "./RoundTable";
 // import { IconBracket, IconPoint } from "@/assets/images/icons";
 
 
@@ -34,7 +35,6 @@ export const TournamentFormPoints = (props: Props) => {
   const [selectedPointConfig, setSelectedPointConfig] = useState("");
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const location = useLocation();
-  const [roundInfo, setRoundInfo] = useState<TournamentRounds>({ byes: 0, rounds: 0, teams: 0, nextPowerOf2: 0 });
   const { data } = TournamentsApiHooks.useGetTournamentsDetail({
     params: {
       uuid: tournamentUuid || 0
@@ -81,25 +81,11 @@ export const TournamentFormPoints = (props: Props) => {
   const { data: pointConfigOptions } = PointConfigurationsApiHooks.useGetPointConfigurationsList(
     {
       queries: {
-        round: roundInfo.rounds
       }
     }, {
-    enabled: !!tournamentUuid && roundInfo.rounds > 0
+    enabled: !!tournamentUuid
   }
   );
-
-  const { data: participants } = TournamentsApiHooks.useGetTournamentParticipants({
-    params: {
-      uuid: tournamentUuid || 0
-    },
-  }, {
-    onSuccess: (data) => {
-      if (data) {
-        calculateTournamentRounds(data?.data?.players?.length)
-      }
-    },
-    enabled: !!tournamentUuid
-  });
 
   const { mutate: actionUpdateTournament } = TournamentsApiHooks.useUpdateTournament(
     {
@@ -115,10 +101,8 @@ export const TournamentFormPoints = (props: Props) => {
           icon: "CheckSquare",
           variant: "success",
         });
-        const nextPath = data?.data?.type === "ROUND ROBIN"
-          ? paths.administrator.tournaments.new.group({ id: result.data.uuid || tournamentUuid }).$
-          : paths.administrator.tournaments.new.brackets({ id: result.data.uuid || tournamentUuid }).$;
-        navigate(nextPath);
+
+        navigate(paths.administrator.tournaments.new.players({ id: tournamentUuid }).$);
       },
       onError: (e: any) => {
         showNotification({
@@ -185,24 +169,6 @@ export const TournamentFormPoints = (props: Props) => {
     }
   }
 
-  const calculateTournamentRounds = (totalPlayers: number): TournamentRounds => {
-    const teams = Math.ceil(totalPlayers / 2);
-    const nextPowerOf2 = Math.pow(2, Math.ceil(Math.log2(teams)));
-    const byes = nextPowerOf2 - teams;
-    const rounds = Math.log2(nextPowerOf2);
-    setRoundInfo({
-      teams,
-      byes,
-      rounds,
-      nextPowerOf2
-    });
-    return {
-      teams,
-      byes,
-      rounds,
-      nextPowerOf2,
-    };
-  }
 
   return (
     <>
@@ -210,12 +176,11 @@ export const TournamentFormPoints = (props: Props) => {
         <h2 className="mr-auto text-lg font-medium">{tournamentUuid ? "Edit" : "Add New"} Tournament</h2>
       </div>
       <Divider />
-      <TournamentSteps step={3} tournamentUuid={tournamentUuid} showGroup={data?.data?.type === "ROUND ROBIN"} tournamentType={data?.data?.type} />
+      <TournamentSteps step={2} tournamentUuid={tournamentUuid} showGroup={data?.data?.type === "ROUND ROBIN"} tournamentType={data?.data?.type} />
       <FormProvider {...methods} key={location.pathname + "_form"}>
         <form onSubmit={handleSubmit(onSubmit)} className="relative">
           <div className="grid grid-cols-12 gap-4 ">
-            <div className="sm:col-span-3 hidden sm:flex"></div>
-            <div className="col-span-12 sm:col-span-6 box h-fit p-4 grid grid-cols-12 ">
+            <div className="col-span-12 sm:col-span-9 box h-fit p-4 grid grid-cols-12 ">
               <div className="col-span-12">
                 <h2 className=" font-medium">Point Configuration</h2>
                 <Divider className="mb-0 " />
@@ -261,7 +226,7 @@ export const TournamentFormPoints = (props: Props) => {
                     </div>
                     <div className="col-span-0 sm:col-span-2 flex items-center justify-start"></div>
                     <div className="col-span-12 sm:col-span-12">
-                      Choose point configuration before setting up the brackets
+                      Choose point configuration before setting up the participants and brackets
                     </div>
                   </div>
                 </Alert>
@@ -297,28 +262,9 @@ export const TournamentFormPoints = (props: Props) => {
                 }
               </div>
             </div>
-            <div className="col-span-12 sm:col-span-3 box h-fit p-4 grid grid-cols-12  gap-2">
-              <div className="col-span-12">
-                <h2 className=" font-medium">Information</h2>
-                <Divider className="mb-0 mt-1" />
-              </div>
-              <div className="col-span-4">
-                Total Round
-              </div>
-              <div className="col-span-8">
-                : {roundInfo?.rounds}
-              </div>
-              <div className="col-span-4">
-                Byes
-              </div>
-              <div className="col-span-8">
-                : {roundInfo?.byes}
-              </div>
-              <div className="col-span-4">
-                Total Team
-              </div>
-              <div className="col-span-8">
-                : {roundInfo?.teams}
+            <div className="col-span-12 sm:col-span-3 box h-fit p-0">
+              <div className="">
+                <RoundTable />
               </div>
             </div>
           </div>
@@ -343,10 +289,7 @@ export const TournamentFormPoints = (props: Props) => {
                   type="button"
                   variant="outline-secondary"
                   onClick={() => {
-                    const nextPath = data?.data?.type === "ROUND ROBIN"
-                      ? paths.administrator.tournaments.new.group({ id: tournamentUuid }).$
-                      : paths.administrator.tournaments.new.brackets({ id: tournamentUuid }).$;
-                    navigate(nextPath);
+                    navigate(paths.administrator.tournaments.new.players({ id: tournamentUuid }).$);
                     queryClient.invalidateQueries({
                       queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentParticipants"),
                     });

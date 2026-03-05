@@ -7,7 +7,7 @@ import { accessTokenAtom, store, unauthorizedErrorMessageAtom } from "./store";
 export const createAxiosInstance = () => { 
   
   const axiosInstance = axios.create();
-  
+  axiosInstance.defaults.baseURL = clientEnv.API_BASE_URL;``
   axiosInstance.interceptors.request.use((config => {
     const isRequestingOurApi =
     config.baseURL?.includes(`${clientEnv.API_BASE_URL}`) || 

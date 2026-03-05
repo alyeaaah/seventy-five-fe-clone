@@ -58,6 +58,25 @@ const tournamentDetailApi = makeEndpoint({
   })
 });
 
+const tournamentDetailAuthApi = makeEndpoint({
+  alias: "getTournamentDetailAuth",
+  method: "get",
+  path: `/player/tournament/:uuid`,
+  response: z.object({
+    data: publicTournamentDetailSchema
+  })
+});
+
+const joinTournamentApi = makeEndpoint({
+  alias: "joinTournament",
+  method: "post",
+  path: `/tournament/:uuid/join`,
+  response: z.object({
+    message: z.string(),
+    status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED'])
+  })
+});
+
 const tournamentDetailMatchesApi = makeEndpoint({
   alias: "getTournamentDetailMatches",
   method: "get",
@@ -117,6 +136,8 @@ const getGroupsByTournamentApi = makeEndpoint({
 export const endpoints = {
   featuredTournamentApi,
   tournamentDetailApi,
+  tournamentDetailAuthApi,
+  joinTournamentApi,
   tournamentDetailMatchesApi,
   tournamentDetailSponsorsApi,
   upcomingMatchApi,

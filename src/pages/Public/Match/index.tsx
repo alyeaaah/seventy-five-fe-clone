@@ -3,21 +3,21 @@ import { PublicMatchApiHooks } from "./api";
 import { getCurrentMatch } from "@/utils/helper";
 import { useNavigate } from "react-router-dom";
 import { FadeAnimation } from "@/components/Animations";
-import { useRef, useState, type ComponentType } from "react";
+import { useRef, useState, useEffect, type ComponentType } from "react";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { paths } from "@/router/paths";
 import { IconLogo, IconLogoAlt } from "@/assets/images/icons";
 import { PartnersComponent } from "../LandingPage/components/PartnersComponent";
 import { PublicTournamentApiHooks } from "../Tournament/api";
-import { useDeleteDocument, useMatchScore } from "@/pages/Admin/MatchDetail/api/firestore";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/utils/store";
-import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
+import { GameScoreData, matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 import { Helmet as HelmetBase } from "react-helmet";
 import Modal from "antd/es/modal/Modal";
 import { KudosModal } from "@/pages/Players/Components/KudosModal";
 import { MatchMediaAndInfoSection } from "./components/MatchMediaAndInfoSection";
-import { useMatchSocket } from "@/hooks/useMatchSocket";
+import { ScoreWebSocketListener } from "@/components/ScoreWebSocketListener";
+import { useScore } from "@/utils/score.util";
 
 export const PublicMatchDetail = () => {
   const Helmet = HelmetBase as unknown as ComponentType<any>;
@@ -26,11 +26,7 @@ export const PublicMatchDetail = () => {
   const { matchUuid } = queryParams;
   const userData = useAtomValue(userAtom);
 
-  // WebSocket for real-time match scores
-  const { matches: realtimeMatches, isConnected: wsConnected } = useMatchSocket();
-
-  // Get real-time scores for current match
-  const realtimeScores = realtimeMatches.find(m => m.matchUuid === matchUuid)?.score || [];
+  const { getCurrentMatchScores, setScore } = useScore();
 
   const [modalKudos, setModalKudos] = useState<{
     open: boolean;
@@ -53,6 +49,29 @@ export const PublicMatchDetail = () => {
     },
     retry: false
   });
+
+  // Initialize scores from API response
+  useEffect(() => {
+    if (data?.data?.game_scores) {
+      const scoreUpdatePayload = {
+        match_uuid: matchUuid,
+        home_team_score: data.data.game_scores.filter(g => g.game_score_home === "WIN").length.toString(),
+        away_team_score: data.data.game_scores.filter(g => g.game_score_away === "WIN").length.toString(),
+        game_scores: data.data.game_scores.map(game => ({
+          set: game.set,
+          game: game.game,
+          game_score_home: game.game_score_home,
+          game_score_away: game.game_score_away,
+          status: game.status || "PAUSED" as const,
+          last_updated_at: new Date().toISOString()
+        }))
+      };
+
+      // Set initial scores from API (skip API call since this is just initialization)
+      setScore(scoreUpdatePayload, true);
+    }
+  }, [data, matchUuid]);
+
   const { data: tournamentInfo } = PublicTournamentApiHooks.useGetTournamentDetail({
     params: {
       uuid: data?.data?.tournament_uuid || ""
@@ -60,41 +79,8 @@ export const PublicMatchDetail = () => {
   }, {
     enabled: !!data?.data?.tournament_uuid
   });
-  const { mutateAsync: deleteScore } = useDeleteDocument()
-
-  const { data: scores, unsubscribe: unsubscribeFirestore } = useMatchScore(
-    matchUuid,
-    (d) => {
-      const sor = d.sort((a, b) => a.set - b.set);
-      const sfil = sor.filter(s => s.set == 1 && !(s.game_score_away == "AD" || s.game_score_home == "AD")).map((dd) => ({ set: dd.set, refId: dd.refId }));
-      console.log(sfil);
-      sfil.map(sfl => {
-        if (sfl.refId) {
-
-          deleteScore({ refId: sfl.refId })
-        }
-      });
 
 
-    }
-  );
-  const handlePopState = useRef((event: PopStateEvent) => {
-    if (unsubscribeFirestore) {
-      unsubscribeFirestore();
-    }
-    event.preventDefault();
-  });
-  window.addEventListener("popstate", handlePopState.current);
-
-  // Use real-time scores if available, otherwise fallback to Firestore scores
-  const currentScore = getCurrentMatch(realtimeScores.length > 0 ? realtimeScores.map(score => ({
-    ...score,
-    tournament_uuid: data?.data?.tournament_uuid || "",
-    with_ad: false,
-    match_uuid: matchUuid || "",
-    last_updated_at: new Date().toISOString(),
-    prev: { set_score_home: "0", set_score_away: "0" }
-  })) : (scores || []));
   const getPlayerKudos = (playerUuid: string) => {
     return userData?.uuid ? (data?.data?.player_kudos?.filter((item) => item.player_uuid === playerUuid) || []) : [];
   }
@@ -111,6 +97,9 @@ export const PublicMatchDetail = () => {
 
   return (
     <>
+      {/* WebSocket listener for real-time score updates - handles all matches */}
+      <ScoreWebSocketListener />
+
       <LayoutWrapper className="grid grid-cols-12 gap-4 sm:gap-8 mt-4 sm:mt-8 min-h-[calc(100vh-300px)]">
         <Helmet
           title={`75 Tennis Club | ${tournamentInfo?.data?.name} - Match ${data?.data?.tournament_uuid && data?.data?.seed_index}`}
@@ -119,17 +108,9 @@ export const PublicMatchDetail = () => {
           <div className="col-span-12 grid grid-cols-12 gap-2 h-max">
             <MatchMediaAndInfoSection
               data={data}
-              key={JSON.stringify(realtimeScores.length > 0 ? realtimeScores : scores)}
+              key={JSON.stringify(data)}
               tournamentInfo={tournamentInfo}
-              currentScore={currentScore}
-              scores={realtimeScores.length > 0 ? realtimeScores.map(score => ({
-                ...score,
-                tournament_uuid: data?.data?.tournament_uuid || "",
-                with_ad: false,
-                match_uuid: matchUuid || "",
-                last_updated_at: new Date().toISOString(),
-                prev: { set_score_home: "0", set_score_away: "0" }
-              })) : (scores || [])}
+
               matchUuid={matchUuid || ""}
               userData={userData}
               showGiveKudosButton={showGiveKudosButton}

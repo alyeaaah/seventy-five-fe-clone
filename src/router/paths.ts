@@ -55,7 +55,7 @@ export const paths = {
         id: stringParser
       }, {}),
       match: route(`/admin/tournaments/match/:matchUuid`, {
-        matchUuid: stringParser
+        matchUuid: stringParser,
       }, {}),
       edit: route(`/admin/tournaments/edit/:tournament`, {
         tournament: stringParser
@@ -155,6 +155,9 @@ export const paths = {
       match: route(`/player/tournaments/match/:matchUuid`, {
         matchUuid: stringParser
       }, {}),
+      tournament: route(`/player/tournaments/:tournamentId`, {
+        tournamentId: stringParser
+      }, {}),
       index: "/player/tournaments", 
     },
     orders: {
@@ -178,6 +181,7 @@ export const paths = {
     standings: route(`/tournament/standings/&:league?`, {
        league: stringParser
     }, {}),
+    fullscreen: route(`/tournament/fullscreen`, {}, {}),
   },
   challenger: {
     index: route(`/challenger/&:uuid?`, {
@@ -242,4 +246,9 @@ export const paths = {
   login: route("/login/&:redirect?", {
     redirect: stringParser
   }, {}),
+  matchFullscreen: route(`/match/fullscreen/:match`, {
+      match: stringParser
+  }, {}),
+  forgotPassword: "/forgot-password",
+  resetPassword: route("/reset-password", {}, {}),
 } as const;

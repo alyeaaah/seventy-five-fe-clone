@@ -59,7 +59,7 @@ export const TournamentDetail = () => {
     enabled: !!tournamentUuid
   });
   useEffect(() => {
-    if (!matches?.data) return;
+    if (!matches?.data?.length) return;
     const knockoutMatches = matches?.data.filter((match) => match.groupKey === null || match.groupKey === undefined);
     setAllRounds(convertMatchToRound(convertTournamentMatchToMatch(knockoutMatches || [])))
   }, [matches])

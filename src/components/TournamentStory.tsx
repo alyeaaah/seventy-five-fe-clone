@@ -8,6 +8,7 @@ import { PublicTournamentDetail } from "@/pages/Public/Tournament/api/schema";
 import { IMatch } from "./TournamentDrawing/interfaces";
 import { TournamentMatchDetail } from "@/pages/Admin/Tournaments/api/schema";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
+import { Button } from "antd";
 
 interface TournamentStoryProps extends HTMLProps<HTMLDivElement> {
   tournament: PublicTournamentDetail;
@@ -25,9 +26,9 @@ export const TournamentStory = ({ tournament, matches }: TournamentStoryProps) =
     a.click();
     a.remove();
   }, []);
-  const champs: TournamentMatchDetail | undefined = matches?.reduce((prev, curr) => {
+  const champs: TournamentMatchDetail | undefined = tournament?.show_bracket ? matches?.reduce((prev, curr) => {
     return (prev?.round !== null && prev?.round !== undefined ? prev?.round : -1) > (curr?.round !== null && curr?.round !== undefined ? curr?.round : -1) ? prev : curr;
-  });
+  }) : undefined;
 
   const shareOrDownloadStory = useCallback(
     async (item: any) => {
@@ -77,14 +78,14 @@ export const TournamentStory = ({ tournament, matches }: TournamentStoryProps) =
 
   return (
     <>
-      <button
-        type="button"
-        className="flex flex-row items-center gap-2 bg-white text-emerald-800 px-4 py-2 rounded-xl hover:bg-emerald-100 transition-colors w-full lg:w-fit border-emerald-800 border"
+      <Button
+        variant="outlined"
+        className="border-emerald-800 text-emerald-800"
         onClick={() => shareOrDownloadStory(tournament)}
       >
         <Lucide icon='Share2' className='h-4 w-4' />
         <span className="text-sm font-medium">Share Story</span>
-      </button>
+      </Button>
 
       <div style={{ position: "fixed", left: "-099999px", top: 0, width: 1080, height: 1920 }} >
         <div
@@ -161,7 +162,7 @@ export const TournamentStory = ({ tournament, matches }: TournamentStoryProps) =
                           </div>
                         </div>
                       </div>
-                      {champs?.status === matchStatusEnum.Values.ENDED && <div className="flex justify-end items-end">
+                      {(champs?.status === matchStatusEnum.Values.ENDED && tournament.show_bracket === true) && <div className="flex justify-end items-end">
                         <div className="px-16 flex-1 flex flex-col w-full justify-end items-center">
                           <div className="text-4xl font-bold mb-4 text-center">
                             🏆 CHAMPS!!

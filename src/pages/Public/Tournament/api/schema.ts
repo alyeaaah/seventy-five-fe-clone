@@ -46,7 +46,8 @@ export const publicTournamentDetailSchema = tournamentsSchema.extend({
     city: z.string(),
     lat: z.string().nullish(),
     long: z.string().nullish(),
-  })
+  }),
+  commitment_fee: z.number().int().default(0),
 })
 
 export type PublicTournamentDetail = z.infer<typeof publicTournamentDetailSchema>;

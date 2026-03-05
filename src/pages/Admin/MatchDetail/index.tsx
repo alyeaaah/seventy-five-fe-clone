@@ -24,6 +24,7 @@ import { queryClient } from "@/utils/react-query";
 import { IconVS } from "@/assets/images/icons";
 import { CustomSkeleton } from "@/components/CustomSkeleton";
 import { clientEnv } from "@/env";
+import { useMatchSocket } from "@/hooks/useMatchSocket";
 
 export const MatchDetail = () => {
   const navigate = useNavigate();
@@ -159,12 +160,67 @@ export const MatchDetail = () => {
     deleteScore,
     resetMatchScores,
     getCurrentGameScore,
-    getCurrentMatchScores
+    getCurrentMatchScores,
+    toggleGameStatus,
+    setScore
   } = useScore();
+
+  // WebSocket integration for real-time score updates
+  const { matches, isConnected, error: socketError } = useMatchSocket();
 
   const currentMatchScore = getCurrentMatchScores(matchUuid);
   const currentGameScores = currentMatchScore?.game_scores || [];
   const currentScore = getCurrentGameScore(currentGameScores);
+
+  // Handle real-time score updates from WebSocket
+  useEffect(() => {
+    if (data?.data?.game_scores?.length && matches.length <= 0) {
+      const updatedScoreData: ScoreUpdatePayload = {
+        match_uuid: matchUuid,
+        home_team_score: data.data.game_scores.filter(g => g.game_score_home === "WIN").length.toString(),
+        away_team_score: data.data.game_scores.filter(g => g.game_score_away === "WIN").length.toString(),
+        game_scores: data.data.game_scores.map(game => ({
+          set: game.set,
+          game: game.game,
+          game_score_home: game.game_score_home,
+          game_score_away: game.game_score_away,
+          status: (game as any).status || "PAUSED" as const,
+          last_updated_at: new Date().toISOString()
+        }))
+      };
+      setScore(updatedScoreData, true);
+    }
+    if (isConnected && matches.length > 0) {
+      // Find the match update for current match
+      const matchUpdate = matches.find(match => match.matchUuid === matchUuid);
+      if (matchUpdate) {
+        // Update local state with WebSocket data
+        const updatedScoreData: ScoreUpdatePayload = {
+          match_uuid: matchUuid,
+          home_team_score: matchUpdate.score.filter(g => g.game_score_home === "WIN").length.toString(),
+          away_team_score: matchUpdate.score.filter(g => g.game_score_away === "WIN").length.toString(),
+          game_scores: matchUpdate.score.map(game => ({
+            set: game.set,
+            game: game.game,
+            game_score_home: game.game_score_home,
+            game_score_away: game.game_score_away,
+            status: (game as any).status || "PAUSED" as const,
+            last_updated_at: new Date().toISOString()
+          }))
+        };
+
+        // Update score using the utility function (skip API call since we received from WebSocket)
+        setScore(updatedScoreData, true);
+        // console.log("ssss");
+
+        // showNotification({
+        //   text: "Score updated in real-time",
+        //   variant: "info",
+        //   duration: 1000
+        // });
+      }
+    }
+  }, [matches, isConnected, matchUuid, data]);
 
   useEffect(() => {
     // Calculate set scores from game scores
@@ -468,6 +524,22 @@ export const MatchDetail = () => {
               <div className="hidden sm:flex text-sm text-center text-emerald-800 dark:text-[#EBCE56]" onClick={() => navigate(paths.administrator.tournaments.detail({ id: data?.data?.tournament_uuid || "" }).$)}>
                 {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${current.round}`}
               </div>
+              {/* WebSocket Connection Status */}
+              <div className="flex items-center justify-center text-xs">
+                <div className={`flex items-center px-2 py-1 rounded-full ${isConnected
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  }`}>
+                  <div className={`w-2 h-2 rounded-full mr-1 ${isConnected ? 'bg-green-500' : 'bg-red-500'
+                    }`} />
+                  {isConnected ? 'Live' : 'Offline'}
+                </div>
+                {socketError && (
+                  <span className="text-red-600 dark:text-red-400 ml-2">
+                    Connection Error
+                  </span>
+                )}
+              </div>
               <div className="sm:hidden flex flex-col text-sm text-center text-emerald-800 dark:text-[#EBCE56]">
                 {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && <span className="">Round {current.round}</span>}
               </div>
@@ -487,6 +559,7 @@ export const MatchDetail = () => {
                     className="px-2 py-1 my-2 w-full rounded-md text-xs"
                     variant="outline-primary"
                     onClick={() => {
+                      toggleGameStatus(matchUuid);
                       updateStatusApi({
                         status: matchStatusEnum.Values.ONGOING
                       });
@@ -501,6 +574,7 @@ export const MatchDetail = () => {
                     className="px-2 py-1 my-2 w-full rounded-md text-xs"
                     variant="outline-warning"
                     onClick={() => {
+                      toggleGameStatus(matchUuid);
                       updateStatusApi({
                         status: matchStatusEnum.Values.PAUSED
                       });
@@ -518,7 +592,7 @@ export const MatchDetail = () => {
                       updateNextRoundApi(undefined);
                     }}
                   >
-                    <Lucide icon="BetweenHorizontalStart" />&nbsp;Update Next Round
+                    <Lucide icon="BetweenHorizontalStart" />&nbsp;End this match
                   </Button>
                   )
                 }
@@ -528,13 +602,8 @@ export const MatchDetail = () => {
                     variant="primary"
                     onClick={() => {
                       if (data?.data?.status == "UPCOMING") {
-                        updateGameScore({
-                          matchUuid,
-                          team: "home",
-                          direction: "UP",
-                          withAd: data?.data?.with_ad || false
-                        });
                       }
+                      toggleGameStatus(matchUuid);
                       updateStatusApi({
                         status: matchStatusEnum.Values.ONGOING
                       });
@@ -634,7 +703,7 @@ export const MatchDetail = () => {
                 <IconVS className="h-16 w-full text-emerald-800 absolute top-0 left-0.5" />
               </div>
               {![currentScore?.game_score_away, currentScore?.game_score_home].includes("WIN") ?
-                <h1 className="text-xs font-bold">Set {currentScore?.set || 1}</h1>
+                <h1 className="text-xs font-bold">Game {currentScore?.game || 1}</h1>
                 :
                 <h1 className="text-xs font-bold">Match Ended</h1>
               }
@@ -921,9 +990,9 @@ export const MatchDetail = () => {
                 <span className="text-sm font-medium capitalize w-full truncate text-center">{data?.data?.away_team?.name}</span>
               </div>
               {(currentGameScores || []).sort((a: any, b: any) => a.set - b.set).slice(0, -1).map((setScore: any, i: any) => (
-                <Fragment key={setScore.refId}>
+                <Fragment key={i}>
                   <div className={`py-1 col-span-4 sm:col-span-2 flex justify-end items-center px-2 ${i % 2 === 0 ? "bg-slate-100 dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800"}`}>
-                    <span className="text-end font-medium capitalize text-slate-500 text-xs">Game {setScore.set}</span>
+                    <span className="text-end font-medium capitalize text-slate-500 text-xs">Game {setScore.game}</span>
                   </div>
                   <div className={`col-span-4 sm:col-span-5 flex justify-center items-center ${i % 2 === 0 ? "bg-slate-100 dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800"}`}>
                     <span className={`text-sm font-medium capitalize ${setScore.game_score_home > setScore.game_score_away || setScore.game_score_home == "AD" ? "text-success" : "text-danger"}`}>

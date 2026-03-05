@@ -27,7 +27,11 @@ export const tournamentsSchema = z.object({
   match_count: z.string().or(z.number()).nullish(),
   player_count: z.string().or(z.number()).nullish(),
   strict_level: z.boolean().default(false),
+  draft_pick: z.boolean().default(false),
+  show_bracket: z.boolean().default(false),
+  commitment_fee: z.number().default(0),
   participants: z.number().nullish(),
+  join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
   rules: z.array(z.object({
     uuid: z.string().nullish(),
     description: z.string({ required_error: "Rule is required" }).min(5, "Description must be at least 5 characters long"),
@@ -144,6 +148,7 @@ export const tournamentDetailSchema = z.object({
   })),
   createdAt: z.string().datetime().nullish(),
   updatedAt: z.string().datetime().nullish(),
+  join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
 });
  
 export const tournamentSponsorSchema =z.object({
@@ -192,5 +197,6 @@ export type TournamentMatchPayload = z.infer<typeof tournamentMatchSchema>;
 export type TournamentMatchesPayload = z.infer<typeof tournamentMatchPayloadSchema>;
 export type TournamentSponsorPayload = z.infer<typeof tournamentSponsorSchema>;
 export type TournamentStatusEnum = z.infer<typeof tournamentStatusEnum>;
+export type TournamentJoinStatusEnum = z.infer<typeof tournamentDetailSchema>['join_status'];
 export type TournamentUpdateGroupPayload = z.infer<typeof tournamentGroupPayloadSchema>;
 

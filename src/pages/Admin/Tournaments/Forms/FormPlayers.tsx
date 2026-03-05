@@ -333,7 +333,7 @@ export const TournamentFormPlayers = (props: Props) => {
         <h2 className="mr-auto text-lg font-medium">{tournamentUuid ? "Edit" : "Add New"} Tournament</h2>
       </div>
       <Divider />
-      <TournamentSteps step={2} tournamentUuid={tournamentUuid} showGroup={tournamentData?.data?.type === "ROUND ROBIN"} tournamentType={tournamentData?.data?.type} />
+      <TournamentSteps step={3} tournamentUuid={tournamentUuid} showGroup={tournamentData?.data?.type === "ROUND ROBIN"} tournamentType={tournamentData?.data?.type} />
       <FormProvider {...methods} key={location.pathname + "_form"}>
         <form onSubmit={handleSubmit(onSubmit)} className="relative">
           <div className="grid grid-cols-12 gap-4 ">
@@ -506,7 +506,7 @@ export const TournamentFormPlayers = (props: Props) => {
                           <div className="flex items-center">
                             <span className="ml-2 capitalize">
                               {teamNames[Math.floor(index / 2)]?.team_name}
-                              {" "}{teamNames[Math.floor(index / 2)]?.team_alias}
+                              {/* {" "}{teamNames[Math.floor(index / 2)]?.team_alias} */}
                             </span>
                           </div>
                         ),

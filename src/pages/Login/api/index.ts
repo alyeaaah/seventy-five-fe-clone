@@ -11,6 +11,8 @@ export const adminApiClient = new Zodios(
   clientEnv.API_BASE_URL,
   [
     endpoints.loginApi,
+    endpoints.forgotPasswordApi,
+    endpoints.resetPasswordApi,
     endpoints.userDataApi,
     endpoints.mediaUploadApi
   ],

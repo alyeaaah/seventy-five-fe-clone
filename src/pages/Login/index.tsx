@@ -178,9 +178,9 @@ function Main() {
                         }}
                       />
                     </div>
-                    {/* <div className="flex mt-4 text-xs intro-x text-slate-600 dark:text-slate-500 sm:text-sm">
+                    <div className="flex mt-4 text-xs intro-x text-slate-600 dark:text-slate-500 sm:text-sm">
                       <div className="flex items-center mr-auto">
-                        <FormCheck.Input
+                        {/* <FormCheck.Input
                           id="remember-me"
                           type="checkbox"
                           className="mr-2 border"
@@ -190,10 +190,10 @@ function Main() {
                           htmlFor="remember-me"
                         >
                           Remember me
-                        </label>
+                        </label> */}
                       </div>
-                      <a href="">Forgot Password?</a>
-                    </div> */}
+                      <a href={paths.forgotPassword} className="text-primary hover:underline">Forgot Password?</a>
+                    </div>
                     <div className="mt-5 text-center intro-x xl:mt-8 xl:text-left">
                       <Button
                         variant="primary"
