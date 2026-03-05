@@ -25,7 +25,7 @@ export const clientEnv = schema.parse({
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
   AUTH_COOKIE_NAME: import.meta.env.VITE_AUTH_COOKIE_NAME,
   SOCKET_URL: import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_BASE_URL?.replace('/api', ''),
-  SOCKET_SECRET_KEY: import.meta.env.VITE_SOCKET_SECRET_KEY,
+  SOCKET_SECRET_KEY: import.meta.env.VITE_SOCKET_SECRET_KEY || "8f0b443c9b5704af693b58c4e981c25234fc5c6979be7a1fa0ffca645bc9fb9b",
   BASENAME: import.meta.env.VITE_BASENAME,
   FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
