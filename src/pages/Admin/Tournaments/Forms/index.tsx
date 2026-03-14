@@ -105,6 +105,7 @@ export const TournamentForm = (props: Props) => {
           }],
           show_bracket: data.data.show_bracket || false,
           commitment_fee: data.data.commitment_fee || 0,
+          max_player: data.data.max_player || 0,
         });
       }
     },
@@ -155,6 +156,7 @@ export const TournamentForm = (props: Props) => {
       type: data?.data?.type || "KNOCKOUT",
       show_bracket: data?.data?.show_bracket || false,
       commitment_fee: data?.data?.commitment_fee || 0,
+      max_player: data?.data?.max_player || 0,
       rules: data?.data?.rules?.map((rule) => ({
         uuid: rule.uuid || undefined,
         description: rule.description || "",
@@ -693,6 +695,35 @@ export const TournamentForm = (props: Props) => {
                           onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                           placeholder="0.00"
 
+                        />
+                        {!!fieldState.error && (
+                          <FormHelp className={"text-danger"}>
+                            {fieldState.error.message || "Form is not valid"}
+                          </FormHelp>
+                        )}
+                      </>
+                    }
+                  />
+                </div>
+                <div className="col-span-12 lg:col-span-3 mb-2">
+                  <FormLabel htmlFor="modal-form-1">Max Players</FormLabel>
+                  <Controller
+                    name="max_player"
+                    control={control}
+                    render={({ field, fieldState }) =>
+                      <>
+                        <FormInput
+                          id="max-player"
+                          name="max_player"
+                          type="number"
+                          step="1"
+                          min="0"
+                          value={field.value}
+                          className={clsx({
+                            "border-danger": !!fieldState.error,
+                          })}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          placeholder="0"
                         />
                         {!!fieldState.error && (
                           <FormHelp className={"text-danger"}>

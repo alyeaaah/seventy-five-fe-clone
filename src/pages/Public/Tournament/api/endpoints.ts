@@ -71,6 +71,9 @@ const joinTournamentApi = makeEndpoint({
   alias: "joinTournament",
   method: "post",
   path: `/tournament/:uuid/join`,
+  parameters: parametersBuilder().addBody(z.object({
+    player_uuid: z.string().nullish()
+  }).nullish()).build(),
   response: z.object({
     message: z.string(),
     status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED'])

@@ -27,9 +27,21 @@ const FormInput = forwardRef((props: FormInputProps, ref: FormInputRef) => {
         props.rounded && "rounded-full",
         formInline && "flex-1",
         inputGroup &&
-          "rounded-none [&:not(:first-child)]:border-l-transparent first:rounded-l last:rounded-r z-10",
+        "rounded-none [&:not(:first-child)]:border-l-transparent first:rounded-l last:rounded-r z-10",
         props.className,
       ])}
+      onChange={(e) => {
+        if (computedProps.type === "number") {
+          // Handle number input validation
+          const value = e.target.value;
+          if (value === "" || /^\d*\.?\d*$/.test(value)) {
+            e.target.value = parseFloat(value).toString();
+          }
+          computedProps.onChange?.(e);
+        } else {
+          computedProps.onChange?.(e);
+        }
+      }}
     />
   );
 });

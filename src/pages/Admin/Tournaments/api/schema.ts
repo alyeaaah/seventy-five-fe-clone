@@ -32,6 +32,7 @@ export const tournamentsSchema = z.object({
   commitment_fee: z.number().default(0),
   participants: z.number().nullish(),
   join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
+  max_player: z.number().nullish(),
   rules: z.array(z.object({
     uuid: z.string().nullish(),
     description: z.string({ required_error: "Rule is required" }).min(5, "Description must be at least 5 characters long"),
@@ -149,6 +150,7 @@ export const tournamentDetailSchema = z.object({
   createdAt: z.string().datetime().nullish(),
   updatedAt: z.string().datetime().nullish(),
   join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
+  max_player: z.number().nullish(),
 });
  
 export const tournamentSponsorSchema =z.object({

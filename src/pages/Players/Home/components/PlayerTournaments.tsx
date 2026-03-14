@@ -25,14 +25,14 @@ export const PlayerTournaments = ({ className, tournament, ...props }: Component
         <div className="flex flex-col w-full">
           <div className="px-4 pt-2 text-xs font-medium flex justify-between">
             {moment(tournament.start_date).format('ddd, DD MMM YYYY')}
-            <div
+            {(!tournament?.join_status && tournament?.status === "DRAFT" && new Date(tournament?.start_date || "") > new Date()) && <div
               className="text-emerald-800"
               onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setModalJoin(true)
+                // e.preventDefault();
+                // e.stopPropagation();
+                // setModalJoin(true)
               }}
-            >ASK TO JOIN</div>
+            >ASK TO JOIN</div>}
           </div>
           <Divider className="mt-2 mb-0" />
           <div className="px-4 py-2 relative overflow-hidden">

@@ -14,6 +14,7 @@ import { useAtomValue } from 'jotai';
 import { accessTokenAtom, userAtom } from '../../utils/store';
 import Confirmation, { AlertProps } from '../Modal/Confirmation';
 import { queryClient } from '../../utils/react-query';
+import TournamentJoinModal from './TournamentJoinModal';
 
 interface TournamentDetailCardProps {
   tournamentUuid?: string;
@@ -90,7 +91,7 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
   }, [tournamentMatches, detailTournament]);
 
   // Join tournament handler
-  const [modalAlert, setModalAlert] = React.useState<any>(undefined);
+  const [modalAlert, setModalAlert] = React.useState<AlertProps | undefined>(undefined);
   const handleJoinTournament = () => {
     if (!userIsLogin) {
       setModalAlert({
@@ -256,7 +257,7 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
                   Pay IDR {new Intl.NumberFormat('id-ID', {}).format(detailTournament.data.commitment_fee || 0)}
                 </Button>
               )}
-              {!detailTournament?.data?.join_status && (
+              {(!detailTournament?.data?.join_status && detailTournament?.data?.status === "DRAFT" && new Date(detailTournament?.data?.start_date || "") > new Date()) && (
                 <Button
                   variant="solid"
                   color="primary"
@@ -304,12 +305,17 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
           </div>
         </>
       )}
+      <TournamentJoinModal
+        tournamentUuid={tournamentUuid || ""}
+        show={modalAlert?.open || false}
+        onClose={() => setModalAlert(undefined)}
+      />
 
-      {modalAlert && (
+      {/* {modalAlert && (
         <Confirmation
           {...modalAlert}
         />
-      )}
+      )} */}
     </div>
   );
 };

@@ -159,6 +159,10 @@ export const tournamentsSchema = z.object({
   point_config: pointConfigSchema.nullish(),
   sponsors: z.array(sponsorSchema).nullish(),
   playerTeams: z.array(playerTeamSchema).nullish(),
+  commitment_fee: z.number().default(0),
+  participants: z.number().nullish(),
+  join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
+  max_player: z.number().nullish(),
 });
 
 export const openChallengerPayloadSchema = z.object({
