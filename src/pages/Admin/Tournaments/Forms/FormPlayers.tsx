@@ -25,6 +25,7 @@ import Image from "@/components/Image";
 import { faker } from '@faker-js/faker';
 import 'react-quill/dist/quill.snow.css';
 import TournamentSteps from "../Components/TournamentSteps";
+import { PublicTournamentApiHooks } from "@/pages/Public/Tournament/api";
 
 
 interface Props {
@@ -718,12 +719,12 @@ export const TournamentFormPlayers = (props: Props) => {
                   type="button"
                   variant="outline-secondary"
                   onClick={() => {
-                    navigate(paths.administrator.tournaments.new.points({ id: tournamentUuid }).$);
+                    navigate(paths.administrator.tournaments.new.group({ id: tournamentUuid }).$);
                     queryClient.invalidateQueries({
                       queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentParticipants"),
                     });
                     queryClient.invalidateQueries({
-                      queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsDetail"),
+                      queryKey: PublicTournamentApiHooks.getKeyByAlias("getGroupsByTournament"),
                     });
                   }}
                   className="w-[46%] sm:w-auto sm:mr-2"

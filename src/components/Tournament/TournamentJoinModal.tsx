@@ -19,7 +19,7 @@ import { useToast } from '../Toast/ToastContext';
 interface TournamentJoinModalProps {
   show: boolean;
   tournamentUuid: string;
-  onClose: () => void;
+  onClose: (data?: any) => void;
 }
 
 const TournamentJoinModal: React.FC<TournamentJoinModalProps> = ({
@@ -51,10 +51,10 @@ const TournamentJoinModal: React.FC<TournamentJoinModalProps> = ({
     },
 
   }, {
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetail") });
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetailAuth") });
-      onClose();
+      onClose(data);
     },
     onError: (error) => {
       toast.showNotification({
@@ -342,7 +342,7 @@ const TournamentJoinModal: React.FC<TournamentJoinModalProps> = ({
                     {isJoining ? 'Joining...' :
                       tournamentData.join_status === 'CONFIRMED' ? 'Already Joined' :
                         tournamentData.join_status === 'APPROVED' ? 'Approved' :
-                          'Join Tournament'}
+                          'Request to Join'}
                   </Button>
                 ) : (
                   <Button

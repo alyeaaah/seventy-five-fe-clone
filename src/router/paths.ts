@@ -51,8 +51,9 @@ export const paths = {
         }, {}),
         index: "/admin/tournaments/new"
       },
-      detail: route(`/admin/tournaments/detail/:id`, {
-        id: stringParser
+      detail: route(`/admin/tournaments/detail/:id/:tab?`, {
+        id: stringParser,
+        tab: stringParser
       }, {}),
       match: route(`/admin/tournaments/match/:matchUuid`, {
         matchUuid: stringParser,

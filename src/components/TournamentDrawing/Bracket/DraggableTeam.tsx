@@ -1,8 +1,18 @@
 // DraggableTeam.tsx
 import { useDrag } from 'react-dnd';
 import { ITeam } from '../interfaces';
+import Lucide from '@/components/Base/Lucide';
 
-export const DraggableTeam = ({ team, draggable = true, isAway, readOnly, className }: { team: ITeam, draggable: boolean, isAway?: boolean, readOnly?: boolean, className?: string }) => {
+interface DraggableTeamProps {
+  team: ITeam;
+  draggable: boolean;
+  isAway?: boolean;
+  readOnly?: boolean;
+  className?: string;
+  onTeamDelete?: (team: ITeam) => void;
+}
+
+export const DraggableTeam = ({ team, draggable = true, isAway, readOnly, className, onTeamDelete }: DraggableTeamProps) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'TEAM',
     item: team,
@@ -13,6 +23,7 @@ export const DraggableTeam = ({ team, draggable = true, isAway, readOnly, classN
 
   return (
     <div
+      key={`team-${team?.id || team?.uuid || team?.name || 'unknown'}-${isAway ? 'away' : 'home'}`}
       ref={(el) => {
         if (el && team?.name !== "TBD" && draggable) {
           drag(el);
@@ -34,17 +45,20 @@ export const DraggableTeam = ({ team, draggable = true, isAway, readOnly, classN
         <div className="h-full w-full flex flex-col items-start">
           {team?.players?.map((p, i) => {
             if ((team?.name == "TBD" || team.alias == "TBD") && i == 1) {
-              return <div key={i}></div>;
+              return <div key={`empty-${team?.id || team?.name || 'tbd'}-${i}`}></div>;
             }
             return (
-              <div key={i} className='h-full flex items-center'>
+              <div key={`player-${team?.id || team?.name || 'unknown'}-${p?.id || i}-${i}`} className='h-full flex items-center'>
                 <span className='text-[11px] text-ellipsis line-clamp-1' style={{ lineHeight: "11px" }}>{p.name}</span>
               </div>
             );
           })}
         </div>
       </div>
-      <span className={`${team?.name?.length < 7 ? 'min-w-10' : 'min-w-[46px]'} text-nowrap text-center flex items-center justify-center text-[8px] font-medium ${team?.name != "BYE" ? 'bg-emerald-800' : 'bg-yellow-700'} text-white p-1 rounded-md`} style={{ lineHeight: "8px" }}>{team.name}</span>
+      <div className="flex items-center gap-2">
+        <span className={`${team?.name?.length < 7 ? 'min-w-10' : 'min-w-[46px]'} text-nowrap text-center flex items-center justify-center text-[8px] font-medium ${team?.name != "BYE" ? 'bg-emerald-800' : 'bg-yellow-700'} text-white p-1 rounded-md`} style={{ lineHeight: "8px" }}>{team.name}</span>
+        {onTeamDelete && <Lucide icon="X" className="cursor-pointer" onClick={() => onTeamDelete?.(team)} />}
+      </div>
     </div>
   );
 };

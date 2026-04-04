@@ -7,7 +7,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [content, setContent] = useState<ToastContentInterface>({
     duration: 3000,
     text: "",
-    variant:"info"
+    variant: "info"
   });
 
   const basicNonStickyNotification = useRef<NotificationElement>();

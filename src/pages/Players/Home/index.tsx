@@ -185,7 +185,7 @@ export const PlayerHome = () => {
       {/* <div className="col-span-12 p-4"> */}
       <PartnersComponent className='col-span-12 grid grid-cols-12 gap-6 w-full my-6' />
       {/* </div> */}
-      <ModalCompleteProfile />
+      {/* <ModalCompleteProfile /> */}
 
     </div>
   );

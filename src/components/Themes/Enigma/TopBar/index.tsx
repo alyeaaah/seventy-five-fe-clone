@@ -13,6 +13,7 @@ import { IconLogo } from "@/assets/images/icons";
 import { useAtomValue, useSetAtom } from "jotai";
 import { accessTokenAtom, userAtom } from "@/utils/store";
 import { paths } from "@/router/paths";
+import { queryClient } from "@/utils/react-query";
 
 function Main(props: { layout?: "side-menu" | "simple-menu" | "top-menu" }) {
   const [searchDropdown, setSearchDropdown] = useState(false);
@@ -88,7 +89,8 @@ function Main(props: { layout?: "side-menu" | "simple-menu" | "top-menu" }) {
               </Menu.Item> */}
               <Menu.Item className="hover:bg-white/5" onClick={() => {
                 setToken(null);
-                setUser(null)
+                setUser(null);
+                queryClient.invalidateQueries()
                 navigate(paths.login({}).$, { replace: true });
               }}>
                 <Lucide icon="ToggleRight" className="w-4 h-4 mr-2" /> Logout
