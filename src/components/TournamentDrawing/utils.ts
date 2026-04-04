@@ -14,6 +14,7 @@ const calculateTournamentRounds = (totalPlayers: number): TournamentRounds => {
     };
   }
 const convertMatchToRound = (matches: any[]): IRound[] => {
+  if (!matches?.length) return [];
   const round: IRound[] = [];
   let seedIndex = 0;
   let sortedMatch = matches;
@@ -26,7 +27,7 @@ const convertMatchToRound = (matches: any[]): IRound[] => {
     });
   }
   
-  sortedMatch.map((match, mi) => {
+  sortedMatch.forEach((match, _mi) => {
     if (match.roundKey === undefined) return [];
     if (round.length < (match.roundKey || 0) + 1) {
       seedIndex = 0;
@@ -57,7 +58,9 @@ const convertMatchToRound = (matches: any[]): IRound[] => {
     };
     round[match.roundKey || 0].seeds.push({
       ...transformedMatch,
-      seed_index: seedIndex
+      seed_index: seedIndex,
+      id: transformedMatch.uuid || transformedMatch.id || `seed-${match.roundKey || 0}-${seedIndex}`,
+      key: transformedMatch.uuid || transformedMatch.id || `seed-${match.roundKey || 0}-${seedIndex}`
     })
     seedIndex++;
   })
@@ -69,6 +72,40 @@ const convertMatchToRound = (matches: any[]): IRound[] => {
   }
   return round;
 }
+
+const convertRoundToMatches = (rounds: IRound[]): IMatch[] => {
+  if (!rounds?.length) return [];
+  
+  const matches: any[] = [];
+  
+  rounds.forEach((round, roundIndex) => {
+    round.seeds.forEach((seed, seedIndex) => {
+      if (seed.teams.length >= 2) {
+        const match:IMatch = {
+          id: seed.uuid || `seed-${roundIndex}-${seedIndex}`,
+          uuid: seed.uuid || `seed-${roundIndex}-${seedIndex}`,
+          roundKey: roundIndex,
+          round: roundIndex,
+          seed_index: seed.seed_index || seedIndex,
+          date: seed.data,
+          time: seed.time,
+          court: seed.court,
+          court_uuid: seed.court_uuid,
+          teams: seed.teams,
+          home_team: seed.teams[0],
+          away_team: seed.teams[1],
+          // Add any other required match properties
+          status: seed.status || "",
+          scores: [],
+          game_scores: seed.game_scores || []
+        };
+        matches.push(match);
+      }
+    });
+  });
+  
+  return matches;
+}
   
 
 const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
@@ -79,7 +116,7 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
     teams.map((team, i) => {
       // randomize court based on index 
       const courtIndex = i % (info?.courts.length || 1);
-      const tempTeamUuid = faker.string.uuid();
+      const tempTeamUuid = `seed-team-${i}`;
       // start adding compete team
       if (i < teamCompete) {
         if (!rounded.length) {
@@ -87,7 +124,7 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
             title: "Round 1", 
             key: i,
             seeds: [{
-              id: faker.string.uuid(),
+              id: `seed-${0}`,
               court: info?.courts[courtIndex]?.name,
               court_uuid: info?.courts[courtIndex]?.uuid,
               seed_index: seedIndex,
@@ -128,7 +165,8 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
             })
           } else {
             rounded[0].seeds.push({
-              id: faker.string.uuid(),
+              id: `seed-${seedIndex}`,
+              key: `seed-${seedIndex}`,
               court: info?.courts[courtIndex]?.name,
               seed_index: seedIndex,
               court_uuid: info?.courts[courtIndex]?.uuid,
@@ -156,7 +194,8 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
       // start adding bye's team
       else {
         rounded[0].seeds.push({
-          id: faker.string.uuid(),
+          id: `seed-${seedIndex}`,
+          key: `seed-${seedIndex}`,
           court: info?.courts[courtIndex]?.name,
           court_uuid: info?.courts[courtIndex]?.uuid,
           seed_index: seedIndex,
@@ -176,7 +215,7 @@ const generateFirstRound = (teams: ITeam[], info?: ITournamentInfo) =>{
             })) || [],
           }]
         })
-        rounded[0].seeds[rounded[0].seeds.length - 1].teams.push({ uuid: faker.string.uuid(), teamKey: faker.string.uuid(), name: "BYE", players: [{ uuid: faker.string.uuid(), name: "-" }, { uuid: faker.string.uuid(), name: "-" }] })
+        rounded[0].seeds[rounded[0].seeds.length - 1].teams.push({ uuid: `seed-bye-team-${faker.string.alphanumeric(5)}`, teamKey: `seed-bye-team-${faker.string.alphanumeric(5)}`, name: "BYE", players: [{ uuid: `seed-bye-player-${faker.string.alphanumeric(5)}`, name: "-" }, { uuid: `seed-bye-player-${faker.string.alphanumeric(5)}`, name: "-" }] })
         seedIndex++;
       }
     })
@@ -214,6 +253,7 @@ function generateNextRound(currentRound: IRound, roundNum: number, info?: ITourn
     const courtIndex = faker.number.int({ min: 1, max: info?.courts.length || 1 }) - 1;
     seeds.push({
       id: faker.string.uuid(),
+      key: faker.string.uuid(),
       date: faker.date.between({from:info?.startDate || "", to: info?.endDate ||""}).toISOString(),
       court: info?.courts[courtIndex]?.name,
       court_uuid: info?.courts[courtIndex]?.uuid,
@@ -230,14 +270,15 @@ function generateNextRound(currentRound: IRound, roundNum: number, info?: ITourn
 }
 
 function createTBDTeam(): ITeam {
+  const fakerUuid = `seed-team-${faker.string.alphanumeric(6)}`
   return {
-    uuid: faker.string.uuid(),
-    teamKey: faker.string.uuid(),
+    uuid: fakerUuid,
+    teamKey: fakerUuid,
     name: "TBD",
     alias: "TBD",
     players: [
-      { uuid: faker.string.uuid(), name: "To Be Determined" ,alias: "TBD"},
-      { uuid: faker.string.uuid(), name: "To Be Determined" ,alias: "TBD"}
+      { uuid: `seed-player-${faker.string.alphanumeric(6)}`, name: "To Be Determined" ,alias: "TBD"},
+      { uuid: `seed-player-${faker.string.alphanumeric(6)}`, name: "To Be Determined" ,alias: "TBD"}
     ]
   };
 }
@@ -362,6 +403,7 @@ const generateGroupMatches = (groups: IGroup[], info: ITournamentInfo):IMatch[] 
 export default {
   calculateTournamentRounds,
   convertMatchToRound,
+  convertRoundToMatches,
   createTBDTeam,
   generateAllRounds,
   generateFirstRound,

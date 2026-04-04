@@ -96,6 +96,7 @@ export const TournamentForm = (props: Props) => {
           league_id: data.data.league_id || "",
           court_uuid: data.data.court_uuid,
           total_group: data.data.total_group || 0,
+          group_qualifier: data.data.group_qualifier || 1,
           rules: data?.data?.rules?.map(rule => ({
             uuid: rule.uuid || "",
             description: rule.description,
@@ -105,6 +106,7 @@ export const TournamentForm = (props: Props) => {
           }],
           show_bracket: data.data.show_bracket || false,
           commitment_fee: data.data.commitment_fee || 0,
+          max_player: data.data.max_player || 0,
         });
       }
     },
@@ -152,9 +154,11 @@ export const TournamentForm = (props: Props) => {
       court_uuid: data?.data?.court_uuid || "",
       league_id: data?.data?.league_id || "",
       total_group: data?.data?.total_group || 0,
+      group_qualifier: data?.data?.group_qualifier || 1,
       type: data?.data?.type || "KNOCKOUT",
       show_bracket: data?.data?.show_bracket || false,
       commitment_fee: data?.data?.commitment_fee || 0,
+      max_player: data?.data?.max_player || 0,
       rules: data?.data?.rules?.map((rule) => ({
         uuid: rule.uuid || undefined,
         description: rule.description || "",
@@ -250,7 +254,7 @@ export const TournamentForm = (props: Props) => {
                   <Divider className="mb-0 " />
                 </div>
                 <div className="col-span-12 lg:col-span-4 w-full h-24">
-                  <FormLabel htmlFor="modal-form-1">Logo</FormLabel>
+                  <FormLabel htmlFor="tournament-logo">Logo</FormLabel>
                   <Controller
                     name={`media_url`}
                     control={control}
@@ -282,14 +286,14 @@ export const TournamentForm = (props: Props) => {
                 </div>
                 <div className="col-span-12 lg:col-span-8 grid grid-cols-12 gap-2 pl-2">
                   <div className="col-span-12 lg:col-span-12">
-                    <FormLabel htmlFor="modal-form-1">Tournament Name</FormLabel>
+                    <FormLabel htmlFor="tournament-name">Tournament Name</FormLabel>
                     <Controller
                       name="name"
                       control={control}
                       render={({ field, fieldState }) =>
                         <>
                           <FormInput
-                            id="validation-form-6"
+                            id="tournament-name"
                             name="name"
                             value={field.value}
                             className={clsx({
@@ -309,7 +313,7 @@ export const TournamentForm = (props: Props) => {
                     />
                   </div>
                   <div className="col-span-12 lg:col-span-12">
-                    <FormLabel htmlFor="modal-form-2">Description</FormLabel>
+                    <FormLabel htmlFor="tournament-description">Description</FormLabel>
                     <Controller
                       name="description"
                       control={control}
@@ -317,7 +321,7 @@ export const TournamentForm = (props: Props) => {
                         <>
                           <FormTextarea
                             rows={2}
-                            id="validation-form-6"
+                            id="tournament-description"
                             value={field.value}
                             name="description"
                             className={clsx({
@@ -338,7 +342,7 @@ export const TournamentForm = (props: Props) => {
                 </div>
 
                 <div className="col-span-12 lg:col-span-4 mt-4">
-                  <FormLabel htmlFor="modal-form-1">Start Date</FormLabel>
+                  <FormLabel htmlFor="start-date">Start Date</FormLabel>
                   <Controller
                     name="start_date"
                     control={control}
@@ -381,7 +385,7 @@ export const TournamentForm = (props: Props) => {
                   />
                 </div>
                 <div className="col-span-12 lg:col-span-4 mt-4">
-                  <FormLabel htmlFor="modal-form-1">End Date</FormLabel>
+                  <FormLabel htmlFor="end-date">End Date</FormLabel>
                   <Controller
                     name="end_date"
                     control={control}
@@ -423,7 +427,7 @@ export const TournamentForm = (props: Props) => {
                   />
                 </div>
                 <div className="col-span-12 lg:col-span-4 mt-4">
-                  <FormLabel htmlFor="modal-form-1">Time</FormLabel>
+                  <FormLabel htmlFor="tournament-time">Time</FormLabel>
                   <Controller
                     name="start_date"
                     control={control}
@@ -501,7 +505,7 @@ export const TournamentForm = (props: Props) => {
                   />
                 </div>
                 <div className="col-span-12 lg:col-span-6 mb-2">
-                  <FormLabel htmlFor="modal-form-1">Court</FormLabel>
+                  <FormLabel htmlFor="tournament-court">Court</FormLabel>
                   <Controller
                     name="court_uuid"
                     control={control}
@@ -536,15 +540,15 @@ export const TournamentForm = (props: Props) => {
                 </div>
 
                 <div className="col-span-12 lg:col-span-3 mb-2">
-                  <FormLabel htmlFor="modal-form-1">Tournament Type</FormLabel>
+                  <FormLabel htmlFor="tournament-type">Tournament Type</FormLabel>
                   <Controller
                     name="type"
                     control={control}
                     render={({ field, fieldState }) =>
                       <div className="flex flex-col items-start pt-2">
                         <FormSwitch className="flex flex-row">
-                          <FormSwitch.Input id="checkbox-switch-7" type="checkbox" checked={field.value != "KNOCKOUT"} onChange={(e) => field.onChange(!e.target.checked ? "KNOCKOUT" : "ROUND ROBIN")} />
-                          <FormSwitch.Label htmlFor="checkbox-switch-7">
+                          <FormSwitch.Input id="tournament-type" type="checkbox" checked={field.value != "KNOCKOUT"} onChange={(e) => field.onChange(!e.target.checked ? "KNOCKOUT" : "ROUND ROBIN")} />
+                          <FormSwitch.Label htmlFor="tournament-type">
                             {field.value != "KNOCKOUT" ? "Round Robin" : "Knockout"}
                           </FormSwitch.Label>
                         </FormSwitch>
@@ -564,7 +568,7 @@ export const TournamentForm = (props: Props) => {
                   />
                 </div>
                 <div className="col-span-12 lg:col-span-9 mb-2 pl-4">
-                  <FormLabel htmlFor="modal-form-1">Total Group</FormLabel>
+                  <FormLabel htmlFor="total-group">Total Group</FormLabel>
                   <Controller
                     name="total_group"
                     control={control}
@@ -590,14 +594,14 @@ export const TournamentForm = (props: Props) => {
                   </FormHelp>}
                 </div>
                 <div className="col-span-12 lg:col-span-6 mb-2">
-                  <FormLabel htmlFor="modal-form-1">Level</FormLabel>
+                  <FormLabel htmlFor="tournament-level">Level</FormLabel>
                   <Controller
                     name="level_uuid"
                     control={control}
                     render={({ field, fieldState }) =>
                       <>
                         <FormSelect
-                          id="modal-form-2"
+                          id="tournament-level"
                           name="level_uuid"
                           onChange={(e) => {
                             field.onChange(e.target.value);
@@ -624,15 +628,15 @@ export const TournamentForm = (props: Props) => {
                   />
                 </div>
                 <div className="col-span-12 lg:col-span-3 mb-2 pl-4">
-                  <FormLabel htmlFor="modal-form-1">Level</FormLabel>
+                  <FormLabel htmlFor="strict-level">Strict Level</FormLabel>
                   <Controller
                     name="strict_level"
                     control={control}
                     render={({ field, fieldState }) =>
                       <div className="flex items-center pt-2">
                         <FormSwitch>
-                          <FormSwitch.Input id="checkbox-switch-7" type="checkbox" checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />
-                          <FormSwitch.Label htmlFor="checkbox-switch-7">
+                          <FormSwitch.Input id="strict-level" type="checkbox" checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />
+                          <FormSwitch.Label htmlFor="strict-level">
                             {field.value ? "Strict Level" : "Open"}
                           </FormSwitch.Label>
                         </FormSwitch>
@@ -646,7 +650,7 @@ export const TournamentForm = (props: Props) => {
                   />
                 </div>
                 <div className="col-span-12 lg:col-span-3 mb-2 pl-4">
-                  <FormLabel htmlFor="modal-form-1">Draft Pick</FormLabel>
+                  <FormLabel htmlFor="draft-pick">Draft Pick</FormLabel>
                   <Controller
                     name="draft_pick"
                     control={control}
@@ -654,12 +658,12 @@ export const TournamentForm = (props: Props) => {
                       <div className="flex items-center pt-2">
                         <FormSwitch>
                           <FormSwitch.Input
-                            id="checkbox-switch-8"
+                            id="draft-pick"
                             type="checkbox"
                             checked={field.value || false}
                             onChange={(e) => field.onChange(e.target.checked)}
                           />
-                          <FormSwitch.Label htmlFor="checkbox-switch-8">
+                          <FormSwitch.Label htmlFor="draft-pick">
                             {field.value ? "Yes" : "No"}
                           </FormSwitch.Label>
                         </FormSwitch>
@@ -703,8 +707,67 @@ export const TournamentForm = (props: Props) => {
                     }
                   />
                 </div>
+                <div className="col-span-12 lg:col-span-3 mb-2">
+                  <FormLabel htmlFor="max-player">Max Players</FormLabel>
+                  <Controller
+                    name="max_player"
+                    control={control}
+                    render={({ field, fieldState }) =>
+                      <>
+                        <FormInput
+                          id="max-player"
+                          name="max_player"
+                          type="number"
+                          step="1"
+                          min="0"
+                          value={field.value}
+                          className={clsx({
+                            "border-danger": !!fieldState.error,
+                          })}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          placeholder="0"
+                        />
+                        {!!fieldState.error && (
+                          <FormHelp className={"text-danger"}>
+                            {fieldState.error.message || "Form is not valid"}
+                          </FormHelp>
+                        )}
+                      </>
+                    }
+                  />
+                </div>
+                <div className="col-span-12 lg:col-span-3 mb-2">
+                  <FormLabel htmlFor="group-qualifier">Group Qualifier</FormLabel>
+                  <Controller
+                    name="group_qualifier"
+                    control={control}
+                    render={({ field, fieldState }) =>
+                      <>
+                        <FormInput
+                          id="group-qualifier"
+                          name="group_qualifier"
+                          type="number"
+                          step="1"
+                          min="0"
+                          value={field.value}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          placeholder="1"
+                          disabled={watch("type") !== "ROUND ROBIN"}
+                          className={clsx({
+                            "border-danger": !!fieldState.error,
+                          })}
+                        />
+                        {!!fieldState.error && (
+                          <FormHelp className={"text-danger"}>
+                            {fieldState.error.message || "Form is not valid"}
+                          </FormHelp>
+                        )}
+                      </>
+                    }
+                  />
+                </div>
                 <div className="col-span-12 lg:col-span-3 mb-2 pl-4">
-                  <FormLabel htmlFor="modal-form-1">Show Bracket</FormLabel>
+                  <FormLabel htmlFor="show-bracket">Show Bracket</FormLabel>
                   <Controller
                     name="show_bracket"
                     control={control}
@@ -712,12 +775,12 @@ export const TournamentForm = (props: Props) => {
                       <div className="flex items-center pt-2">
                         <FormSwitch>
                           <FormSwitch.Input
-                            id="checkbox-switch-9"
+                            id="show-bracket"
                             type="checkbox"
                             checked={field.value || false}
                             onChange={(e) => field.onChange(e.target.checked)}
                           />
-                          <FormSwitch.Label htmlFor="checkbox-switch-9">
+                          <FormSwitch.Label htmlFor="show-bracket">
                             {field.value ? "Yes" : "No"}
                           </FormSwitch.Label>
                         </FormSwitch>

@@ -87,10 +87,21 @@ export const playerDetailSchema = z.object({
   updatedAt: z.string().datetime().nullish(),
 });
 
+export const playerDropdownSchema = z.object({
+  value: z.string().nullish(),
+  uuid: z.string(),
+  name: z.string(),
+  nickname: z.string().nullish(),
+  username: z.string().nullish(),
+  email: z.string().nullish(),
+  media_url: z.string().nullish(),
+});
+
 
 export type PlayersPayload = z.infer<typeof playersSchema>;
 export type PlayersPartialSchema = z.infer<typeof playersPartialSchema>;
 export type PlayerSkillsPayload = z.infer<typeof playerSkillsSchema>;
 export type PlayerLeagueData = z.infer<typeof playerLeagueSchema>;
+export type PlayerDropdownData = z.infer<typeof playerDropdownSchema>;
 
 

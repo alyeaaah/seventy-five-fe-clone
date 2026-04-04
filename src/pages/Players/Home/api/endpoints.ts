@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { playersPartialSchema, playersSchema } from "./schema";
+import { playersPartialSchema, playersSchema, playerDropdownSchema } from "./schema";
 
 const PlayersListApi = makeEndpoint({
   alias: "getPlayersList",
@@ -21,6 +21,23 @@ const PlayersListApi = makeEndpoint({
       totalPages: z.number()
     })
 });
+
+const PlayersDropdownApi = makeEndpoint({
+  alias: "getPlayersDropdown",
+  method: "get",
+  path: `/player/dropdown`,
+  parameters: parametersBuilder().addQueries
+    ({
+      keyword: z.string(),
+      tournamentUuid: z.string().optional(),
+  }).build(),
+  response: z
+    .object({
+      data: z.array(playerDropdownSchema)
+    })
+});
+
+
 
 const PlayersDetailApi = makeEndpoint({
   alias: "getPlayersDetail",
@@ -48,4 +65,5 @@ export const endpoints = {
   PlayersListApi,
   PlayersUpdateApi,
   PlayersDetailApi,
+  PlayersDropdownApi,
 };

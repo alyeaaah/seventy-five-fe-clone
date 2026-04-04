@@ -13,6 +13,7 @@ export const PlayerHomeApiClient = new Zodios(
     endpoints.PlayersListApi,
     endpoints.PlayersUpdateApi,
     endpoints.PlayersDetailApi,
+    endpoints.PlayersDropdownApi,
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

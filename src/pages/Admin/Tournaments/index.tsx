@@ -68,7 +68,7 @@ function Tournaments() {
     },
     retry: false
   });
-  
+
   const { mutate: actionPublishTournament } = TournamentsApiHooks.usePublishTournament({
     params: {
       uuid: modalAlert?.refId || 0
@@ -197,7 +197,7 @@ function Tournaments() {
       title: "Name",
       dataIndex: "name",
       align: "left",
-      width: screens.xs || screens.sm ?"85%":"60%",
+      width: screens.xs || screens.sm ? "55%" : "30%",
       render: (text, record) => (
         <div className="flex items-center">
           <div className="flex flex-col mr-2">
@@ -210,9 +210,34 @@ function Tournaments() {
           <div className="flex flex-col">
             <span className="text-sm font-medium">{text}</span>
           </div>
-          { record.published_at && <div className="text-[8px] !text-emerald-800 border border-emerald-800 px-1 py-0 font-bold rounded ml-2 tracking-wider">PUBLISHED</div>}
+          {record.published_at && <div className="text-[8px] !text-emerald-800 border border-emerald-800 px-1 py-0 font-bold rounded ml-2 tracking-wider">PUBLISHED</div>}
         </div>
       ),
+    },
+    {
+      title: "Commitment Fee",
+      dataIndex: "commitment_fee",
+      align: "right",
+      ellipsis: true,
+      width: "20%",
+      responsive: ["md"],
+      render: (text) => {
+        return <span className="text-end">{text > 0 ? Intl.NumberFormat("id-ID").format(text) : "Free"}</span>;
+      }
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      align: "right",
+      ellipsis: true,
+      width: "20%",
+      responsive: ["md"],
+      render: (text, col) => {
+        return <div className="text-end !capitalize flex-col flex">
+          <span className="font-medium text-sm">{text}</span>
+          <span className="text-xs">{col.draft_pick ? "Draft Pick" : ""}</span>
+        </div>;
+      }
     },
     {
       title: "Level",
@@ -254,10 +279,10 @@ function Tournaments() {
         }
         let step = () => <div></div>;
         if (currentStep < 4) {
-          step = () => <span>{ currentStep} / 4</span>
+          step = () => <span>{currentStep} / 4</span>
         } else if (currentStep == 4) {
           step = () => <span className="text-xs font-semibold">{currentStep} / 4</span>
-          step = () => <div className="flex flex-row text-xs items-center text-nowrap"><Lucide icon="CheckCircle" className="text-success"/>&nbsp;Ready to start</div>
+          step = () => <div className="flex flex-row text-xs items-center text-nowrap"><Lucide icon="CheckCircle" className="text-success" />&nbsp;Ready to start</div>
         }
         return (
           <div className="flex flex-col justify-center items-center">
@@ -319,37 +344,37 @@ function Tournaments() {
               </Menu.Button>
               <Menu.Items>
                 {
-                (!record.published_at && record.status != "ONGOING") && 
-                <Menu.Item
-                  className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
-                  onClick={() => {
-                    navigate(paths.administrator.tournaments.edit({ tournament: record.uuid || "" }).$);
-                  }}
-                >
-                  <Lucide icon="Pencil" className="w-4 h-4" /> Edit
-                </Menu.Item>
-              }
-              {
-                !record.published_at &&
-                <Menu.Item
-                  className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
-                  onClick={() => {
-                    handlePublishTournament(value, false);
-                  }}
-                >
-                  <Lucide icon="Rocket" className="w-4 h-4" /> Publish
-                </Menu.Item>
-              }
-              {
-                !!record.published_at &&
-                <Menu.Item
-                  className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
-                  onClick={() => {
-                    handlePublishTournament(value, true);
-                  }}
-                >
-                  <Lucide icon="Rocket" className="w-4 h-4 rotate-[135deg]" /> Unpublish
-                </Menu.Item>
+                  (!record.published_at && record.status != "ONGOING") &&
+                  <Menu.Item
+                    className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                    onClick={() => {
+                      navigate(paths.administrator.tournaments.edit({ tournament: record.uuid || "" }).$);
+                    }}
+                  >
+                    <Lucide icon="Pencil" className="w-4 h-4" /> Edit
+                  </Menu.Item>
+                }
+                {
+                  !record.published_at &&
+                  <Menu.Item
+                    className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                    onClick={() => {
+                      handlePublishTournament(value, false);
+                    }}
+                  >
+                    <Lucide icon="Rocket" className="w-4 h-4" /> Publish
+                  </Menu.Item>
+                }
+                {
+                  !!record.published_at &&
+                  <Menu.Item
+                    className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                    onClick={() => {
+                      handlePublishTournament(value, true);
+                    }}
+                  >
+                    <Lucide icon="Rocket" className="w-4 h-4 rotate-[135deg]" /> Unpublish
+                  </Menu.Item>
                 }
                 {(!record.published_at && record.status != "ONGOING") &&
                   <Menu.Item
@@ -451,98 +476,99 @@ function Tournaments() {
                   rtp = true;
                 }
                 return (
-                <div>
-                  <p>Nickname: {record.name}</p>
-                  <p>Level: {record.level || ""}</p>
-                  <p>Participants: {record.participants}</p>
-                  <p>Status: {record.status}</p>
-                  <p>Start Date: {moment(record?.start_date).format("Y-MM-DD HH:mm")}</p>
-                  <div className="flex justify-end mt-2 gap-1">
-                    {rtp && <Tippy
-                      as="div"
-                      className="flex items-center justify-center dark:border-darkmode-400 text-slate-400"
-                      content="Start Tournament"
-                    >
-                      <Button
-                        className="flex items-center"
-                        variant="primary"
-                        size="sm"
-                        onClick={() => {
-                          navigate(paths.administrator.tournaments.detail({ id: record.uuid || "" }).$);
-                        }}
+                  <div>
+                    <p>Nickname: {record.name}</p>
+                    <p>Level: {record.level || ""}</p>
+                    <p>Participants: {record.participants}</p>
+                    <p>Status: {record.status}</p>
+                    <p>Start Date: {moment(record?.start_date).format("Y-MM-DD HH:mm")}</p>
+                    <div className="flex justify-end mt-2 gap-1">
+                      {rtp && <Tippy
+                        as="div"
+                        className="flex items-center justify-center dark:border-darkmode-400 text-slate-400"
+                        content="Start Tournament"
                       >
-                        <Lucide icon="Sparkles" className="w-4 h-4 mr-1" /> Start
-                      </Button>
-                    </Tippy>}
-                    <Tippy
-                      as="div"
-                      className="flex items-center justify-center dark:border-darkmode-400 text-slate-400"
-                      content="Detail"
-                    >
-                      <Button
-                        className="flex items-center"
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={() => {
-                          navigate(paths.administrator.tournaments.detail({ id: record.uuid || "" }).$);
-                        }}
+                        <Button
+                          className="flex items-center"
+                          variant="primary"
+                          size="sm"
+                          onClick={() => {
+                            navigate(paths.administrator.tournaments.detail({ id: record.uuid || "" }).$);
+                          }}
+                        >
+                          <Lucide icon="Sparkles" className="w-4 h-4 mr-1" /> Start
+                        </Button>
+                      </Tippy>}
+                      <Tippy
+                        as="div"
+                        className="flex items-center justify-center dark:border-darkmode-400 text-slate-400"
+                        content="Detail"
                       >
-                        <Lucide icon="Eye" className="w-4 h-4" />
-                      </Button>
-                    </Tippy>
-                    <Menu>
-                      <Menu.Button as={Button} variant="secondary" size="sm">
-                        <Lucide icon="MoreHorizontal" className="w-4 h-4" />
-                      </Menu.Button>
-                      <Menu.Items>
-                        {
-                          (!record.published_at && record.status != "ONGOING") &&
-                          <Menu.Item
-                            className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
-                            onClick={() => {
-                              navigate(paths.administrator.tournaments.edit({ tournament: record.uuid || "" }).$);
-                            }}
-                          >
-                            <Lucide icon="Pencil" className="w-4 h-4" /> Edit
-                          </Menu.Item>
-                        }
-                        {
-                          !record.published_at &&
-                          <Menu.Item
-                            className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
-                            onClick={() => {
-                              handlePublishTournament(record.uuid || "", false);
-                            }}
-                          >
-                            <Lucide icon="Rocket" className="w-4 h-4" /> Publish
-                          </Menu.Item>
-                        }
-                        {
-                          !!record.published_at &&
-                          <Menu.Item
-                            className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
-                            onClick={() => {
-                              handlePublishTournament(record.uuid || "", true);
-                            }}
-                          >
-                            <Lucide icon="Rocket" className="w-4 h-4 rotate-[135deg]" /> Unpublish
-                          </Menu.Item>
-                        }
-                        {(!record.published_at && record.status != "ONGOING") &&
-                          <Menu.Item
-                            className="flex flex-row items-center gap-2 w-40 text-danger cursor-pointer hover:text-danger hover:bg-slate-200 bg-red-50"
-                            onClick={() => {
-                              handleDeleteTournament(record.uuid || "");
-                            }}
-                          >
-                            <Lucide icon="Trash" className="w-4 h-4" /> Delete
-                          </Menu.Item>
-                        }
-                      </Menu.Items>
-                    </Menu>
+                        <Button
+                          className="flex items-center"
+                          variant="outline-secondary"
+                          size="sm"
+                          onClick={() => {
+                            navigate(paths.administrator.tournaments.detail({ id: record.uuid || "" }).$);
+                          }}
+                        >
+                          <Lucide icon="Eye" className="w-4 h-4" />
+                        </Button>
+                      </Tippy>
+                      <Menu>
+                        <Menu.Button as={Button} variant="secondary" size="sm">
+                          <Lucide icon="MoreHorizontal" className="w-4 h-4" />
+                        </Menu.Button>
+                        <Menu.Items>
+                          {
+                            (!record.published_at && record.status != "ONGOING") &&
+                            <Menu.Item
+                              className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                              onClick={() => {
+                                navigate(paths.administrator.tournaments.edit({ tournament: record.uuid || "" }).$);
+                              }}
+                            >
+                              <Lucide icon="Pencil" className="w-4 h-4" /> Edit
+                            </Menu.Item>
+                          }
+                          {
+                            !record.published_at &&
+                            <Menu.Item
+                              className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                              onClick={() => {
+                                handlePublishTournament(record.uuid || "", false);
+                              }}
+                            >
+                              <Lucide icon="Rocket" className="w-4 h-4" /> Publish
+                            </Menu.Item>
+                          }
+                          {
+                            !!record.published_at &&
+                            <Menu.Item
+                              className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                              onClick={() => {
+                                handlePublishTournament(record.uuid || "", true);
+                              }}
+                            >
+                              <Lucide icon="Rocket" className="w-4 h-4 rotate-[135deg]" /> Unpublish
+                            </Menu.Item>
+                          }
+                          {(!record.published_at && record.status != "ONGOING") &&
+                            <Menu.Item
+                              className="flex flex-row items-center gap-2 w-40 text-danger cursor-pointer hover:text-danger hover:bg-slate-200 bg-red-50"
+                              onClick={() => {
+                                handleDeleteTournament(record.uuid || "");
+                              }}
+                            >
+                              <Lucide icon="Trash" className="w-4 h-4" /> Delete
+                            </Menu.Item>
+                          }
+                        </Menu.Items>
+                      </Menu>
+                    </div>
                   </div>
-                </div>
-              )},
+                )
+              },
               rowExpandable: (record) => !!record.uuid, // Only expand rows with an address
             } : undefined}
             showHeader
@@ -550,7 +576,7 @@ function Tournaments() {
         </div>
       </div>
       <Confirmation
-        open={!!modalAlert?.open} 
+        open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
         icon={modalAlert?.icon || "Info"}
         title={modalAlert?.title || ""}

@@ -13,9 +13,10 @@ interface GroupStageProps {
   selectedGroupKey?: number;
   onChange?: (param: IGroup[]) => void;
   onClickGroup?: (group: IGroup) => void;
+  onTeamDelete?: (team: ITeam) => void;
 }
 
-export const GroupStage = ({ groups: initialGroups, readOnly, className, selectedGroupKey, onChange, onClickGroup }: GroupStageProps) => {
+export const GroupStage = ({ groups: initialGroups, readOnly, className, selectedGroupKey, onChange, onClickGroup, onTeamDelete }: GroupStageProps) => {
   // Split teams evenly across groups
   const [groups, setGroups] = useState(initialGroups);
 
@@ -53,6 +54,7 @@ export const GroupStage = ({ groups: initialGroups, readOnly, className, selecte
             readOnly={readOnly}
             selected={selectedGroupKey === group.groupKey}
             onClickGroup={onClickGroup}
+            onTeamDelete={onTeamDelete}
           />
         ))}
       </div>

@@ -15,7 +15,8 @@ export const convertTournamentTeamToTeam = (teams: TournamentTeams[]): ITeam[] =
       uuid: player.uuid || "",
       name: player.name,
       media_url: player.media_url || undefined,
-      nickname: player.nickname,
+      nickname: player.nickname || '',
+      alias: player.nickname || '',
       city: player.city
     }))
   }))
@@ -75,7 +76,13 @@ export const convertTournamentMatchToMatch = (matches: TournamentMatchDetail[]):
     home_team: match.home_team,
     away_team: match.away_team,
     home_team_score: match.home_team_score,
+    home_group_index: match.home_group_index,
+    home_group_position: match.home_group_position,
+    home_group_uuid: match.home_group_uuid,
     away_team_score: match.away_team_score,
+    away_group_index: match.away_group_index,
+    away_group_position: match.away_group_position,
+    away_group_uuid: match.away_group_uuid,
     game_scores: match.game_scores || undefined,
     round: match.round,
     roundKey:(match.round !== undefined && match.round !== null && match.round >= 0) ? match.round : undefined,
@@ -89,4 +96,69 @@ export const convertTournamentMatchToMatch = (matches: TournamentMatchDetail[]):
     time: match.time || undefined,
   }))
   return result;
+}
+
+export const sortMatchesDefault = (matches: IMatch[]): IMatch[] => {
+  return matches.sort((a, b) => {
+    // Finally sort by groupKey asc
+    if (a.groupKey !== undefined && b.groupKey !== undefined) {
+      return a.groupKey - b.groupKey;
+    } else if (a.groupKey !== undefined) {
+      return -1;
+    } else if (b.groupKey !== undefined) {
+      return 1;
+    }
+
+    if (a.roundKey !== undefined && b.roundKey !== undefined) {
+      return a.roundKey - b.roundKey;
+    } else if (a.roundKey !== undefined) {
+      return -1;
+    } else if (b.roundKey !== undefined) {
+      return 1;
+    }
+
+    if (a.seed_index !== undefined && b.seed_index !== undefined) {
+      return a.seed_index - b.seed_index;
+    } else if (a.seed_index !== undefined) {
+      return -1;
+    } else if (b.seed_index !== undefined) {
+      return 1;
+    }
+    // Then sort by court asc
+    if (a.court && b.court) {
+      const courtComparison = (a.court || '').localeCompare(b.court || '');
+      if (courtComparison !== 0) return courtComparison;
+    } else if (a.court && !b.court) {
+      return -1;
+    } else if (!a.court && b.court) {
+      return 1;
+    }
+    
+    // First sort by time asc
+    if (a.time && b.time) {
+      const timeComparison = new Date(a.time).getTime() - new Date(b.time).getTime();
+      if (timeComparison !== 0) return timeComparison;
+    } else if (a.time && !b.time) {
+      return -1;
+    } else if (!a.time && b.time) {
+      return 1;
+    }
+        
+    return 0;
+  }).map(match => ({
+    ...match,
+    // Sort teams within each match by team name
+    teams: match.teams?.sort((teamA, teamB) => {
+      const nameA = (teamA.name || '').trim().toLowerCase();
+      const nameB = (teamB.name || '').trim().toLowerCase();
+      // Extract numbers from team names for proper numerical comparison
+      const numA = parseInt(nameA.replace(/[^\d]/g, '')) || 0;
+      const numB = parseInt(nameB.replace(/[^\d]/g, '')) || 0;      
+      return numA - numB;
+    }) || []
+
+  }));
+}
+export const alphabetToNumber = (alphabet: string): number => {
+  return alphabet.toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0) + 1;
 }

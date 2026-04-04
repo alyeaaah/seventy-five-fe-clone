@@ -9,9 +9,10 @@ interface GroupBoxProps {
   readOnly?: boolean;
   selected?: boolean;
   onClickGroup?: (group: IGroup) => void;
+  onTeamDelete?: (team: ITeam) => void;
 }
 
-export const GroupBox = ({ group, onDrop, readOnly, selected, onClickGroup }: GroupBoxProps) => {
+export const GroupBox = ({ group, onDrop, readOnly, selected, onClickGroup, onTeamDelete }: GroupBoxProps) => {
   const [{ isOver }, drop] = useDrop(
     () => ({
       accept: "TEAM",
@@ -33,7 +34,7 @@ export const GroupBox = ({ group, onDrop, readOnly, selected, onClickGroup }: Gr
     >
       <h2 className={`text-lg font-semibold mb-2 text-center ${isOver ? "bg-[#EBCE56] text-emerald-800" : selected ? "bg-[#EBCE56]  text-emerald-800" : "bg-emerald-800 text-white"
         }`}>
-        Group {group.name}
+        {group.name?.toLowerCase().includes("group") ? group.name : `Group ${group.name}`}
       </h2>
       <div className="flex flex-col gap-2">
         {group.teams.map((team) => (
@@ -43,6 +44,7 @@ export const GroupBox = ({ group, onDrop, readOnly, selected, onClickGroup }: Gr
             team={team}
             draggable={!readOnly}
             readOnly={readOnly}
+            onTeamDelete={onTeamDelete}
           />
         ))}
         {group.teams.length < 1 && (

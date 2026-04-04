@@ -71,8 +71,32 @@ export const DraggableBracket = ({
 
       updatedRounds[targetedTeam.roundIndex].seeds[targetedTeam.matchIndex].teams[targetedTeam.teamIdx] = sourceTeam.team;
     }
-    setRounds(updatedRounds);
+    const finalizedRounds = finalizeRound(JSON.parse(JSON.stringify(updatedRounds)));
+    setRounds(finalizedRounds);
   };
+
+  const finalizeRound = (rounds: IRound[]): IRound[] => {
+    const tempRounds = JSON.parse(JSON.stringify(rounds)) as IRound[];
+    // Loop all matches in round 0
+    tempRounds[0].seeds.forEach((match, matchIndex) => {
+      // If match contains BYE teams
+      const hasByeTeam = match.teams.some(team => team.name === "BYE");
+      const byeTeamIndex = match.teams.findIndex(team => team.name === "BYE");
+      const nonByeTeamIndex = byeTeamIndex === 1 ? 0 : 1;
+      if (hasByeTeam) {
+        const roundIndex = 1;
+        const seedIndex = Math.floor(matchIndex / 2);
+        const isHomeTeam = matchIndex % 2 === 0;
+        const targetPosition = isHomeTeam ? 0 : 1;
+        tempRounds[roundIndex].seeds[seedIndex].teams[targetPosition] = tempRounds[0].seeds[matchIndex].teams[nonByeTeamIndex] as ITeam;
+      } else {
+        // No BYE team, keep match & teams as is
+        // No changes needed
+      }
+    });
+
+    return JSON.parse(JSON.stringify(tempRounds));
+  }
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -91,8 +115,10 @@ export const DraggableBracket = ({
           } else if (props.roundIndex == (rounds.length - 2)) {
             round = "semi final";
           }
+          // Create a stable unique key using roundIndex, seedIndex, and match data
+          const seedKey = `round-${props.roundIndex}-seed-${props.seedIndex}-match-${props.seed?.id || props.seedIndex}`;
           return (
-            <CustomMatch {...props} onDrop={handleTeamDrop} round={round} key={JSON.stringify(props)} onSeedClick={onSeedClick} readOnly={readOnly} />
+            <CustomMatch {...props} onDrop={handleTeamDrop} round={round} key={seedKey} onSeedClick={onSeedClick} readOnly={readOnly} />
           )
         }}
       />

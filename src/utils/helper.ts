@@ -213,7 +213,7 @@ const imageResizer = (url: string, size: number = 300): string => {
   // Perform the replacement
   return url.replace(regex, replacement);
 }
-const imageResizerDimension = (url: string, size: number = 300, dimension: 'w' | "h"): string => {
+const imageResizerDimension = (url: string, size: number = 300, dimension: 'w' | "h" = "h"): string => {
   // Regex to match the part after 'upload/' and before the version or filename
   const regex = /(upload\/)([^/]*\/)?/;
   

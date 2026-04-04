@@ -2,6 +2,17 @@
 import { z } from "zod";
 import { matchTeamSchema } from "../../MatchDetail/api/schema";
 
+export const draftPickStatusEnum = z.enum(["AVAILABLE", "PICKING", "PICKED"]);
+
+export const draftPickPayloadSchema = z.object({
+  id:z.number().nullish(),
+  player_uuid: z.string(),
+  team_uuid: z.string().optional(),
+  position: z.number().min(1),
+  status: draftPickStatusEnum,
+  seeded: z.boolean().default(false),
+});
+
 export const tournamentStatusEnum = z.enum(['DRAFT', 'POSTPONED','CANCELLED','ENDED','ONGOING']);
 
 export const tournamentsSchema = z.object({
@@ -23,6 +34,7 @@ export const tournamentsSchema = z.object({
   court_uuid: z.string({ required_error: "Court is required" }),
   league_id: z.number().nullish(),
   total_group: z.number().default(0),
+  group_qualifier: z.number().default(1),
   point_config_uuid: z.string().nullish(),
   match_count: z.string().or(z.number()).nullish(),
   player_count: z.string().or(z.number()).nullish(),
@@ -32,6 +44,7 @@ export const tournamentsSchema = z.object({
   commitment_fee: z.number().default(0),
   participants: z.number().nullish(),
   join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
+  max_player: z.number().nullish(),
   rules: z.array(z.object({
     uuid: z.string().nullish(),
     description: z.string({ required_error: "Rule is required" }).min(5, "Description must be at least 5 characters long"),
@@ -47,6 +60,13 @@ const tournamentsSchemaRefine = tournamentsSchema.superRefine((data, ctx) => {
       path: ["total_group"],
       code: z.ZodIssueCode.custom,
       message: "Total group is required when type is ROUND ROBIN",
+    });
+  }
+  if (data.type === "ROUND ROBIN" && (!data.group_qualifier || data.group_qualifier <= 0)) {
+    ctx.addIssue({
+      path: ["group_qualifier"],
+      code: z.ZodIssueCode.custom,
+      message: "Group qualifier is required when type is ROUND ROBIN",
     });
   }
 });
@@ -65,8 +85,9 @@ export const tournamentParticipantsSchema = z.object({
   })),
 });
 
+
 export const tournamentTeamsSchema = z.object({
-  id: z.number(),
+  id: z.number().nullish(),
   uuid: z.string().uuid().nullish(),
   name: z.string(),
   alias: z.string(),
@@ -76,9 +97,16 @@ export const tournamentTeamsSchema = z.object({
     name: z.string(),
     nickname: z.string().nullish(),
     city: z.string().nullish(),
+    level: z.string().nullish(), // Added from tournamentTeamParticipantSchema
     media_url: z.string().nullish(),
+    player_uuid: z.string().nullish(), // Added from tournamentTeamParticipantSchema
+    status: z.string().nullish(), // Added from tournamentTeamParticipantSchema
   })),
+  registeredAt: z.string().nullish(), // Added from tournamentTeamParticipantSchema
+  status: z.string().nullish(), // Added from tournamentTeamParticipantSchema
 });
+
+// Remove duplicate tournamentTeamParticipantSchema as it's now merged into tournamentTeamsSchema
 
 export const tournamentMatchSchema = z.object({
   id: z.number(),
@@ -87,8 +115,10 @@ export const tournamentMatchSchema = z.object({
   home_team_uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
   away_team_uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
   home_team_alias: z.string().nullish(),
+  home_group_uuid: z.string().nullish(),
   home_group_index: z.number().nullish(),
   home_group_position: z.number().nullish(),
+  away_group_uuid: z.string().nullish(),
   away_group_index: z.number().nullish(),
   away_group_position: z.number().nullish(),
   away_team_alias: z.string().nullish(),
@@ -149,6 +179,7 @@ export const tournamentDetailSchema = z.object({
   createdAt: z.string().datetime().nullish(),
   updatedAt: z.string().datetime().nullish(),
   join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
+  max_player: z.number().nullish(),
 });
  
 export const tournamentSponsorSchema =z.object({
@@ -168,6 +199,22 @@ export const matchGroupPayloadSchema = z.object({
   groupKey: z.number(),
 });
 
+export const updateMatchPayloadSchema = z.object({
+  uuid: z.string().optional(),
+  home_team_uuid: z.string().optional(),
+  away_team_uuid: z.string().optional(),
+  court_field_uuid: z.string().nullable().optional(),
+  status: z.enum(["UPCOMING", "ONGOING", "PAUSED", "ENDED"]).optional(),
+  time: z.string().optional(),
+  round: z.number().optional(),
+  group: z.number().optional(),
+  seed_index: z.number().optional(),
+  home_group_index: z.number().optional(),
+  home_group_position: z.number().optional(),
+  away_group_index: z.number().optional(),
+  away_group_position: z.number().optional(),
+});
+
 export const tournamentGroupPayloadSchema = z.object({
   groups: z.array(z.object({
     uuid: z.string().nullish(),
@@ -176,10 +223,16 @@ export const tournamentGroupPayloadSchema = z.object({
     teams: z.array(z.object({
       uuid: z.string().nullish(),
       name: z.string(),
+      position: z.number().nullish(),
     })),
   })),
   matches: z.array(matchGroupPayloadSchema),
 });
+
+// Using extend method to create groups-only schema
+export const tournamentGroupOnlyPayloadSchema = tournamentGroupPayloadSchema.extend({
+  groups: tournamentGroupPayloadSchema.shape.groups,
+}).omit({ matches: true });
 
 
 export type TournamentRounds = {
@@ -199,4 +252,5 @@ export type TournamentSponsorPayload = z.infer<typeof tournamentSponsorSchema>;
 export type TournamentStatusEnum = z.infer<typeof tournamentStatusEnum>;
 export type TournamentJoinStatusEnum = z.infer<typeof tournamentDetailSchema>['join_status'];
 export type TournamentUpdateGroupPayload = z.infer<typeof tournamentGroupPayloadSchema>;
-
+export type TournamentUpdateGroupOnlyPayload = z.infer<typeof tournamentGroupOnlyPayloadSchema>;
+export type UpdateMatchPayload = z.infer<typeof updateMatchPayloadSchema>;

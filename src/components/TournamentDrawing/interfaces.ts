@@ -1,13 +1,17 @@
 import { IRoundProps, ISeedProps } from "react-brackets";
 
 export interface IPlayer {
-    id?: string | number;
-    uuid: string;
-    name?: string;
-    alias?: string;
-    media_url?: string;
-    level?: string;
-  }
+  id?: string | number;
+  uuid: string;
+  name?: string;
+  alias?: string;
+  nickname?: string | null;
+  media_url?: string;
+  level?: string | null;
+  // Additional fields from API response
+  player_uuid?: string | null;
+  status?: string | null;
+}
 
 export type TournamentRounds = {
   teams: number;
@@ -17,19 +21,33 @@ export type TournamentRounds = {
 };
 
 export interface ITeam {
-  id?: number | string;
+  id?: number | null;
   teamKey?: string | number;
   uuid: string;
   name: string;
+  alias?: string;
   group_index?: number;
   group_position?: number;
-  alias?: string;
+  position?: number; // Position within group
   score?: {
     point?: number | string;
     game?: number | string;
     set?: number | string;
   };
   players?: IPlayer[];
+  // Group fields for knockout phase (generic team fields)
+  team_group_uuid?: string;
+  team_group_position?: number;
+  team_group_index?: number;
+  status?: string | null | undefined;
+  registeredAt?: string | null | undefined;
+  // Additional fields from API response
+  level?: string | null | undefined;
+  nickname?: string | null | undefined;
+  city?: string | null | undefined;
+  // Fields from tournament team participants
+  captain?: boolean | null | undefined;
+  player_uuid?: string | null | undefined;
 }
 export interface IGroup {
   id?: number | string;

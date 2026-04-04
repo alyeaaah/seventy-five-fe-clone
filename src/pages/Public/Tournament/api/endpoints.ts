@@ -1,9 +1,8 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { galleriesMediaSchema } from "@/pages/Admin/Galleries/api/schema";
-import { tournamentMatchDetailSchema, tournamentMatchSchema, tournamentsSchema } from "@/pages/Admin/Tournaments/api/schema";
+import { tournamentMatchDetailSchema, tournamentsSchema } from "@/pages/Admin/Tournaments/api/schema";
 import { matchesListSchema } from "@/pages/Admin/CustomMatch/api/schema";
-import { publicTournamentDetailSchema, groupResponseSchema } from "./schema";
+import { publicTournamentDetailSchema, groupResponseSchema, draftPickSchema, tournamentJoinStatusSchema } from "./schema";
 import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
 
 
@@ -71,6 +70,9 @@ const joinTournamentApi = makeEndpoint({
   alias: "joinTournament",
   method: "post",
   path: `/tournament/:uuid/join`,
+  parameters: parametersBuilder().addBody(z.object({
+    player_uuid: z.string().nullish()
+  }).nullish()).build(),
   response: z.object({
     message: z.string(),
     status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED'])
@@ -133,6 +135,38 @@ const getGroupsByTournamentApi = makeEndpoint({
   })
 });
 
+const getTournamentDraftPicksApi = makeEndpoint({
+  alias: "getTournamentDraftPicks",
+  method: "get",
+  path: `/player/tournament/draft-pick/:uuid`,
+  response: z.object({
+    data: z.array(draftPickSchema)
+  })
+});
+
+const assignTournamentDraftPickApi = makeEndpoint({
+  alias: "assignTournamentDraftPick",
+  method: "post",
+  path: `/tournament/draft-pick/assign/:uuid`,
+  parameters: parametersBuilder().addBody(z.object({
+    player_uuid: z.string(),
+    partner_uuid: z.string(),
+  })).build(),
+  response: z.object({
+    message: z.string(),
+  })
+});
+
+const getTournamentJoinStatusApi = makeEndpoint({
+  alias: "getTournamentJoinStatus",
+  method: "get",
+  path: `/player/tournament/status/:uuid`,
+  response: z.object({
+    data: tournamentJoinStatusSchema
+  })
+});
+
+
 export const endpoints = {
   featuredTournamentApi,
   tournamentDetailApi,
@@ -142,5 +176,8 @@ export const endpoints = {
   tournamentDetailSponsorsApi,
   upcomingMatchApi,
   ongoingMatchApi,
-  getGroupsByTournamentApi
+  getGroupsByTournamentApi,
+  getTournamentDraftPicksApi,
+  assignTournamentDraftPickApi,
+  getTournamentJoinStatusApi,
 };
