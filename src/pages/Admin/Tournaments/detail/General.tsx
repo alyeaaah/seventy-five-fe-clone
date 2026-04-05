@@ -93,7 +93,7 @@ export const TournamentDetailGeneral: React.FC<TournamentDetailGeneralProps> = (
                 <div className="ml-2 font-medium flex flex-col">
                   <span className="text-xs font-normal">Commitment Fee</span>
                   <span>
-                    IDR {Intl.NumberFormat('id-ID').format(data?.commitment_fee || 0)}
+                    IDR {Intl.NumberFormat('id-ID').format(Number(data?.commitment_fee) || 0)}
                   </span>
                 </div>
               </div>
