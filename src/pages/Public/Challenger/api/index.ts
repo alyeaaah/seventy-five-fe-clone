@@ -7,7 +7,7 @@ import { clientEnv } from "@/env";
 export { endpoints };
 
 
-export const PublicTournamentApiClient = new Zodios(
+export const PublicChallangerApiClient = new Zodios(
   clientEnv.API_BASE_URL,
   [
     endpoints.featuredTournamentApi,
@@ -21,4 +21,4 @@ export const PublicTournamentApiClient = new Zodios(
   { validate: true, axiosInstance: createAxiosInstance() },
 );
 
-export const PublicTournamentApiHooks = new ZodiosHooks("publicTournament", PublicTournamentApiClient);
+export const PublicChallangerApiHooks = new ZodiosHooks("publicChallanger", PublicChallangerApiClient);

@@ -113,6 +113,19 @@ const upcomingMatchApi = makeEndpoint({
   }).build(),
   response: matchesListSchema
 });
+
+const recentMatchApi = makeEndpoint({
+  alias: "getRecentMatch",
+  method: "get",
+  path: `/public/match/recent`,
+  parameters: parametersBuilder().addQueries
+    ({
+      search: z.string().optional(),
+      page: z.number().optional(),
+      limit: z.number().optional(),
+  }).build(),
+  response: matchesListSchema
+});
 const ongoingMatchApi = makeEndpoint({
   alias: "getOngoingMatch",
   method: "get",
@@ -198,6 +211,7 @@ export const endpoints = {
   tournamentDetailMatchesApi,
   tournamentDetailSponsorsApi,
   upcomingMatchApi,
+  recentMatchApi,
   ongoingMatchApi,
   getGroupsByTournamentApi,
   getTournamentDraftPicksApi,

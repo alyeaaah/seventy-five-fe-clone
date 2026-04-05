@@ -1,5 +1,5 @@
 import LayoutWrapper from "@/components/LayoutWrapper";
-import { PublicTournamentApiHooks } from "./api";
+import { PublicChallangerApiHooks } from "./api";
 import { imageResizerDimension } from "@/utils/helper";
 import { Link, useNavigate } from "react-router-dom";
 import { PublicBlogApiHooks } from "../Blog/api";
@@ -17,7 +17,7 @@ import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 export const PublicChallenger = () => {
   const navigate = useNavigate();
   const queryParams = useRouteParams(paths.tournament.index);
-  const { data: recentMatch } = PublicTournamentApiHooks.useGetMatches({
+  const { data: recentMatch } = PublicChallangerApiHooks.useGetMatches({
     queries: {
       status: [
         matchStatusEnum.Values.ENDED,
@@ -26,7 +26,7 @@ export const PublicChallenger = () => {
       ]
     }
   });
-  const { data: upcomingMatch } = PublicTournamentApiHooks.useGetUpcomingMatch({
+  const { data: upcomingMatch } = PublicChallangerApiHooks.useGetUpcomingMatch({
     queries: {
       limit: 20
     }

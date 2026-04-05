@@ -11,6 +11,8 @@ import { PublicTournamentApiHooks } from "../../Tournament/api";
 import { NestedImage } from "@/components/NestedImage";
 import { Link } from "react-router-dom";
 import { paths } from "@/router/paths";
+import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
+import { PublicChallangerApiHooks } from "../../Challenger/api";
 
 export const UpcomingMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
   const breakpoint = useBreakpoint()
@@ -24,12 +26,28 @@ export const UpcomingMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
     return 4;
   };
   const upcomingMatchRef = useRef<CarouselRef>(null);
-  const { data } = PublicTournamentApiHooks.useGetUpcomingMatch();
+  const { data: upcomingMatches } = PublicTournamentApiHooks.useGetUpcomingMatch();
+  // // const { data: recentMatches } = PublicTournamentApiHooks.useGetRecentMatch({}, {
+  //   enabled: !!upcomingMatches && upcomingMatches?.data?.length == 0
+  // });
+
+  const { data: recentMatches } = PublicChallangerApiHooks.useGetMatches({
+    queries: {
+      status: [
+        matchStatusEnum.Values.ENDED,
+        matchStatusEnum.Values.ONGOING,
+        matchStatusEnum.Values.PAUSED
+      ]
+    }
+  }, {
+    enabled: !!upcomingMatches && upcomingMatches?.data?.length == 0
+  });
+  const matches = upcomingMatches?.data?.length ? upcomingMatches?.data : recentMatches?.data || []
   return (
     <div className={className}>
       <Title level={4} className="!text-emerald-800 p-4 flex flex-row items-center justify-between !mb-0">
         <div className='flex flex-row items-center uppercase'>
-          Upcoming <span className="font-bold ml-1">Match</span>
+          {upcomingMatches?.data.length ? "Upcoming" : "Recent"} <span className="font-bold ml-1">Match</span>
         </div>
         <div className="flex flex-row justify-end items-center">
           <Button type="button" className="!text-emerald-800 !border-none shadow-none focus:ring-0 hover:animate-pulse" size="sm" onClick={() => upcomingMatchRef.current?.prev()}>
@@ -40,15 +58,15 @@ export const UpcomingMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
           </Button>
         </div>
       </Title>
-      {!data?.data || data.data.length === 0 ? (
+      {(!recentMatches && !upcomingMatches) || ((!!recentMatches && !!upcomingMatches) && matches.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-12 px-4">
           <Lucide icon="Calendar" className="h-16 w-16 text-emerald-800/60 mb-4" />
-          <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Upcoming Matches</h3>
-          <p className="text-emerald-800/80 text-sm text-center">There are currently no upcoming matches scheduled. Check back later!</p>
+          <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No {upcomingMatches?.data.length ? "Upcoming" : "Recent"} Matches</h3>
+          <p className="text-emerald-800/80 text-sm text-center">There are currently no {upcomingMatches?.data.length ? "upcoming" : "recent"} matches. Check back later!</p>
         </div>
       ) : (
         <Carousel autoplay ref={upcomingMatchRef} autoplaySpeed={6000} slidesToShow={getSlideBreakpoint()} slidesPerRow={1} className=''>
-          {data?.data?.map((item, idx) => (
+          {matches.map((item, idx) => (
             <Link key={idx} className='pb-2 px-2' to={paths.challenger.match({ matchUuid: item.uuid || "" }).$}>
               <div className='flex flex-col justify-center items-center shadow-md rounded-3xl bg-gray-200 mr-0 lg:mr-2 px-2'>
                 <div className='flex flex-row justify-center items-center my-2 text-gray-500 text-xs'>
