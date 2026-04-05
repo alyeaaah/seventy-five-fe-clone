@@ -243,7 +243,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
       render: (_, record: any) => (
         <div className="flex flex-col items-start justify-center gap-1">
           {record.players.map((player: any, index: number) => (
-            <Link key={index} to={`/admin/players/${player.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
+            <Link key={player.uuid || player.id || index} to={`/admin/players/${player.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
               <Image
                 src={player.media_url || '/path/to/default-avatar.jpg'}
                 alt={player.name || 'Player'}
@@ -273,17 +273,18 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
       key: "status",
       responsive: ['lg'],
       width: 120,
-      render: (_, record: any) => (
-        <div className="flex flex-row justify-center gap-1">
-          <span className={`inline-flex px-2 py-1 w-fit text-xs font-medium rounded-full ${record.status === 'confirmed'
-            ? 'bg-green-100 text-green-800'
-            : 'bg-yellow-100 text-yellow-800'
-            }`}>
-            {record.status}
-          </span>
-          {record.status == "APPROVED" && (
-            <span className="text-xs text-red-700 bg-red-100 inline-flex px-2 py-1 w-fit font-medium rounded-full">Payment</span>
-          )}
+      render: (_, record) => (
+        <div className="flex flex-col gap-2">
+          {record.players?.map((player: any) => (
+            <div key={player.id} className="flex flex-row justify-center gap-1">
+              <span className={`inline-flex px-2 py-1 w-fit text-xs font-medium rounded-full ${player.status.toLowerCase() === 'confirmed'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                {player.status}
+              </span>
+            </div>
+          ))}
         </div>
       )
     },
@@ -293,33 +294,37 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
       width: 100,
       align: "center",
       responsive: ['lg'],
-      render: (_, record: any) => (
-        <div className="flex justify-center gap-1">
-          {record.status === 'APPROVED' && (
-            <Menu>
-              <Menu.Button className="flex items-center justify-center rounded-md h-8 w-8 border border-emerald-800 p-1.5 shadow-none hover:bg-emerald-50" disabled={groupIsLocked}>
-                <Lucide icon="Settings2" className="w-3.5 h-3.5 !text-emerald-800" />
-              </Menu.Button>
-              <Menu.Items className="w-48 mt-px z-99">
-                <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.uuid, 'confirmed')}>
-                  Mark as Confirmed
-                </Menu.Item>
-                <Divider className="m-0" />
-                <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.uuid, 'confirmed')}>
-                  Process Payment
-                </Menu.Item>
-              </Menu.Items>
-            </Menu>
-          )}
-          <Button
-            variant="outline-danger"
-            size="sm"
-            className="px-1.5 py-1.5 min-w-[32px] h-[32px]"
-            disabled={groupIsLocked}
-            onClick={() => handleTeamApproval(record.uuid || "", "rejected")}
-          >
-            <Lucide icon="Trash" className="w-3.5 h-3.5" />
-          </Button>
+      render: (_, record) => (
+        <div className="flex flex-col gap-2">
+          {record?.players?.map((player) => (
+            <div key={player.id || player.uuid} className="flex justify-center gap-1">
+              {player.status === 'APPROVED' && (
+                <Menu>
+                  <Menu.Button className="flex items-center justify-center rounded-md h-8 w-8 border border-emerald-800 p-1.5 shadow-none hover:bg-emerald-50" disabled={groupIsLocked}>
+                    <Lucide icon="Settings2" className="w-3.5 h-3.5 !text-emerald-800" />
+                  </Menu.Button>
+                  <Menu.Items className="w-48 mt-px z-99">
+                    <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(player.uuid || "", 'confirmed')}>
+                      Mark as Confirmed
+                    </Menu.Item>
+                    <Divider className="m-0" />
+                    <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(player.uuid || "", 'confirmed')}>
+                      Process Payment
+                    </Menu.Item>
+                  </Menu.Items>
+                </Menu>
+              )}
+              <Button
+                variant="outline-danger"
+                size="sm"
+                className="px-1.5 py-1.5 min-w-[32px] h-[32px]"
+                disabled={groupIsLocked}
+                onClick={() => handleTeamApproval(record.uuid || "", "rejected")}
+              >
+                <Lucide icon="Trash" className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          ))}
         </div>
       )
     }

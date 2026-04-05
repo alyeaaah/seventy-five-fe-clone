@@ -94,7 +94,8 @@ export const TournamentDetailGroups: React.FC<TournamentDetailGroupsProps> = ({
   });
   const groupIsLocked = matchesData?.data?.some(match => match.group_uuid);
 
-  const confirmedTeams = confirmedTeamsData?.data?.teams || [];
+  const confirmedTeams = confirmedTeamsData?.data?.teams?.filter(team => team.players.length === 2) || [];
+  console.log('confirmedTeams', confirmedTeams);
   const totalGroups = data?.total_group || 4;
 
   // // Calculate paginated data
@@ -486,7 +487,7 @@ export const TournamentDetailGroups: React.FC<TournamentDetailGroupsProps> = ({
       <div className="mb-4 p-3 bg-gray-50 rounded-lg">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">
-            Total Confirmed Teams: {confirmedTeamsData?.data?.totalTeams}
+            Total Confirmed Teams: {(confirmedTeams.length !== confirmedTeamsData?.data?.totalTeams) ? confirmedTeams.length : confirmedTeamsData?.data?.totalTeams}
           </span>
           <span className="text-gray-600">
             Assigned: {groups.reduce((sum, group) => sum + group.teams.length, 0)}
@@ -501,7 +502,7 @@ export const TournamentDetailGroups: React.FC<TournamentDetailGroupsProps> = ({
         {/* Confirmed Team List */}
         <div className="col-span-12 sm:col-span-6 p-4 box ">
           <Table
-            dataSource={confirmedTeamsData?.data?.teams}
+            dataSource={confirmedTeams}
             loading={isLoading}
             size="small"
             pagination={{

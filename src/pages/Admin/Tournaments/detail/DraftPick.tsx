@@ -13,6 +13,7 @@ import { useToast } from "@/components/Toast/ToastContext";
 import { IPlayerDraft, PlayerDraftStatus, TournamentDraftPickComponent } from "@/components/TournamentDraftPick";
 import { dp } from "@fullcalendar/core/internal-common";
 import { DraftPick } from "@/pages/Public/Tournament/api/schema";
+import Tippy from "@/components/Base/Tippy";
 
 interface TournamentDraftPickProps {
   tournamentUuid: string;
@@ -612,9 +613,15 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
                         ))}
                       </div>
                       <div className="gap-2 flex flex-row items-center">
-                        <span className={`text-xs font-medium px-2 py-1 rounded ${team.status !== 'APPROVED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                          {team.name}
-                        </span>
+                        {team.players.some(p => p.status === "APPROVED") ?
+                          <Tippy content="One or both team need to confirm">
+                            <span className={`text-xs font-medium px-2 py-1 rounded ${team.status !== 'APPROVED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                              {team.name}
+                            </span>
+                          </Tippy> :
+                          <span className={`text-xs font-medium px-2 py-1 rounded ${team.status !== 'APPROVED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                            {team.name}
+                          </span>}
                       </div>
                     </div>
                   ))}

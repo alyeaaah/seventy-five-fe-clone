@@ -41,7 +41,7 @@ export const tournamentsSchema = z.object({
   strict_level: z.boolean().default(false),
   draft_pick: z.boolean().default(false),
   show_bracket: z.boolean().default(false),
-  commitment_fee: z.number().default(0),
+  commitment_fee: z.number().or(z.string()).default(0),
   participants: z.number().nullish(),
   join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
   max_player: z.number().nullish(),
