@@ -508,9 +508,9 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
             </div>
 
             <div className="flex flex-col mt-2 gap-2">
-              {draftPickPlayers?.filter(d => !d.seeded)?.sort((a, b) => a.position - b.position).map((dPlayer, i) => <>
+              {draftPickPlayers?.filter(d => !d.seeded)?.sort((a, b) => a.position - b.position).map((dPlayer, i) => (
                 <div
-                  key={i}
+                  key={dPlayer.uuid || i}
                   className={`cursor-pointer border rounded-lg p-2 flex flex-row justify-between items-center ${dPlayer.status === "PICKING" ? 'bg-yellow-100' : 'bg-white'}`}
                   onClick={() => {
                     if (dPlayer.status === "PICKING") {
@@ -530,7 +530,7 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
                     {dPlayer.status === "AVAILABLE" && <div className="text-xs bg-gray-500 text-white font-semibold px-2 py-1 rounded-full">On Queue</div>}
                   </div>
                 </div>
-              </>)}
+              ))}
             </div>
 
           </div>
@@ -543,8 +543,8 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
               <p className="text-sm text-gray-500">Seeded players will be selected by player in the queue</p>
             </div>
             <div className="flex flex-col mt-2 gap-2">
-              {draftPickPlayers?.filter(d => !!d.seeded)?.sort(() => Math.random() - 0.5).map((dPlayer, i) => <>
-                <div key={i} className={`border rounded-lg p-2 flex flex-row `}>
+              {draftPickPlayers?.filter(d => !!d.seeded)?.sort(() => Math.random() - 0.5).map((dPlayer, i) => (
+                <div key={dPlayer.uuid || i} className={`border rounded-lg p-2 flex flex-row `}>
                   <div className={`flex flex-row items-center gap-2 ${toggleBlur ? 'blur-sm' : ''}`}>
                     <Lucide icon="UserRound" className="border rounded-full w-8 h-8 bg-gray-300" />
 
@@ -554,7 +554,7 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
                     </div>
                   </div>
                 </div>
-              </>)}
+              ))}
             </div>
           </div>
         </div>

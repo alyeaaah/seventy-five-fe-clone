@@ -158,9 +158,9 @@ export const TournamentDraftPickComponent = ({ tournamentUuid, players, onChange
             </div>
             <div>
               <p className="font-medium text-gray-900">{player.name}</p>
-              {player.nickname && (
-                <p className="text-sm text-gray-500">{(player.nickname && player.nickname !== player.name) ? player.nickname : player.email}</p>
-              )}
+              {player.username ? (
+                <p className="text-sm text-gray-500">{(player.username && player.username !== player.name) ? player.username : player.email}</p>
+              ) : <p className="text-sm text-gray-500">-</p>}
             </div>
           </div>
           <div className="flex items-center space-x-2">

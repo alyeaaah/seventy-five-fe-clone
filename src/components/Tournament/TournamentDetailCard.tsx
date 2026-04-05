@@ -478,7 +478,8 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {tournamentTeamParticipants.data.teams.flatMap(team => team.players || []).map((player) => (
-              <div key={player.uuid} className="bg-white border overflow-hidden border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow items-center flex">
+              <div key={player.uuid} className="bg-white border overflow-hidden border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow items-center flex cursor-pointer"
+                onClick={() => player.uuid && navigate(paths.players.info({ uuid: player.player_uuid || "" }).$)}>
                 <div className="flex items-center space-x-3">
                   <div className="">
                     {player.media_url ? (
@@ -513,7 +514,6 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
                         }`}>
                         {player.status}
                       </span>
-
                     )}
                   </div>
                 </div>
