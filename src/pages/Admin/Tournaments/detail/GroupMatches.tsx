@@ -227,9 +227,9 @@ export const GroupMatches: React.FC<GroupMatchesProps> = ({
         tournament_uuid: tournamentUuid,
       })),
     };
-    console.log(body);
+    // console.log(body);
 
-    // actionUpdateMatches(body);
+    actionUpdateMatches(body);
   };
 
   const handleRegenerateMatches = (transformedGroups?: IGroup[], tournamentInfo?: ITournamentInfo) => {

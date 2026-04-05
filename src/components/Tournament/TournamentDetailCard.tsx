@@ -86,6 +86,19 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
   }, {
     enabled: !!tournamentUuid
   });
+  const { data: tournamentTeamParticipants } = PublicTournamentApiHooks.useGetTournamentTeamParticipants({
+    params: {
+      uuid: tournamentUuid || ''
+    },
+    queries: {
+      status: "approved,confirmed"
+    }
+  }, {
+    enabled: !!tournamentUuid,
+    onSuccess: () => {
+      console.log("onSuccess");
+    }
+  });
 
   const { mutate: actionAssignDraftPick } = PublicTournamentApiHooks.useAssignTournamentDraftPick({
     params: {
@@ -452,12 +465,70 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
           ) : null}
         </>
       )}
+      {((!detailTournament?.data?.show_bracket) && !!tournamentTeamParticipants?.data && tournamentTeamParticipants.data.teams.length > 0) && (
+        <div className="col-span-12">
+
+          <div className="col-span-12 text-emerald-800 flex flex-row my-4">
+            <IconLogoAlt className="h-10 w-20" />
+            <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
+              <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
+              <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>PARTICIPANTS
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {tournamentTeamParticipants.data.teams.flatMap(team => team.players || []).map((player) => (
+              <div key={player.uuid} className="bg-white border overflow-hidden border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow items-center flex">
+                <div className="flex items-center space-x-3">
+                  <div className="">
+                    {player.media_url ? (
+                      <img
+                        src={player.media_url}
+                        alt={player.name || 'Player'}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-gray-600">
+                          {player.name?.charAt(0).toUpperCase() || 'P'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col items-start justify-center">
+                    <h4 className="text-sm font-medium text-gray-900 line-clamp-1">
+                      {player.name}
+                    </h4>
+                    {(
+                      <p className="text-xs text-gray-500 truncate">
+                        {player.nickname && player.nickname !== player.name && player.nickname}
+                      </p>
+                    )}
+                    {player.status && (
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${player.status === 'approved' || player.status === 'confirmed'
+                        ? 'bg-green-100 text-green-800'
+                        : player.status === 'requested'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-gray-100 text-gray-800'
+                        }`}>
+                        {player.status}
+                      </span>
+
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!detailTournament?.data?.show_bracket && <></>}
       <TournamentJoinModal
         tournamentUuid={tournamentUuid || ""}
         show={modalJoin?.open || false}
         onClose={() => setModalAlert(undefined)}
       />
-
       {modalAlert && (
         <Confirmation
           {...modalAlert}

@@ -21,7 +21,8 @@ export const PublicTournamentApiClient = new Zodios(
     endpoints.getGroupsByTournamentApi,
     endpoints.getTournamentDraftPicksApi,
     endpoints.assignTournamentDraftPickApi,
-    endpoints.getTournamentJoinStatusApi
+    endpoints.getTournamentJoinStatusApi,
+    endpoints.getTournamentTeamParticipantsApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

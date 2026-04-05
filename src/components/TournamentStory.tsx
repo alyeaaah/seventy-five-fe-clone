@@ -28,7 +28,7 @@ export const TournamentStory = ({ tournament, matches }: TournamentStoryProps) =
   }, []);
   const champs: TournamentMatchDetail | undefined = tournament?.show_bracket ? matches?.reduce((prev, curr) => {
     return (prev?.round !== null && prev?.round !== undefined ? prev?.round : -1) > (curr?.round !== null && curr?.round !== undefined ? curr?.round : -1) ? prev : curr;
-  }) : undefined;
+  }, undefined as TournamentMatchDetail | undefined) : undefined;
 
   const shareOrDownloadStory = useCallback(
     async (item: any) => {

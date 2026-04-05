@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { tournamentMatchDetailSchema, tournamentsSchema } from "@/pages/Admin/Tournaments/api/schema";
+import { tournamentMatchDetailSchema, tournamentsSchema, tournamentTeamsSchema } from "@/pages/Admin/Tournaments/api/schema";
 import { matchesListSchema } from "@/pages/Admin/CustomMatch/api/schema";
 import { publicTournamentDetailSchema, groupResponseSchema, draftPickSchema, tournamentJoinStatusSchema } from "./schema";
 import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
@@ -166,6 +166,29 @@ const getTournamentJoinStatusApi = makeEndpoint({
   })
 });
 
+const getTournamentTeamParticipantsApi = makeEndpoint({
+  alias: "getTournamentTeamParticipants",
+  method: "get",
+  path: `/public/tournament/detail/participants/:uuid`,
+  parameters: parametersBuilder().addQueries({
+    status: z.string().optional(),
+    page: z.number().optional(),
+    limit: z.number().optional(),
+  }).build(),
+  response: z.object({
+    data: z.object({
+      teams: z.array(tournamentTeamsSchema),
+      totalTeams: z.number(),
+      totalParticipants: z.number(),
+      pagination: z.object({
+        current: z.number(),
+        pageSize: z.number(),
+        total: z.number()
+      }).optional()
+    })
+  })
+});
+
 
 export const endpoints = {
   featuredTournamentApi,
@@ -180,4 +203,5 @@ export const endpoints = {
   getTournamentDraftPicksApi,
   assignTournamentDraftPickApi,
   getTournamentJoinStatusApi,
+  getTournamentTeamParticipantsApi,
 };
