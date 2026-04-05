@@ -106,7 +106,7 @@ const TournamentJoinModal: React.FC<TournamentJoinModalProps> = ({
       className="z-[1000]"
       open={show}
       onClose={onClose}
-      staticBackdrop={true}
+      staticBackdrop={false}
       size="lg"
     >
       <Dialog.Panel>

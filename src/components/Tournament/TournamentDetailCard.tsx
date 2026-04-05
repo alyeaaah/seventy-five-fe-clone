@@ -527,7 +527,7 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
       <TournamentJoinModal
         tournamentUuid={tournamentUuid || ""}
         show={modalJoin?.open || false}
-        onClose={() => setModalAlert(undefined)}
+        onClose={() => setModalJoin(undefined)}
       />
       {modalAlert && (
         <Confirmation

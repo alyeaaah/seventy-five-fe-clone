@@ -29,7 +29,7 @@ export const MatchCardThumbnail: React.FC<MatchCardProps> = ({
           <div className="flex flex-col">
             <span className='text-sm font-medium text-gray-800 text-start'>{match.teams[0]?.name || 'TBD'}</span>
             {match.teams[0]?.players?.map(player =>
-              <span className='font-normal text-xs' key={player.uuid}>
+              <span className='font-normal text-xs line-clamp-1' key={player.uuid}>
                 {player.name}
               </span>)
             }
@@ -50,7 +50,7 @@ export const MatchCardThumbnail: React.FC<MatchCardProps> = ({
           <div className="flex flex-col items-end">
             <span className='text-sm font-medium text-gray-800 text-end'>{match.teams[1]?.name || 'TBD'}</span>
             {match.teams[1]?.players?.map(player =>
-              <span className='font-normal text-xs text-end' key={player.uuid}>
+              <span className='font-sm font-medium text-xs text-end line-clamp-1' key={player.uuid}>
                 {player.name}
               </span>)
             }

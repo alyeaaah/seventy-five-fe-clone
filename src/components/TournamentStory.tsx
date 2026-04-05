@@ -42,13 +42,37 @@ export const TournamentStory = ({ tournament, matches }: TournamentStoryProps) =
 
         const fileBase = `tournament-story-${item?.uuid || "export"}`;
         const dataUrl = await toPng(storyRef.current, {
-          cacheBust: true,
+          cacheBust: false,
           pixelRatio: 2,
+          filter: (node) => {
+            // Skip all external resources
+            if (node.tagName === 'LINK') return false;
+            if (node.tagName === 'STYLE') return false;
+            if (node.tagName === 'SCRIPT') return false;
+            return true;
+          },
+          skipAutoScale: true,
+          skipFonts: true,
+          backgroundColor: '#065f46', // emerald-800 background
+          width: 1080,
+          height: 1920,
         });
 
         const blob = await toBlob(storyRef.current, {
-          cacheBust: true,
+          cacheBust: false,
           pixelRatio: 2,
+          filter: (node) => {
+            // Skip all external resources
+            if (node.tagName === 'LINK') return false;
+            if (node.tagName === 'STYLE') return false;
+            if (node.tagName === 'SCRIPT') return false;
+            return true;
+          },
+          skipAutoScale: true,
+          skipFonts: true,
+          backgroundColor: '#065f46', // emerald-800 background
+          width: 1080,
+          height: 1920,
         });
 
         if (blob) {
