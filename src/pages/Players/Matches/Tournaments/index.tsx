@@ -8,6 +8,7 @@ export const TournamentPlayerDetail = () => {
     <div className="py-6 px-4">
       <TournamentDetailCard
         tournamentUuid={tournamentId}
+        expanded
       />
     </div>
   )

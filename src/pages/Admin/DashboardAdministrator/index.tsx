@@ -26,18 +26,19 @@ function Main() {
   const { data: upcomingTournaments } = GeneralReportApiHooks.useGetUpcomingTournaments();
 
   return (
-    <div className="grid grid-cols-12 gap-6">
+    <div className="grid grid-cols-12 gap-6 ">
       <div className="col-span-12 2xl:col-span-9">
         <div className="grid grid-cols-12 gap-6">
           {/* BEGIN: General Report */}
           <div className="col-span-12 mt-8">
             <div className="flex items-center h-10 intro-y">
-              <h2 className="mr-5 text-lg font-medium truncate">
+              <h2 className="mr-5 text-lg font-medium">
                 General Report
               </h2>
               <a href="" className="flex items-center ml-auto text-primary">
-                <Lucide icon="RefreshCcw" className="w-4 h-4 mr-3" /> Reload
-                Data
+                <Lucide icon="RefreshCcw" className="w-4 h-4 mr-3" /> <span className="hidden sm:flex">
+                  Reload Data
+                </span>
               </a>
             </div>
             <div className="grid grid-cols-12 gap-6 mt-5">
@@ -937,7 +938,7 @@ function Main() {
                 <h2 className="mr-5 text-lg font-medium truncate">Schedules</h2>
                 <Link
                   to={paths.administrator.tournaments.new.index}
-                  className="flex items-center ml-auto truncate text-primary"
+                  className="sm:flex items-center ml-auto truncate text-primary hidden"
                 >
                   <Lucide icon="Plus" className="w-4 h-4 mr-1" /> Add New
                   Tournament
@@ -945,13 +946,13 @@ function Main() {
               </div>
               <div className="mt-5">
                 {upcomingTournaments?.data?.map((tournament, i) => (
-                  <div className="intro-x box flex lg:flex-row flex-col py-4 items-stretch" key={i}>
-                    <div className="lg:ml-4 h-full lg:w-12 border text-slate-50 bg-emerald-800  rounded-lg py-1 lg:px-2 flex flex-col justify-center items-center font-bold text-lg">
+                  <div className="intro-x box flex lg:flex-row flex-col py-4 items-stretch overflow-hidden" key={i}>
+                    <div className="lg:ml-4 h-full lg:w-12 border text-slate-50 bg-emerald-800  rounded-lg py-1 lg:px-2 flex flex-row gap-1 sm:flex-col justify-center items-center font-bold text-lg">
                       {moment(tournament.start_date).format('DD')}
                       <span className="text-white text-sm">{moment(tournament.start_date).format('MMM')}</span>
                     </div>
-                    <div className="py-5 px-4">
-                      <div className="text-base font-medium truncate">
+                    <div className="px-2 w-auto flex flex-col">
+                      <div className="text-base font-medium line-clamp-1">
                         {tournament.name}
                       </div>
                       <div className="mt-1 text-justify text-slate-500">

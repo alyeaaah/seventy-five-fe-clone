@@ -17,17 +17,20 @@ import { queryClient } from '../../utils/react-query';
 import TournamentJoinModal from './TournamentJoinModal';
 import { GroupsTab } from './GroupsTab';
 import { BracketTab } from './BracketTab';
-import { TournamentDraftPick } from '@/pages/Admin/Tournaments/detail/DraftPick';
+import { TournamentDetailParticipants } from './TournamentDetailParticipants';
+import TournamentDetailMatches from './TournamentDetailMatches';
 import { TournamentsApiHooks } from '@/pages/Admin/Tournaments/api';
 import { useToast } from '../Toast/ToastContext';
 import Button from '../Base/Button';
 
 interface TournamentDetailCardProps {
   tournamentUuid?: string;
+  expanded?: boolean;
 }
 
 const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
-  tournamentUuid
+  tournamentUuid,
+  expanded = false,
 }) => {
   const navigate = useNavigate();
   const { showNotification } = useToast();
@@ -95,9 +98,6 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
     }
   }, {
     enabled: !!tournamentUuid,
-    onSuccess: () => {
-      console.log("onSuccess");
-    }
   });
 
   const { mutate: actionAssignDraftPick } = PublicTournamentApiHooks.useAssignTournamentDraftPick({
@@ -125,7 +125,7 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
     }
   });
 
-  // Handle tournament matches data
+  // Handle tournament matches data for TournamentStory
   const { data: tournamentMatches } = PublicTournamentApiHooks.useGetTournamentDetailMatches(
     {
       params: {
@@ -138,29 +138,6 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
     }
   );
 
-  const matches = {
-    group: tournamentMatches?.data?.filter(md => md.round === -1),
-    knockout: tournamentMatches?.data?.filter(md => md.round !== -1)
-  }
-  // Handle tournament groups data
-  const { data: tournamentGroups, isLoading: isLoadingGroup } = PublicTournamentApiHooks.useGetGroupsByTournament({
-    params: {
-      tournament_uuid: tournamentUuid || ""
-    }
-  }, {
-    enabled: !!tournamentUuid
-  });
-
-  // Handle knockout rounds with proper conversion
-  const [knockoutRound, setKnockoutRound] = useState<any[]>([]);
-
-  // State for round robin tabs
-  const [activeTab, setActiveTab] = useState<'groups' | 'bracket'>('groups');
-
-  // Tab styling constants
-  const tabInactiveClassName = '!bg-transparent !text-emerald-800 hover:!border-emerald-800 border !border-transparent';
-  const tabActiveClassName = '!bg-emerald-800 !text-white !border-transparent';
-  const tabBaseClassName = 'px-2 mx-1 flex items-center justify-center';
   // Join tournament handler
   const handleJoinTournament = () => {
     if (!userIsLogin) {
@@ -402,126 +379,13 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
         />
       </div>
 
-      {detailTournament?.data?.show_bracket == true && (
-        <>
-          <div className="col-span-12 text-emerald-800 flex flex-row my-4">
-            <IconLogoAlt className="h-10 w-20" />
-            <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
-              <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
-              <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>MATCHES
-            </div>
-          </div>
-
-          {detailTournament?.data?.type === "ROUND ROBIN" ? (
-            <div className="col-span-12">
-              <div className="w-full overflow-x-auto mb-6">
-                <Segmented
-                  options={[
-                    {
-                      label: (
-                        <div className="flex items-center justify-center space-x-2">
-                          <Lucide icon="Users" className="h-4 w-4" />
-                          <span>Groups</span>
-                        </div>
-                      ),
-                      value: 'groups',
-                      className: `${tabBaseClassName} ${activeTab === 'groups' ? tabActiveClassName : tabInactiveClassName}`
-                    },
-                    {
-                      label: (
-                        <div className="flex items-center justify-center space-x-2">
-                          <Lucide icon="Trophy" className="h-4 w-4" />
-                          <span>Bracket</span>
-                        </div>
-                      ),
-                      value: 'bracket',
-                      className: `${tabBaseClassName} ${activeTab === 'bracket' ? tabActiveClassName : tabInactiveClassName}`
-                    }
-                  ]}
-                  value={activeTab}
-                  defaultValue="groups"
-                  className="w-full rounded-lg border-emerald-800 font-semibold border-2 bg-[#EBCE56] shadow-none px-1 py-2 min-w-max sm:w-full [&_.ant-segmented-item]:transition-all [&_.ant-segmented-item]:duration-200 [&_.ant-segmented-item]:ease-in-out [&_.ant-segmented-item]:border-emerald-800 [&_.ant-segmented-item]:bg-transparent [&_.ant-segmented-item:not(.ant-segmented-item-selected)]:text-emerald-800 [&_.ant-segmented-item-selected]:bg-emerald-800 [&_.ant-segmented-item-selected]:text-white [&_.ant-segmented-thumb]:bg-emerald-800 [&_.ant-segmented-thumb]:border-emerald-800 [&_.ant-segmented-item-disabled]:opacity-70"
-                  onChange={(val) => setActiveTab(val as 'groups' | 'bracket')}
-                />
-              </div>
-
-              <div className="bg-slate-200 rounded-lg p-4">
-                {activeTab === 'groups' && <GroupsTab tournamentGroups={tournamentGroups} isLoading={isLoadingGroup} matches={matches.group} />}
-                {activeTab === 'bracket' && <BracketTab matchesData={matches.knockout || []} />}
-              </div>
-            </div>
-          ) : detailTournament?.data?.type === "KNOCKOUT" ? (
-            <div className="col-span-12 h-fit overflow-x-scroll" key={JSON.stringify(knockoutRound)}>
-              <DraggableBracket
-                rounds={knockoutRound}
-                readOnly
-                className=""
-                setRounds={() => null}
-                onSeedClick={(seed: any) => {
-                  navigate(paths.tournament.match({ matchUuid: seed.uuid }).$)
-                }}
-              />
-            </div>
-          ) : null}
-        </>
+      {(expanded && detailTournament?.data?.show_bracket == true) && (
+        <TournamentDetailMatches tournamentUuid={tournamentUuid} />
       )}
-      {((!detailTournament?.data?.show_bracket) && !!tournamentTeamParticipants?.data && tournamentTeamParticipants.data.teams.length > 0) && (
-        <div className="col-span-12">
 
-          <div className="col-span-12 text-emerald-800 flex flex-row my-4">
-            <IconLogoAlt className="h-10 w-20" />
-            <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
-              <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
-              <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>PARTICIPANTS
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {tournamentTeamParticipants.data.teams.flatMap(team => team.players || []).map((player) => (
-              <div key={player.uuid} className="bg-white border overflow-hidden border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow items-center flex cursor-pointer"
-                onClick={() => player.uuid && navigate(paths.players.info({ uuid: player.player_uuid || "" }).$)}>
-                <div className="flex items-center space-x-3">
-                  <div className="">
-                    {player.media_url ? (
-                      <img
-                        src={player.media_url}
-                        alt={player.name || 'Player'}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-600">
-                          {player.name?.charAt(0).toUpperCase() || 'P'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0 flex flex-col items-start justify-center">
-                    <h4 className="text-sm font-medium text-gray-900 line-clamp-1">
-                      {player.name}
-                    </h4>
-                    {(
-                      <p className="text-xs text-gray-500 truncate">
-                        {player.nickname && player.nickname !== player.name && player.nickname}
-                      </p>
-                    )}
-                    {player.status && (
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${player.status === 'approved' || player.status === 'confirmed'
-                        ? 'bg-green-100 text-green-800'
-                        : player.status === 'requested'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'
-                        }`}>
-                        {player.status}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {((!detailTournament?.data?.show_bracket) && !!tournamentTeamParticipants?.data && tournamentTeamParticipants.data.teams.length > 0 && expanded) &&
+        <TournamentDetailParticipants tournamentUuid={tournamentUuid} />
+      }
 
       {!detailTournament?.data?.show_bracket && <></>}
       <TournamentJoinModal

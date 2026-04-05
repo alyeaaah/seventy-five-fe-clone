@@ -15,7 +15,7 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
   return (
 
     <Footer className={`${className} mt-8`}>
-      <LayoutWrapper className="grid grid-cols-12 gap-6 w-full ">
+      <LayoutWrapper className="grid grid-cols-12 gap-6 w-full overflow-hidden">
         <div className="col-span-12 sm:col-span-6 lg:col-span-4">
           <div className="flex flex-row items-center justify-start">
             <IconLogo className='h-16 w-24 ' />

@@ -86,16 +86,16 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
                           </div>
 
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center" onClick={() => setShowStats(!showStats)}>
+                        <div className="flex items-center space-x-2">
+                          <div className="!w-8 !h-8 min-w-8 bg-emerald-100 rounded-full flex items-center justify-center" onClick={() => setShowStats(!showStats)}>
                             <span className="text-emerald-800 text-sm font-medium">
-                              {!showStats ? team.players?.map(p => p.name?.charAt(0).toUpperCase()).join('') : team.name?.split(' ')[1]}
+                              {team.name?.length === 2 ? team.name : (!showStats ? team.players?.map(p => p.name?.charAt(0).toUpperCase()).join('') : team.name?.split(' ')[1])}
                             </span>
                           </div>
-                          <div>
+                          <div className='flex flex-col'>
                             {team.players?.map((player) => (
                               <div key={player.uuid}>
-                                <p className="w-full line-clamp-1 flex flex-row gap-1 items-center">
+                                <p className="line-clamp-1 flex flex-row gap-1 items-center">
                                   {player?.nickname && player.nickname !== player.name && (
                                     <span className="font-medium text-gray-900">{`${player.nickname}`}</span>
                                   )}
@@ -110,11 +110,11 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
                             ))}
                           </div>
                         </div>
-                        <div className="text-right w-fit">
+                        {/* <div className="text-right w-fit">
                           <span className="text-xs px-2 py-1 text-white bg-primary rounded-md whitespace-nowrap">
                             {team.name}
                           </span>
-                        </div>
+                        </div> */}
                       </div>
                     ))}
                   </div>

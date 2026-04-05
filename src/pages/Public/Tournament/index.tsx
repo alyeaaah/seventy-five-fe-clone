@@ -12,6 +12,8 @@ import { IconLogoAlt } from "@/assets/images/icons";
 import TournamentDetailCard from "@/components/Tournament/TournamentDetailCard";
 import { accessTokenAtom, userAtom } from "@/utils/store";
 import { useAtomValue } from "jotai";
+import TournamentDetailMatches from "@/components/Tournament/TournamentDetailMatches";
+import { TournamentDetailParticipants } from "@/components/Tournament/TournamentDetailParticipants";
 export const PublicTournament = () => {
   const navigate = useNavigate();
   const queryParams = useRouteParams(paths.tournament.index);
@@ -61,10 +63,21 @@ export const PublicTournament = () => {
     }
   );
 
+  const { data: tournamentTeamParticipants } = PublicTournamentApiHooks.useGetTournamentTeamParticipants({
+    params: {
+      uuid: uuid || ''
+    },
+    queries: {
+      status: "approved,confirmed"
+    }
+  }, {
+    enabled: !!uuid,
+  });
+
   const { data: blogData } = PublicBlogApiHooks.useGetBlogFeatured(
     {
       queries: {
-        limit: 9
+        limit: 6
       }
     }, {
     enabled: !!uuid || !!data?.data?.[0]?.uuid
@@ -103,6 +116,7 @@ export const PublicTournament = () => {
             />
           </div>
         </FadeAnimation>
+
         <FadeAnimation className="col-span-4 md:flex flex-col space-y-2 hidden" direction="down">
           {blogData?.data?.map((blog, index) => (
             <div key={index} className="flex flex-row overflow-hidden h-fit rounded-xl border p-2 slide-in-top">
@@ -120,6 +134,17 @@ export const PublicTournament = () => {
               </div>
             </div>
           ))}
+        </FadeAnimation>
+
+        <FadeAnimation className="col-span-12 md:col-span-12 grid grid-cols-12 gap-0 h-max" direction="up">
+
+          {(detailTournament?.data?.show_bracket == true) && (
+            <TournamentDetailMatches tournamentUuid={uuid || data?.data?.[0]?.uuid || ''} />
+          )}
+
+          {((!detailTournament?.data?.show_bracket) && !!tournamentTeamParticipants?.data && tournamentTeamParticipants.data.teams.length > 0) &&
+            <TournamentDetailParticipants tournamentUuid={uuid || data?.data?.[0]?.uuid || ''} />
+          }
         </FadeAnimation>
         {detailTournament?.data && (
           <FadeAnimation className="col-span-12 ">

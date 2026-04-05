@@ -566,6 +566,19 @@ html.dark {
   }
 }
 
+/* Fix for mobile menu readability */
+@media (max-width: 768px) {
+  .ant-menu .ant-menu-item-selected a {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+  }
+  
+  .ant-menu .ant-menu-item-selected.ant-menu-item-only-child a {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+  }
+}
+
 /* ==================== */
 /* Public Page Styles */
 /* ==================== */
