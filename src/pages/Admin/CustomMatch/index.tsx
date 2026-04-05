@@ -357,7 +357,7 @@ export const CustomMatchPage = () => {
                 {record.home_team.alias && <span className="text-xs border rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 px-1 capitalize ml-1 ">{record.home_team.alias} </span>}
               </div>
               {record.home_team.players?.map((player) => (
-                <div className="flex flex-row items-center">
+                <div key={player.uuid} className="flex flex-row items-center">
                   <span className="text-xs font-medium mr-1">{player.name}</span>
                   <span className="text-xs font-light">({player.nickname})</span>
                 </div>
@@ -374,7 +374,7 @@ export const CustomMatchPage = () => {
                 <span className="text-sm font-bold text-ellipsis line-clamp-1 max-w-full text-emerald-800 dark:text-emerald-400 text-end">{record.away_team.name} </span>
               </div>
               {record.away_team.players?.map((player) => (
-                <div className="flex flex-row items-center justify-end">
+                <div key={player.uuid} className="flex flex-row items-center justify-end">
                   <span className="text-xs font-medium mr-1">{player.name}</span>
                   <span className="text-xs font-light">({player.nickname})</span>
                 </div>

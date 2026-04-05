@@ -65,7 +65,7 @@ export const PublicChallenger = () => {
                           media_url: player.media_url,
                           name: player.name,
                           uuid: player.uuid
-                        })) || []} />
+                        })) || []} useLinks={false} />
                         <div className='flex flex-row text-white items-center'>
                           <IconVS className="w-16 h-8" />
                         </div>
@@ -74,7 +74,7 @@ export const PublicChallenger = () => {
                             media_url: player.media_url,
                             name: player.name,
                             uuid: player.uuid
-                          })) || []} />
+                          })) || []} useLinks={false} />
                       </div>
                       <div className='flex flex-row justify-between px-2 py-1 capitalize w-full text-xs text-emerald-800'>
                         <div className="flex flex-col justify-start">
