@@ -32,6 +32,7 @@ export const matchDetailSchema = z.object({
   uuid: z.string().optional(),
   shortcode: z.string().nullish(),
   tournament_uuid: z.string().nullish(),
+  group_uuid: z.string().nullish(),
   home_team_uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
   away_team_uuid: z.string().uuid().or(z.enum(["TBD", "BYE"])),
   home_team: matchTeamSchema.nullish(),
@@ -124,4 +125,4 @@ export type MatchesScoreFirestore = z.infer<typeof matchesScoreFirestoreSchema>;
 export type ScoreUpdatePayload = z.infer<typeof scoreUpdatePayloadSchema>;
 export type MatchStatusEnum = z.infer<typeof matchStatusEnum>;
 export type MatchTeam = z.infer<typeof matchTeamSchema>;
-
+export type FullMatchDetail = z.infer<typeof fullMatchDetailSchema>;

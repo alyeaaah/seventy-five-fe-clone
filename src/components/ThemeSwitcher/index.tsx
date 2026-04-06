@@ -4,11 +4,13 @@ import { Slideover } from "@/components/Base/Headless";
 import Lucide from "@/components/Base/Lucide";
 import { useState, useEffect, useCallback } from "react";
 import clsx from "clsx";
+import { clientEnv } from "@/env";
 
 function Main() {
   const dispatch = useAppDispatch();
   const [themeSwitcherSlideover, setThemeSwitcherSlideover] = useState(false);
   const activeDarkMode = useAppSelector(selectDarkMode);
+  const isDevelopment = clientEnv.API_BASE_URL.includes("localhost");
 
   // Sync dark mode class ke HTML element
   useEffect(() => {
@@ -90,10 +92,10 @@ function Main() {
       <button
         type="button"
         onClick={() => setThemeSwitcherSlideover(true)}
-        className="fixed bottom-0 right-0 z-50 flex items-center justify-center mb-5 mr-5 text-white rounded-full shadow-lg cursor-pointer w-14 h-14 bg-theme-1 hover:bg-theme-1/90 transition-colors"
+        className={`fixed bottom-0 right-0 z-50 flex items-center justify-center mb-5 mr-5 text-white rounded-full shadow-lg cursor-pointer w-14 h-14  transition-colors ${isDevelopment ? 'bg-red-500 hover:bg-red-600 animate-bounce' : 'bg-theme-1 hover:bg-theme-1/90'}`}
         aria-label="Open theme switcher"
       >
-        <Lucide className="w-5 h-5 animate-spin" icon="Settings" />
+        <Lucide className={`w-5 h-5 ${isDevelopment ? '' : 'animate-spin'}`} icon="Settings" />
       </button>
     </div>
   );

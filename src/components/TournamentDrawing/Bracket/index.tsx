@@ -107,7 +107,7 @@ export const DraggableBracket = ({
         roundTitleComponent={(e) => {
           return <div className='text-lg font-bold' key={e.toString()}>{e.toString()}</div>
         }}
-        roundClassName='bracket-round'
+        roundClassName='bracket-round text-emerald-800'
         renderSeedComponent={(props) => {
           let round: 'final' | 'semi final' | undefined;
           if (props.roundIndex == (rounds.length - 1)) {

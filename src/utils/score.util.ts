@@ -372,7 +372,7 @@ export const useScore = () => {
         away_team_score: finalAwayGamesWon.toString(),
         game_scores: updatedGameScores
       };
-      
+
       setScore(updatedMatchScores, skipApiCall);
     } else {
       // Set not won yet, just update game scores
@@ -466,8 +466,9 @@ export const useScore = () => {
     const updatedScores = matchScores.map((score, index) => 
       index === matchIndex ? createInitialScore(matchUuid) : score
     );
+    console.log("updatedScores",updatedScores);
     
-    setScore(updatedScores.find(score => score.match_uuid === matchUuid)!);
+    setScore(updatedScores.find(score => score.match_uuid === matchUuid)!, true);
   };
 
   /**

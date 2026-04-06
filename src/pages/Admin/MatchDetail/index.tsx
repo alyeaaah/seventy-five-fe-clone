@@ -11,7 +11,7 @@ import { paths } from "@/router/paths";
 import { MatchDetailApiHooks } from "./api";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { TournamentsApiHooks } from "../Tournaments/api";
-import { Divider, Image, Progress, QRCode } from "antd";
+import { Divider, Progress, QRCode } from "antd";
 import { useAtom } from "jotai";
 import { matchScoresAtom } from "@/utils/store/atoms";
 import { useScore } from "@/utils/score.util";
@@ -25,6 +25,8 @@ import { IconVS } from "@/assets/images/icons";
 import { CustomSkeleton } from "@/components/CustomSkeleton";
 import { clientEnv } from "@/env";
 import { useMatchSocket } from "@/hooks/useMatchSocket";
+import Image from "@/components/Image";
+import { PublicTournamentApiHooks } from "@/pages/Public/Tournament/api";
 
 export const MatchDetail = () => {
   const navigate = useNavigate();
@@ -35,6 +37,7 @@ export const MatchDetail = () => {
   const [youtubeUrl, setYoutubeUrl] = useState("")
   const [youtubePreviewUrl, setYoutubePreviewUrl] = useState("");
   const [hostUrl, setHostUrl] = useState("");
+  const [matchTitle, setMatchTitle] = useState("");
   const { data } = MatchDetailApiHooks.useGetMatchDetail({
     params: {
       uuid: matchUuid
@@ -44,9 +47,47 @@ export const MatchDetail = () => {
     },
     retry: false
   });
+
   useEffect(() => {
     setHostUrl(window.location.origin);
   }, [data]);
+
+  const { data: matchesData } = PublicTournamentApiHooks.useGetTournamentDetailMatches({
+    params: {
+      tournament_uuid: data?.data?.tournament_uuid || ""
+    }
+  }, {
+    enabled: false //!!tournamentInfo?.data?.uuid
+  })
+  const currentRound = (data?.data?.round !== null && data?.data?.round !== undefined && data?.data?.round >= 0) ? data?.data?.round + 1 : -1;
+
+  useEffect(() => {
+    let title = '';
+    if (matchesData) {
+      const seeds = matchesData?.data?.filter((item: any) => item.round === 0).length || 0;
+      const totalRound = Math.log2(seeds * 2);
+      const fromRight = (currentRound) - totalRound;
+      switch (Math.abs(fromRight)) {
+        case 0:
+          title = "Final Match";
+          break;
+        case 1:
+          title = "Semifinal";
+          break;
+        case 2:
+          title = "Quarterfinal";
+          break;
+        default:
+          title = '';
+          break;
+      }
+
+      setMatchTitle(title);
+    }
+
+
+
+  }, [matchesData])
   const { data: tournamentInfo } = TournamentsApiHooks.useGetTournamentsDetail({
     params: {
       uuid: data?.data?.tournament_uuid || ""
@@ -111,7 +152,8 @@ export const MatchDetail = () => {
             label: "Continue",
             onClick: () => {
               navigate(paths.administrator.tournaments.detail({
-                id: tournamentInfo?.data?.uuid || ""
+                id: tournamentInfo?.data?.uuid || "",
+                tab: "group_matches"
               }).$)
               setModalAlert(undefined)
             },
@@ -153,7 +195,6 @@ export const MatchDetail = () => {
     }
   );
 
-  const [matchScores, setMatchScores] = useAtom(matchScoresAtom);
   const [isLoadingScore, setIsLoadingScore] = useState(false);
   const {
     updateGameScore,
@@ -190,7 +231,11 @@ export const MatchDetail = () => {
       };
       setScore(updatedScoreData, true);
     }
-    if (isConnected && matches.length > 0) {
+    const matchesFromSocket = matches.find(d => d.matchUuid == matchUuid);
+    const localMatches = matches.find(match => match.matchUuid === matchUuid)
+    console.log(matchesFromSocket, 'gamesocore', data?.data?.game_scores, 'localMatches', localMatches);
+
+    if (isConnected && matches.length > 0 && matchesFromSocket) {
       // Find the match update for current match
       const matchUpdate = matches.find(match => match.matchUuid === matchUuid);
       if (matchUpdate) {
@@ -219,6 +264,26 @@ export const MatchDetail = () => {
         //   duration: 1000
         // });
       }
+    }
+
+    if (!matchesFromSocket && data?.data?.game_scores?.length) {
+      const updatedScoreData: ScoreUpdatePayload = {
+        match_uuid: matchUuid,
+        home_team_score: data.data.game_scores.filter(g => g.game_score_home === "WIN").length.toString(),
+        away_team_score: data.data.game_scores.filter(g => g.game_score_away === "WIN").length.toString(),
+        game_scores: data.data.game_scores.map(game => ({
+          set: game.set,
+          game: game.game,
+          game_score_home: game.game_score_home,
+          game_score_away: game.game_score_away,
+          status: (game as any).status || "PAUSED" as const,
+          last_updated_at: new Date().toISOString()
+        }))
+      };
+
+      setScore(updatedScoreData, true);
+
+
     }
   }, [matches, isConnected, matchUuid, data]);
 
@@ -262,6 +327,7 @@ export const MatchDetail = () => {
       return;
     }
 
+
     updateGameScore({
       matchUuid,
       team,
@@ -289,9 +355,7 @@ export const MatchDetail = () => {
       game_scores: []
     }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: MatchDetailApiHooks.getKeyByAlias("getMatchDetail"),
-        });
+        window.location.reload();
       }
     });
   };
@@ -517,9 +581,7 @@ export const MatchDetail = () => {
               <div
                 className="text-xl font-bold capitalize"
                 onClick={() => navigate(paths.administrator.tournaments.detail({ id: data?.data?.tournament_uuid || "" }).$)}>
-                {!data?.data?.tournament_uuid && "Challenger "}
-                Match&nbsp;
-                {current.match}
+                {!data?.data?.tournament_uuid && "Challenger "}{data?.data?.group_uuid ? `Group ${data?.data?.home_team?.name ? data?.data?.home_team?.name[0] : ''} ` : ""}{!!matchTitle ? matchTitle : `Match ${(data?.data?.seed_index !== null && data?.data?.seed_index !== undefined && data?.data?.seed_index >= 0) ? data?.data?.seed_index + 1 : ''} `}
               </div>
               <div className="hidden sm:flex text-sm text-center text-emerald-800 dark:text-[#EBCE56]" onClick={() => navigate(paths.administrator.tournaments.detail({ id: data?.data?.tournament_uuid || "" }).$)}>
                 {tournamentInfo?.data?.name}{tournamentInfo?.data?.type == "KNOCKOUT" && ` - Round ${current.round}`}

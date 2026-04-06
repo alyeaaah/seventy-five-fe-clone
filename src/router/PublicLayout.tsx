@@ -9,9 +9,20 @@ import { LoadingAnimation } from "@/components/LoadingAnimation";
 
 export const PublicLayout = () => {
   const Helmet = HelmetBase as unknown as React.ComponentType<any>;
+  const isDevelopment = clientEnv.API_BASE_URL.includes('localhost') || clientEnv.API_BASE_URL.includes('127.0.0.1');
+  const DevComponent = () => {
+    return (
+      <div className="fixed top-0 right-0 z-50 flex gap-2 overflow-hidden items-center justify-center text-white  shadow-lg cursor-pointer w-full h-4 bg-red-800 hover:bg-red-600 animate-bounce">
+        {Array.from({ length: 33 }, (d, i) => (
+          <div key={i} className="text-lg font-bold border-r-2 p-2 -skew-x-12 text-neutral-800">DEVELOP</div>
+        ))}
+      </div>
+    );
+  };
   return (
     <>
       <Layout className="min-h-screen bg-white text-white public-page">
+        {isDevelopment && <DevComponent />}
         {/* Top Navbar */}
         <Helmet >
           <link rel="preconnect" href="https://fonts.googleapis.com" />

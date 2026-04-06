@@ -383,7 +383,6 @@ export const CustomMatchForm = (props: Props) => {
                                   onChange={(e) => {
                                     field.onChange(e);
                                     const pointConfig = pointConfigData?.data?.find((item) => item.uuid === e.target.value)?.points?.[0];
-                                    console.log(pointConfig);
 
                                     setValue(`matches.${index}.point_win`, pointConfig?.win_point || 0, { shouldValidate: true });
                                     setValue(`matches.${index}.point_lose`, pointConfig?.lose_point || 0, { shouldValidate: true });

@@ -28,7 +28,7 @@ export const updateMatchScoreDirectly = async (scoreData: ScoreUpdatePayload) =>
 // Create a stable debounced function that won't be recreated
 const debouncedUpdate = debounce(async (scoreData: ScoreUpdatePayload) => {
   return updateMatchScoreDirectly(scoreData);
-}, 500);
+}, 800);
 
 /**
  * Hook for debounced score updates

@@ -1,10 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { galleriesMediaSchema } from "@/pages/Admin/Galleries/api/schema";
-import { tournamentMatchDetailSchema, tournamentMatchSchema, tournamentsSchema } from "@/pages/Admin/Tournaments/api/schema";
-import { matchesListSchema } from "@/pages/Admin/CustomMatch/api/schema";
-import { publicChallengerListSchema, publicTournamentDetailSchema } from "./schema";
-import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
+import { publicChallengerListSchema } from "./schema";
 import { fullMatchDetailSchema } from "@/pages/Admin/MatchDetail/api/schema";
 import { pointConfigurationDetailSchema } from "@/pages/Admin/PointConfig/api/schema";
 import { giveKudosPayloadSchema, kudosSchema } from "@/pages/Admin/MasterData/Kudos/api/schema";

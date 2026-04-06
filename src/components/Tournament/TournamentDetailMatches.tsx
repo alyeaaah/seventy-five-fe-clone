@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Segmented } from 'antd';
 import Lucide from '../Base/Lucide';
 import { IconLogoAlt } from '../../assets/images/icons';
-import { DraggableBracket } from '../TournamentDrawing';
+import { DraggableBracket, TournamentDrawingUtils } from '../TournamentDrawing';
 import { convertTournamentMatchToMatch } from '../../utils/drawing.util';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '../../router/paths';
@@ -24,6 +24,7 @@ const TournamentDetailMatches: React.FC<TournamentDetailMatchesProps> = ({
   const accessToken = useAtomValue(accessTokenAtom);
   const user = useAtomValue(userAtom);
   const userIsLogin = !!accessToken && !!user;
+  const { convertMatchToRound } = TournamentDrawingUtils;
 
   // Handle tournament detail data
   const { data: detailTournament } = !userIsLogin ? PublicTournamentApiHooks.useGetTournamentDetail(
@@ -146,9 +147,9 @@ const TournamentDetailMatches: React.FC<TournamentDetailMatchesProps> = ({
       ) : detailTournament?.data?.type === "KNOCKOUT" ? (
         <div className="col-span-12 h-fit overflow-x-scroll" key={JSON.stringify(knockoutRound)}>
           <DraggableBracket
-            rounds={knockoutRound}
+            rounds={convertMatchToRound(convertTournamentMatchToMatch(matches.knockout || []))}
             readOnly
-            className=""
+            className="text-emerald-800"
             setRounds={() => null}
             onSeedClick={(seed: any) => {
               navigate(paths.tournament.match({ matchUuid: seed.uuid }).$)

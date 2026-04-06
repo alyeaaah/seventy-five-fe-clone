@@ -390,7 +390,6 @@ export const Register = () => {
                               <Litepicker
                                 value={field.value}
                                 onChange={(e) => {
-                                  console.log('onChange', moment(e.target.value).toDate());
                                   field.onChange(moment(e.target.value).format('DD MMMM YYYY'));
                                 }}
                                 onEnded={(e) => {

@@ -79,7 +79,7 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
       }
     },
     {
-      enabled: !!tournamentUuid
+      enabled: !!tournamentUuid && userIsLogin
     }
   );
   const { data: draftPickData } = PublicTournamentApiHooks.useGetTournamentDraftPicks({

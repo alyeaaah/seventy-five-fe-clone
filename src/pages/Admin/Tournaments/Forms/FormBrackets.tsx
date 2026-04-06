@@ -123,10 +123,8 @@ export const TournamentFormBrackets = (props: Props) => {
   // Handle Fetched Tournament Matches
   useEffect(() => {
     if (!matchesData?.data?.length && teamsData?.data?.length) {
-      console.log("teamsData", teamsData?.data);
       setupRound(teamsData?.data);
     } else if (matchesData?.data?.length && teamsData?.data?.length) {
-      console.log("matchesData", matchesData?.data);
       const mm = convertTournamentMatchToMatch(matchesData.data.map(m => ({
         ...m,
         roundKey: m.round !== undefined && m.round !== null && m.round >= 0 ? m.round : undefined,
@@ -159,7 +157,6 @@ export const TournamentFormBrackets = (props: Props) => {
         uuid: c.uuid
       })) || []
     });
-    console.log(allRounds, "ALLLL");
 
     const validation = validateNoDuplicateTeamsInRounds(allRounds);
     setRoundValidation(validation);
@@ -193,11 +190,7 @@ export const TournamentFormBrackets = (props: Props) => {
           })) || []
         }
       })
-      console.log("matchesSchedule", matchesSchedule.map(m => ({
-        ...m,
-        a: new Date(m.time || ""),
-        aa: data?.data?.start_date ? new Date(data?.data?.start_date) : new Date(),
-      })));
+
       setAllRounds(convertMatchToRound(matchesSchedule));
       setMatches(matchesSchedule);
     }
@@ -378,10 +371,6 @@ export const TournamentFormBrackets = (props: Props) => {
 
       body.matches.push(matchPayload)
     })
-    console.log(body, "SUBMITMATCH matchPayload");
-
-    console.log(body.matches.filter(m => m.round !== undefined).map(m => ({ ...m, time: new Date(m.time || "") })), "BODY ROUND");
-    console.log(body.matches.filter(m => m.group !== undefined).map(m => ({ ...m, time: new Date(m.time || "") })), "BODY GROUP");
     actionUpdateMatches({
       matches: body.matches,
       tournament_uuid: tournamentUuid,
@@ -435,7 +424,6 @@ export const TournamentFormBrackets = (props: Props) => {
               rounds={allRounds}
               setRounds={(r) => {
                 const validation = validateNoDuplicateTeamsInRounds(r);
-                console.log("scheduledMatches1 ", validation, r);
 
                 if (!!validation.valid) {
                   const roundMatches = getAllKnockoutMatches(r).sort((a, b) => (a.roundKey || 0) - (b.roundKey || 0));
@@ -450,7 +438,6 @@ export const TournamentFormBrackets = (props: Props) => {
                     }
                   });
                   setMatches(scheduledMatches);
-                  console.log("scheduledMatches", scheduledMatches);
 
                 }
                 setRoundValidation(validation);

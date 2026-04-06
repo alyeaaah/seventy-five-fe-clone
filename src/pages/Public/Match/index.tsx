@@ -106,8 +106,8 @@ export const PublicMatchDetail = () => {
         />
         <FadeAnimation className="col-span-12 md:col-span-12 grid grid-cols-12 gap-0 h-max" direction="up">
           <div className="col-span-12 grid grid-cols-12 gap-2 h-max">
-            <MatchMediaAndInfoSection
-              data={data}
+            {data?.data && <MatchMediaAndInfoSection
+              data={data?.data}
               key={JSON.stringify(data)}
               tournamentInfo={tournamentInfo}
 
@@ -123,7 +123,7 @@ export const PublicMatchDetail = () => {
                   playerName: playerName || "",
                 });
               }}
-            />
+            />}
           </div>
         </FadeAnimation>
         <FadeAnimation className="col-span-12 ">
