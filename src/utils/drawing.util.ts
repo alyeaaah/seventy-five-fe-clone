@@ -56,7 +56,7 @@ export const convertTournamentMatchToMatch = (matches: TournamentMatchDetail[]):
       } as IPlayer)),
       score:  {
         set: match.home_team_score || 0,
-        game: match.game_scores?.sort((a, b) => b.set - a.set)?.[0]?.game_score_away || 0,
+        game: (match.game_scores?.sort((a, b) => ( b.game || 0 ) - ( a.game || 0 ))?.[0]?.game_score_home) || 0,
       },
     }, {
       name: match.away_team.name,
@@ -70,7 +70,7 @@ export const convertTournamentMatchToMatch = (matches: TournamentMatchDetail[]):
       } as IPlayer)),
       score:  {
         set: match.away_team_score || 0,
-        game: match.game_scores?.sort((a, b) => b.set - a.set)?.[0]?.game_score_away || 0,
+        game: (match.game_scores?.sort((a, b) => ( b.game || 0 ) - ( a.game || 0 ))?.[0]?.game_score_away) || 0,
       },
     }],
     home_team: match.home_team,

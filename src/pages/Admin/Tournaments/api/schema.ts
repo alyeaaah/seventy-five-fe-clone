@@ -127,7 +127,8 @@ export const tournamentMatchSchema = z.object({
   game_scores: z.array(z.object({
     game_score_home: z.string().or(z.number()),
     game_score_away: z.string().or(z.number()),
-    set: z.number()
+    set: z.number().default(0),
+    game: z.number().default(0)
   })).nullish(),
   round: z.number().nullish(),
   seed_index: z.number().nullish(),
