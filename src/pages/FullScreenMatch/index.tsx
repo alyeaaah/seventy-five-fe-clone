@@ -65,7 +65,8 @@ const FullScreenMatchPage: React.FC = () => {
             },
           }}
         />
-        <div className="absolute bottom-4 left-4 bg-emerald-800 text-white px-6 py-2 rounded-lg flex flex-row gap-1 bg-opacity-80"
+        {/* todo add env */}
+        {/* <div className="absolute bottom-4 left-4 bg-emerald-800 text-white px-6 py-2 rounded-lg flex flex-row gap-1 bg-opacity-80"
           key={JSON.stringify(currentMatchScore)}>
           <div className='flex flex-col gap-1'>
             <div className='text-end'>&nbsp;</div>
@@ -84,7 +85,7 @@ const FullScreenMatchPage: React.FC = () => {
               <div className={`border rounded ${game.game_score_away == "WIN" ? 'text-[#EBCE56] border-[#EBCE56]' : 'text-white border-white'}`}>{game.game_score_away == "WIN" ? (game.game_score_home == "40" ? "AD" : "40") : game.game_score_away}</div>
             </div>
           ))}
-        </div>
+        </div> */}
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all"
