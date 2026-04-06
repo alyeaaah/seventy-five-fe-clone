@@ -19,10 +19,10 @@ import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 
 export const PointConfigurationsForm = () => {
   const navigate = useNavigate();
-  
+
   const { showNotification } = useToast();
   const queryParams = useRouteParams(paths.administrator.masterData.pointConfigForm);
-  const { uuid:pointConfigUuid } = queryParams;
+  const { uuid: pointConfigUuid } = queryParams;
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const { mutate: actionCreatePointConfiguration } = PointConfigurationsApiHooks.useCreatePointConfiguration();
   const location = useLocation();
@@ -44,16 +44,16 @@ export const PointConfigurationsForm = () => {
             lose_coin: point.lose_coin || 0,
             is_delete: point.is_delete || false
           })) || [
-            {
-              uuid: "",
-              round: 0,
-              win_point: 0,
-              lose_point: 0,
-              win_coin: 0,
-              lose_coin: 0,
-              is_delete: false
-            }
-          ]
+              {
+                uuid: "",
+                round: 0,
+                win_point: 0,
+                lose_point: 0,
+                win_coin: 0,
+                lose_coin: 0,
+                is_delete: false
+              }
+            ]
         });
       }
     },
@@ -187,15 +187,15 @@ export const PointConfigurationsForm = () => {
         <h2 className="mr-auto text-lg font-medium">{pointConfigUuid && pointConfigUuid != "new" ? "Edit" : "Add New"} PointConfiguration</h2>
       </div>
       <Divider />
-      <FormProvider {...methods} key={location.pathname+"_form"}>
-        <form onSubmit={handleSubmit(onSubmit)} key={location.pathname+"_form2"}>
+      <FormProvider {...methods} key={location.pathname + "_form"}>
+        <form onSubmit={handleSubmit(onSubmit)} key={location.pathname + "_form2"}>
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12 sm:col-span-8 grid grid-cols-12 gap-2 intro-y box p-4">
               <div className="col-span-12 sm:col-span-12">
                 <FormLabel htmlFor="modal-form-1"> Name</FormLabel>
                 <Controller
                   name="name"
-                  key={location.pathname+"_name"}
+                  key={location.pathname + "_name"}
                   control={control}
                   render={({ field, fieldState }) =>
                     <>
@@ -219,7 +219,7 @@ export const PointConfigurationsForm = () => {
                   }
                 />
               </div>
-              <Divider className="col-span-12 sm:my-4 my-2"/>
+              <Divider className="col-span-12 sm:my-4 my-2" />
               {
                 watch("points").map((field, idx) => (
                   <div className="col-span-12 grid grid-cols-11 gap-4 pb-4 bg-gray-200 rounded-lg p-4 sm:bg-none" key={location.pathname + `fields.${idx}`}>
@@ -250,7 +250,9 @@ export const PointConfigurationsForm = () => {
                                     field.onChange(parseInt(Number(e.target.value).toString(), 10))
                                     // check if next index is exist, update the lose point
                                     if (idx + 1 < getValues("points").length) {
-                                      setValue(`points.${idx + 1}.lose_point`, parseInt(e.target.value))
+                                      setValue(`points.${idx + 1}.lose_point`, parseInt(e.target.value),
+                                        { shouldValidate: true }
+                                      )
                                     }
                                   }}
                                   placeholder="Win Point"
@@ -286,7 +288,8 @@ export const PointConfigurationsForm = () => {
                                     field.onChange(parseInt(Number(e.target.value).toString(), 10))
                                     // check if next index is exist, update the lose coin
                                     if (idx + 1 < getValues("points").length) {
-                                      setValue(`points.${idx + 1}.lose_coin`, parseInt(e.target.value))
+                                      setValue(`points.${idx + 1}.lose_coin`, parseInt(e.target.value),
+                                        { shouldValidate: true })
                                     }
                                   }}
                                   placeholder="Win Coin"
@@ -303,7 +306,7 @@ export const PointConfigurationsForm = () => {
                           }
                         />
                       </div>
-                      
+
                     </div>
                     <div className="col-span-11 sm:col-span-4">
                       <div className="grid grid-cols-12 gap-1">
@@ -370,7 +373,7 @@ export const PointConfigurationsForm = () => {
                           }
                         />
                       </div>
-                      
+
                     </div>
                     {idx > 0 &&
                       <div className="col-span-11 sm:col-span-1 flex items-center">
