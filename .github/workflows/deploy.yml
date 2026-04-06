@@ -52,7 +52,19 @@ jobs:
 
       - name: Deploy frontend (React app) via rsync over SSH
         run: |
-          rsync -avz --no-group -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
+          # Clean up old deployment first to save space
+          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+            cd ${{ secrets.SERVER_DEST }} && \
+            # Remove old files (keep longer for production)
+            find . -name '*.js' -type f -mtime +7 -delete 2>/dev/null || true && \
+            find . -name '*.css' -type f -mtime +7 -delete 2>/dev/null || true && \
+            find . -name '*.png' -type f -mtime +30 -delete 2>/dev/null || true && \
+            find . -name '*.jpg' -type f -mtime +30 -delete 2>/dev/null || true && \
+            df -h
+          "
+          
+          # Deploy new files
+          rsync -avz --no-group --delete -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
             ./dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_DEST }}
 
       - name: Cleanup
