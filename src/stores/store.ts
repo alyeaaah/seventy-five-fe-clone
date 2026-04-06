@@ -17,16 +17,19 @@ const localStorageSyncMiddleware: Middleware<{}, StoreState> = (store) => (next)
   const result = next(action);
   
   // Sync ke localStorage setelah action (hanya untuk actions yang mengubah state)
-  const state = store.getState();
-  if (state.darkMode) {
-    localStorage.setItem("darkMode", state.darkMode.value.toString());
-  }
-  if (state.colorScheme) {
-    localStorage.setItem("colorScheme", state.colorScheme.value);
-  }
-  if (state.theme) {
-    localStorage.setItem("theme", state.theme.value.name);
-    localStorage.setItem("layout", state.theme.value.layout);
+  // Pastikan localStorage tersedia (browser environment)
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const state = store.getState();
+    if (state.darkMode) {
+      localStorage.setItem("darkMode", state.darkMode.value.toString());
+    }
+    if (state.colorScheme) {
+      localStorage.setItem("colorScheme", state.colorScheme.value);
+    }
+    if (state.theme) {
+      localStorage.setItem("theme", state.theme.value.name);
+      localStorage.setItem("layout", state.theme.value.layout);
+    }
   }
   
   return result;

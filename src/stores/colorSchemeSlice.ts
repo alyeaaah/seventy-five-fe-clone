@@ -16,7 +16,7 @@ interface ColorSchemeState {
 }
 
 const getColorScheme = () => {
-  const colorScheme = localStorage.getItem("colorScheme");
+  const colorScheme = typeof window !== 'undefined' ? localStorage.getItem("colorScheme") : null;
   return colorSchemes.filter((item, key) => {
     return item === colorScheme;
   })[0];
@@ -24,7 +24,7 @@ const getColorScheme = () => {
 
 const initialState: ColorSchemeState = {
   value:
-    localStorage.getItem("colorScheme") === null ? "theme-1" : getColorScheme(),
+    typeof window !== 'undefined' && localStorage.getItem("colorScheme") === null ? "theme-1" : getColorScheme(),
 };
 
 export const colorSchemeSlice = createSlice({
@@ -32,7 +32,9 @@ export const colorSchemeSlice = createSlice({
   initialState,
   reducers: {
     setColorScheme: (state, action: PayloadAction<ColorSchemes>) => {
-      localStorage.setItem("colorScheme", action.payload);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("colorScheme", action.payload);
+      }
       state.value = action.payload;
     },
   },

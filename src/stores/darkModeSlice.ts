@@ -6,7 +6,7 @@ interface DarkModeState {
 }
 
 const initialState: DarkModeState = {
-  value: localStorage.getItem("darkMode") === "true",
+  value: typeof window !== 'undefined' && localStorage.getItem("darkMode") === "true",
 };
 
 export const darkModeSlice = createSlice({
@@ -14,7 +14,9 @@ export const darkModeSlice = createSlice({
   initialState,
   reducers: {
     setDarkMode: (state, action: PayloadAction<boolean>) => {
-      localStorage.setItem("darkMode", action.payload.toString());
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("darkMode", action.payload.toString());
+      }
       state.value = action.payload;
     },
   },

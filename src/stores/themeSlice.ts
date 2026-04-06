@@ -35,8 +35,8 @@ export const getTheme = (search?: {
   const searchValues =
     search === undefined
       ? {
-          name: localStorage.getItem("theme"),
-          layout: localStorage.getItem("layout"),
+          name: typeof window !== 'undefined' ? localStorage.getItem("theme") : null,
+          layout: typeof window !== 'undefined' ? localStorage.getItem("layout") : null,
         }
       : search;
   return themes.filter((item, key) => {
@@ -49,9 +49,9 @@ export const getTheme = (search?: {
 const initialState: ThemeState = {
   value: {
     name:
-      localStorage.getItem("theme") === null ? themes[0].name : getTheme().name,
+      typeof window !== 'undefined' && localStorage.getItem("theme") === null ? themes[0].name : getTheme().name,
     layout:
-      localStorage.getItem("layout") === null
+      typeof window !== 'undefined' && localStorage.getItem("layout") === null
         ? themes[0].layout
         : getTheme().layout,
   },
@@ -67,7 +67,9 @@ export const themeSlice = createSlice({
         layout: state.value.layout,
       };
 
-      localStorage.setItem("theme", action.payload);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("theme", action.payload);
+      }
     },
     setLayout: (state, action: PayloadAction<Themes["layout"]>) => {
       state.value = {
@@ -75,7 +77,9 @@ export const themeSlice = createSlice({
         layout: action.payload,
       };
 
-      localStorage.setItem("layout", action.payload);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("layout", action.payload);
+      }
     },
   },
 });
