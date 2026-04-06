@@ -19,8 +19,11 @@ import { ModalCompleteProfile } from "../Components/ModalCompleteProfile";
 import { PlayerMatchApiHooks } from "../Matches/api";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 import { PublicBlogApiHooks } from "@/pages/Public/Blog/api";
+import { useNavigate } from "react-router-dom";
+import { paths } from "@/router/paths";
 
 export const PlayerHome = () => {
+  const navigate = useNavigate();
   const userData = useAtomValue(userAtom);
   const { data } = PlayerHomeApiHooks.useGetPlayersDetail({
     params: {
@@ -61,12 +64,20 @@ export const PlayerHome = () => {
             <div className="font-bold text-2xl text-primary">Welcome, {data?.data?.name}!</div>
           </div>
         </div>
-        <div className="sm:col-span-4 col-span-12 flex flex-col justify-center items-end">
+        <div className="sm:col-span-4 col-span-12 flex flex-col justify-center sm:items-end items-center">
           <div className="flex flex-row my-3">
             <div className="w-6">
               <Lucide icon="Mail" />
             </div>
             <div className="w-max">{data?.data?.email}</div>
+          </div>
+          <div className="flex flex-row my-3" onClick={() => {
+            navigate(paths.player.referee.index.template);
+          }}>
+            <div className="w-6">
+              <Lucide icon="ShieldCheck" />
+            </div>
+            <div className="w-max">Referee Access</div>
           </div>
           {
             data?.data?.socialMediaIg && <div className="flex flex-row mb-3">

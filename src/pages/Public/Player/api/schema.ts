@@ -8,6 +8,7 @@ export const playerStatsSchema = z.object({
   loses: z.number().default(0),
   tournaments: z.number().default(0),
   titles: z.number().default(0),
+  globalRank: z.number().nullish()
 });
 
 export type PlayerStats = z.infer<typeof playerStatsSchema>;

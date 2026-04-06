@@ -97,7 +97,7 @@ export const PublicPlayer = ({ isPreview = false, onEdit, subHeaderContent }: Pr
               </div>
               <div className="flex flex-row items-center w-full rounded-xl shadow-lg border-4 border-[#EBCE56] relative overflow-hidden bg-transparent justify-center [box-shadow:2px_2px_0px_#135F46]">
                 <p className="font-semibold text-gray-500 z-[1] flex items-center justify-end leading-4">Global Rank:</p>
-                <p className="text-2xl font-bold item-end [text-shadow:0px_0px_4px_#EBCE56] z-[1] flex items-center justify-end leading-6">&nbsp;{data?.data?.point}</p>
+                <p className="text-2xl font-bold item-end [text-shadow:0px_0px_4px_#EBCE56] z-[1] flex items-center justify-end leading-6">&nbsp;{stats?.globalRank || '-'}</p>
               </div>
             </div>
             {data?.data?.socialMediaIg && <Link to={`https://www.instagram.com/${data?.data?.socialMediaIg}`} target="_blank" className="flex flex-row items-center w-full bg-[#EBCE56] rounded-xl p-4">

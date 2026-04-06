@@ -6,7 +6,7 @@ import { Fragment, useEffect, useState } from "react";
 import moment from "moment";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { useToast } from "@/components/Toast/ToastContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import { MatchDetailApiHooks } from "./api";
 import { useRouteParams } from "typesafe-routes/react-router";
@@ -343,6 +343,24 @@ export const MatchDetail = () => {
 
   const resetMatchHandler = () => {
     resetMatchScores(matchUuid);
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(getQRValue()).then(() => {
+      showNotification({
+        duration: 2000,
+        text: "Link copied to clipboard!",
+        icon: "CheckSquare",
+        variant: "success",
+      });
+    }).catch(() => {
+      showNotification({
+        duration: 2000,
+        text: "Failed to copy link",
+        icon: "XCircle",
+        variant: "danger",
+      });
+    });
   };
 
   const handleResetMatch = () => {
@@ -1147,10 +1165,24 @@ export const MatchDetail = () => {
                   color="#084930"
                 />
               </div>
+              <div className="col-span-12 flex flex-row gap-2 justify-center whitespace-nowrap">
+
+                <Link
+                  to={getQRValue()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border shadow p-2 rounded"
+                >
+                  Open in new tab
+                </Link>
+                <Button onClick={handleCopyLink}>
+                  Copy Link
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </div >
       <Confirmation
         open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
