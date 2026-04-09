@@ -1,22 +1,15 @@
 import { useState } from 'react';
-import { Segmented } from 'antd';
 import Lucide from '../Base/Lucide';
 import moment from 'moment';
 import { imageResizerDimension } from '../../utils/helper';
-import { IconLogoAlt } from '../../assets/images/icons';
 import { TournamentStory } from '../TournamentStory';
-import { DraggableBracket } from '../TournamentDrawing';
-import { convertTournamentMatchToMatch } from '../../utils/drawing.util';
 import { useNavigate } from 'react-router-dom';
-import { paths } from '../../router/paths';
 import { PublicTournamentApiHooks } from '../../pages/Public/Tournament/api';
 import { useAtomValue } from 'jotai';
 import { accessTokenAtom, userAtom } from '../../utils/store';
 import Confirmation, { AlertProps } from '../Modal/Confirmation';
 import { queryClient } from '../../utils/react-query';
 import TournamentJoinModal from './TournamentJoinModal';
-import { GroupsTab } from './GroupsTab';
-import { BracketTab } from './BracketTab';
 import { TournamentDetailParticipants } from './TournamentDetailParticipants';
 import TournamentDetailMatches from './TournamentDetailMatches';
 import { TournamentsApiHooks } from '@/pages/Admin/Tournaments/api';
@@ -53,7 +46,7 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
   });
 
   // Handle tournament detail data
-  const { data: detailTournament } = !userIsLogin ? PublicTournamentApiHooks.useGetTournamentDetail(
+  const { data: detailTournament, isLoading: detailLoading } = !userIsLogin ? PublicTournamentApiHooks.useGetTournamentDetail(
     {
       params: {
         uuid: tournamentUuid || ''
@@ -187,13 +180,57 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
     });
   };
 
+  if (detailLoading) {
+    return (
+      <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
+        <div className="col-span-12 sm:col-span-8">
+          <div className="space-y-4">
+            <div className="h-8 bg-gray-200 rounded animate-pulse w-3/4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6"></div>
+            </div>
+            <div className="h-6 bg-gray-200 rounded animate-pulse w-1/4"></div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="col-span-1 space-y-2">
+                <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+                <div className="space-y-1">
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                  <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
+                </div>
+              </div>
+              <div className="col-span-1 space-y-2">
+                <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+                <div className="space-y-1">
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
+                  <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+              <div className="col-span-1 space-y-2">
+                <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+                <div className="space-y-1">
+                  <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-span-12 sm:col-span-4">
+          <div className="h-64 bg-gray-200 rounded-xl animate-pulse"></div>
+        </div>
+      </div>
+    );
+  }
+
   if (!detailTournament?.data) {
     return (
       <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
         <div className="col-span-12 flex flex-col items-center justify-center py-12 px-4 rounded-2xl">
           <Lucide icon="Trophy" className="h-16 w-16 text-emerald-800/60 mb-4" />
           <h3 className="text-emerald-800 text-lg font-medium mb-2 text-center">No Tournament Available</h3>
-          <p className="text-emerald-800/80 text-sm text-center">Please come back later once the tournament is available.</p>
+          <p className="text-emerald-800/80 text-sm text-center">Please come back later once tournament is available.</p>
         </div>
       </div>
     );

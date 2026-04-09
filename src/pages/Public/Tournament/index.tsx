@@ -22,10 +22,10 @@ export const PublicTournament = () => {
   const user = useAtomValue(userAtom);
   const userIsLogin = !!(accessToken && user);
 
-  const { data } = PublicTournamentApiHooks.useGetFeaturedTournament(
+  const { data, isLoading: tournamentsLoading } = PublicTournamentApiHooks.useGetFeaturedTournament(
     {
       queries: {
-        limit: 7
+        limit: 99
       }
     }, {}
   );
@@ -89,18 +89,32 @@ export const PublicTournament = () => {
         <FadeAnimation className="col-span-12 md:col-span-8 grid grid-cols-12 gap-0 h-max" direction="up">
           <div className="col-span-12 mt-4">
             <div className="col-span-12 flex flex-row overflow-scroll gap-2 mt-2 rounded-xl">
-              {data?.data?.map((tournament, index) => (
-                <div key={index} className={`flex min-w-96 max-w-96 flex-row rounded-2xl bg-gray-100 hover:bg-emerald-800 group cursor-pointer border-emerald-800 ${uuid === tournament.uuid ? 'border-4' : ''}`} onClick={() => navigate(`${paths.tournament.index({ uuid: tournament.uuid || "" }).$}`)}>
-                  <img
-                    src={imageResizerDimension(tournament.media_url, 220, "h")}
-                    className="flex w-32 object-cover aspect-square rounded-xl"
-                  />
-                  <div className="flex flex-col justify-center w-full mx-2">
-                    <h3 className="text-sm font-semibold text-emerald-800 group-hover:text-[#EBCE56] text-ellipsis line-clamp-2">{tournament.name}</h3>
-                    <span className="text-gray-500 group-hover:text-gray-100 text-[11px] font-light text-ellipsis line-clamp-3" dangerouslySetInnerHTML={{ __html: tournament.description || "" }}></span>
+              {tournamentsLoading ? (
+                // Loading skeleton
+                Array.from({ length: 3 }).map((_, index) => (
+                  <div key={`skeleton-${index}`} className="flex min-w-96 max-w-96 p-2 flex-row rounded-2xl bg-gray-200 animate-pulse">
+                    <div className="flex w-32 bg-gray-300 rounded-xl animate-pulse"></div>
+                    <div className="flex flex-col justify-center w-full mx-2 space-y-2">
+                      <div className="h-4 bg-gray-300 rounded animate-pulse w-3/4"></div>
+                      <div className="h-3 bg-gray-300 rounded animate-pulse w-full"></div>
+                      <div className="h-3 bg-gray-300 rounded animate-pulse w-2/3"></div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                data?.data?.map((tournament, index) => (
+                  <div key={index} className={`flex min-w-96 max-w-96 flex-row rounded-2xl bg-gray-100 hover:bg-emerald-800 group cursor-pointer border-emerald-800 ${uuid === tournament.uuid ? 'border-4' : ''}`} onClick={() => navigate(`${paths.tournament.index({ uuid: tournament.uuid || "" }).$}`)}>
+                    <img
+                      src={imageResizerDimension(tournament.media_url, 220, "h")}
+                      className="flex w-32 object-cover aspect-square rounded-xl"
+                    />
+                    <div className="flex flex-col justify-center w-full mx-2">
+                      <h3 className="text-sm font-semibold text-emerald-800 group-hover:text-[#EBCE56] text-ellipsis line-clamp-2">{tournament.name}</h3>
+                      <span className="text-gray-500 group-hover:text-gray-100 text-[11px] font-light text-ellipsis line-clamp-3" dangerouslySetInnerHTML={{ __html: tournament.description || "" }}></span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
           <div className="col-span-12 grid grid-cols-12 gap-2 mt-4 h-max">
