@@ -3,7 +3,7 @@ name: Deploy React App to VPS (Staging)
 on:
   push:
     branches:
-      - main
+      - staging
 
 jobs:
   build-and-deploy:
