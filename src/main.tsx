@@ -17,6 +17,7 @@ import { getAntdThemeProvider } from "./utils/store/config";
 import { clientEnv } from "@/env";
 import { useAppSelector } from "./stores/hooks";
 import { selectDarkMode } from "./stores/darkModeSlice";
+import { ScoreWebSocketListener } from "./components/ScoreWebSocketListener";
 
 // Wrapper component untuk ConfigProvider yang reactive terhadap dark mode
 function AntdConfigProvider({ children }: { children: React.ReactNode }) {

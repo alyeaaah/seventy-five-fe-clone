@@ -18,7 +18,8 @@ import { PointConfigurationsApiHooks } from "@/pages/Admin/PointConfig/api";
 import TournamentDrawingUtils from "@/components/TournamentDrawing/utils";
 import { DrawingTeams } from "@/components/DrawingTeams";
 import { Match } from "@/components/DrawingTeams/interface";
-import { useTournamentScore } from "../../MatchDetail/api/firestore";
+import { useScore } from "@/utils/score.util";
+import { ScoreWebSocketListener } from "@/components/ScoreWebSocketListener";
 
 export const FriendlyMatchDetail = () => {
   const queryParams = useRouteParams(paths.administrator.customMatch.friendlyMatch.detail);
@@ -52,19 +53,16 @@ export const FriendlyMatchDetail = () => {
     enabled: !!friendlyMatchUuid
   });
 
-  const { data: tournamentScores, unsubscribe: unsubscribeFirestore } = useTournamentScore(
-    friendlyMatchUuid || "",
-    () => { }
-  );
+  const { getCurrentMatchScores } = useScore();
   const handlePopState = useRef((event: PopStateEvent) => {
-    if (unsubscribeFirestore) {
-      unsubscribeFirestore();
-    }
     event.preventDefault();
   });
   window.addEventListener("popstate", handlePopState.current);
   return (
     <>
+      {/* WebSocket listener for real-time score updates */}
+      <ScoreWebSocketListener />
+
       <div className="flex flex-row items-center mt-8 intro-y justify-between">
         <h2 className="mr-auto text-lg font-medium">{data?.data?.name || "Tournament"}</h2>
       </div>
@@ -141,7 +139,23 @@ export const FriendlyMatchDetail = () => {
               draggable={false}
               onTeamsChanged={(data) => {
               }}
-              scores={tournamentScores || []}
+              scores={matches?.data?.flatMap(match => {
+                const matchScore = getCurrentMatchScores(match.uuid || "");
+                if (!matchScore?.game_scores) return [];
+                return matchScore.game_scores.map(game => ({
+                  match_uuid: match.uuid || "",
+                  tournament_uuid: friendlyMatchUuid || "",
+                  set: game.set,
+                  game_score_home: game.game_score_home,
+                  game_score_away: game.game_score_away,
+                  last_updated_at: game.last_updated_at || new Date().toISOString(),
+                  with_ad: false,
+                  prev: {
+                    set_score_home: 0,
+                    set_score_away: 0
+                  }
+                }));
+              }) || []}
             />
           </div>
         </div>

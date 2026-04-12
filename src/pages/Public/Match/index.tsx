@@ -97,7 +97,7 @@ export const PublicMatchDetail = () => {
 
   return (
     <>
-      {/* WebSocket listener for real-time score updates - handles all matches */}
+      {/* WebSocket listener for real-time score updates */}
       <ScoreWebSocketListener />
 
       <LayoutWrapper className="grid grid-cols-12 gap-4 sm:gap-8 mt-4 sm:mt-8 min-h-[calc(100vh-300px)]">

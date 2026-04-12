@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { HTMLProps, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { imageResizer } from "@/utils/helper";
-import { useMatchesScore } from "@/pages/Admin/MatchDetail/api/firestore";
+import { useScore } from "@/utils/score.util";
 import { PublicTournamentApiHooks } from "../../Tournament/api";
 import { paths } from "@/router/paths";
 
@@ -19,10 +19,7 @@ export const LiveMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
   const liveMatchRef = useRef<CarouselRef>(null);
   const { data: liveMatch } = PublicTournamentApiHooks.useGetOngoingMatch();
 
-  const { data: scores, unsubscribe: unsubscribeFirestore, isLoading: isLoadingScore, fetchScores } = useMatchesScore(
-    liveMatch?.data?.map((match) => match.uuid || "") || [],
-    () => { }
-  );
+  const { getCurrentMatchScores } = useScore();
   return (
     <div className={className}>
       <Title level={4} className="bg-emerald-800 !text-white p-4 flex flex-row items-center justify-between rounded-t-3xl">
@@ -50,8 +47,8 @@ export const LiveMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
       ) : (
         <Carousel ref={liveMatchRef} swipeToSlide autoplay={false} autoplaySpeed={9000} className="relative w-full overflow-hidden">
           {liveMatch?.data?.map((match) => {
-            const matchScore = scores?.find((score) => score.match_uuid === match.uuid);
-            const lastScore = matchScore?.matchScore?.[matchScore?.matchScore?.length - 1];
+            const matchScore = getCurrentMatchScores(match.uuid || "");
+            const lastScore = matchScore?.game_scores?.[matchScore?.game_scores?.length - 1];
 
             return (
               <Link key={match.id} className='flex flex-col justify-center items-center h-max w-full' to={!!match?.tournament_uuid ? paths.tournament.match({ matchUuid: match.uuid || "" }).$ : paths.challenger.match({ matchUuid: match.uuid || "" }).$}>
@@ -86,11 +83,11 @@ export const LiveMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
                     </Link>
                   </div>
                   <div className='flex flex-row text-emerald-800 items-center'>
-                    <span className='text-sm font-semibold border border-emerald-800 rounded-md w-5 text-center mr-1 bg-[#EBCE56] 2xl:block xl:hidden lg:block  block'>{lastScore?.prev?.set_score_home}</span>
+                    <span className='text-sm font-semibold border border-emerald-800 rounded-md w-5 text-center mr-1 bg-[#EBCE56] 2xl:block xl:hidden lg:block  block'>{matchScore?.home_team_score || '0'}</span>
                     <span className='text-xl font-bold'>{lastScore?.game_score_home}</span>
                     <span className='text-sm font-bold mx-1 animate-pulse'>:</span>
                     <span className='text-xl font-bold'>{lastScore?.game_score_away}</span>
-                    <span className='text-sm font-semibold border border-emerald-800 rounded-md w-5 text-center ml-1 bg-[#EBCE56] 2xl:block xl:hidden lg:block  block'>{lastScore?.prev?.set_score_away}</span>
+                    <span className='text-sm font-semibold border border-emerald-800 rounded-md w-5 text-center ml-1 bg-[#EBCE56] 2xl:block xl:hidden lg:block  block'>{matchScore?.away_team_score || '0'}</span>
                   </div>
                   <div className='flex flex-row'>
                     <Link to={match.away_team?.players?.[0]?.uuid ? paths.players.info({ uuid: match.away_team?.players?.[0]?.uuid || "" }).$ : "#"}>

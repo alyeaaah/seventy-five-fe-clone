@@ -18,6 +18,7 @@ import { useScore } from "@/utils/score.util";
 import { matchStatusEnum, MatchTeam, ScoreUpdatePayload } from "./api/schema";
 import YouTube from "react-youtube";
 import { encodeBase64 } from "@/utils/helper";
+import { ScoreWebSocketListener } from "@/components/ScoreWebSocketListener";
 import { PointConfigurationsApiHooks } from "../PointConfig/api";
 import { useDebounceFn } from "ahooks";
 import { queryClient } from "@/utils/react-query";
@@ -545,6 +546,9 @@ export const MatchDetail = () => {
   }
   return (
     <>
+      {/* WebSocket listener for real-time score updates */}
+      <ScoreWebSocketListener />
+
       <div className="hidden sm:flex flex-row items-center mt-8 intro-y justify-between">
         <div>
           <h2 className="mr-auto text-lg font-bold capitalize flex items-center min-w-0">

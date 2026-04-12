@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
 import { clientEnv } from "../env";
 
-// Your web app's Firebase configuration
+// Your web app's Firebase configuration for analytics only
 const firebaseConfig = {
   apiKey: clientEnv.FIREBASE_API_KEY,
   authDomain: clientEnv.FIREBASE_AUTH_DOMAIN,
@@ -12,8 +12,9 @@ const firebaseConfig = {
   appId: clientEnv.FIREBASE_APP_ID,
   measurementId: clientEnv.FIREBASE_MEASUREMENT_ID
 };
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const firestoreDb = getFirestore(app);
 
-export { firestoreDb };
+// Initialize Firebase for analytics only
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+export { analytics };

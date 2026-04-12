@@ -16,6 +16,7 @@ import { PartnersComponent } from './components/PartnersComponent';
 import ReactVisibilitySensor from 'react-visibility-sensor';
 import { PublicHeader } from './components/HeaderLandingPage';
 import { PWAInstallButton } from '@/components/PWAInstallButton';
+import { ScoreWebSocketListener } from '@/components/ScoreWebSocketListener';
 
 const { Content } = Layout;
 
@@ -26,6 +27,9 @@ export const LandingPage = () => {
 
   return (
     <>
+      {/* WebSocket listener for real-time score updates */}
+      <ScoreWebSocketListener />
+
       {/* <PageHeader /> */}
       <PublicHeader />
       <PublicHeader className={`rounded-b-2xl shadow-xl fixed -translate-y-[100px] top-0 w-full z-20 ${slideIsVisible === true && animateMenu === true ? `animate-slide-out-top` : (slideIsVisible === false && animateMenu === true ? `fixed animate-slide-in-top ` : '')}`} />

@@ -47,8 +47,10 @@ const FullScreenMatchPage: React.FC = () => {
   }
 
   return (
-    <div className='fixed top-0 bottom-0 left-0 right-0'>
+    <>
+      {/* WebSocket listener for real-time score updates */}
       <ScoreWebSocketListener />
+
       <div className="relative w-full h-full">
         <YouTube
           videoId={data?.data?.youtube_url?.split("?v=").pop() || ""}
@@ -93,7 +95,7 @@ const FullScreenMatchPage: React.FC = () => {
           <Lucide icon="X" className="w-6 h-6" />
         </button>
       </div>
-    </div>
+    </>
   );
 };
 

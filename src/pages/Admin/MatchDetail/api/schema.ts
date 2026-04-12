@@ -11,6 +11,7 @@ export const gameScoreSchema = z.object({
   status: z.enum(["ENDED", "ONGOING", "PAUSED"]).default("PAUSED"),
   game_score_home: z.string().or(z.number()).default("0"),
   game_score_away: z.string().or(z.number()).default("0"),
+  last_updated_at: z.string().optional(),
 })
 
 export const matchTeamSchema = z.object({
