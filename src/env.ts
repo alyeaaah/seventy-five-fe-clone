@@ -1,6 +1,34 @@
 import { z } from "zod";
 
-const schema = z.object({
+const getFirebaseSchema = (firebaseOn: boolean) => {
+  if (!firebaseOn) {
+    return z.object({
+      FIREBASE_API_KEY: z.string().optional(),
+      FIREBASE_AUTH_DOMAIN: z.string().optional(),
+      FIREBASE_PROJECT_ID: z.string().optional(),
+      FIREBASE_APP_ID: z.string().optional(),
+      FIREBASE_MEASUREMENT_ID: z.string().optional(),
+      FIREBASE_STORAGE_BUCKET: z.string().optional(),
+      FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
+      FIREBASE_SCORE_COLLECTION: z.string().optional(),
+      FIREBASE_FIRESTORE_SECRET_KEY: z.string().optional(),
+    });
+  }
+  
+  return z.object({
+    FIREBASE_API_KEY: z.string(),
+    FIREBASE_AUTH_DOMAIN: z.string(),
+    FIREBASE_PROJECT_ID: z.string(),
+    FIREBASE_APP_ID: z.string(),
+    FIREBASE_MEASUREMENT_ID: z.string(),
+    FIREBASE_STORAGE_BUCKET: z.string(),
+    FIREBASE_MESSAGING_SENDER_ID: z.string(),
+    FIREBASE_SCORE_COLLECTION: z.string(),
+    FIREBASE_FIRESTORE_SECRET_KEY: z.string(),
+  });
+};
+
+const baseSchema = z.object({
   AUTH_COOKIE_NAME: z.string(),
   SECRET_KEY: z.string(),
   API_BASE_URL: z.string().transform((url) => url.replace(/\/$/, "")),
@@ -8,25 +36,21 @@ const schema = z.object({
   SOCKET_SECRET_KEY: z.string(),
   // GOOGLE_MAP_API_KEY: z.string(),
   BASENAME: z.string(),
-  FIREBASE_API_KEY: z.string(),
-  FIREBASE_AUTH_DOMAIN: z.string(),
-  FIREBASE_PROJECT_ID: z.string(),
-  FIREBASE_APP_ID: z.string(),
-  FIREBASE_MEASUREMENT_ID: z.string(),
-  FIREBASE_STORAGE_BUCKET: z.string(),
-  FIREBASE_MESSAGING_SENDER_ID: z.string(),
-  FIREBASE_SCORE_COLLECTION: z.string(),
-  FIREBASE_FIRESTORE_SECRET_KEY: z.string(),
+  FIREBASE_ON: z.string().transform((val) => val === "true"),
   VERSION: z.string(),
 });
 
-export const clientEnv = schema.parse({
+const firebaseOn = import.meta.env.VITE_FIREBASE_ON === "true";
+const firebaseSchema = getFirebaseSchema(firebaseOn);
+
+export const clientEnv = baseSchema.merge(firebaseSchema).parse({
   SECRET_KEY: import.meta.env.VITE_SECRET_KEY,
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
   AUTH_COOKIE_NAME: import.meta.env.VITE_AUTH_COOKIE_NAME,
   SOCKET_URL: import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_BASE_URL?.replace('/api', ''),
   SOCKET_SECRET_KEY: import.meta.env.VITE_SOCKET_SECRET_KEY || "8f0b443c9b5704af693b58c4e981c25234fc5c6979be7a1fa0ffca645bc9fb9b",
   BASENAME: import.meta.env.VITE_BASENAME,
+  FIREBASE_ON: import.meta.env.VITE_FIREBASE_ON,
   FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   FIREBASE_PROJECT_ID: import.meta.env.VITE_FIREBASE_PROJECT_ID,
