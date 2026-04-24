@@ -92,6 +92,7 @@ const PublicTournament = lazy(() => import("@/pages/Public/Tournament").then(m =
 const PublicStandingPage = lazy(() => import("@/pages/Public/Tournament/StandingPage").then(m => ({ default: m.PublicStandingPage })));
 const PublicChallenger = lazy(() => import("@/pages/Public/Challenger").then(m => ({ default: m.PublicChallenger })));
 const PublicMatchDetail = lazy(() => import("@/pages/Public/Match").then(m => ({ default: m.PublicMatchDetail })));
+const ChallengerScoreboard = lazy(() => import("@/pages/Public/Challenger/Scoreboard").then(m => ({ default: m.ChallengerScoreboard })));
 const FullScreenMatch = lazy(() => import("@/pages/FullScreenMatch").then(m => ({ default: m.FullScreenMatch })));
 const PublicPlayer = lazy(() => import("@/pages/Public/Player").then(m => ({ default: m.PublicPlayer })));
 const PublicShop = lazy(() => import("@/pages/Public/Shop").then(m => ({ default: m.PublicShop })));
@@ -197,7 +198,16 @@ function Router() {
                 <PublicMatchDetail />
               </LazyWrapper>
             )
-          }
+          },
+          {
+            index: true,
+            path: paths.tournament.standings.template,
+            element: (
+              <LazyWrapper>
+                <PublicStandingPage />
+              </LazyWrapper>
+            ),
+          },
         ],
       },
       {
@@ -936,6 +946,14 @@ function Router() {
       element: (
         <LazyWrapper>
           <FullScreenMatch />
+        </LazyWrapper>
+      )
+    },
+    {
+      path: paths.challenger.scoreboard.template,
+      element: (
+        <LazyWrapper>
+          <ChallengerScoreboard />
         </LazyWrapper>
       )
     },

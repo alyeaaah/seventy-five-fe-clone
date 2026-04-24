@@ -191,6 +191,9 @@ export const paths = {
     match: route(`/challenger/match/:matchUuid`, {
       matchUuid: stringParser
     }, {}),
+    scoreboard: route(`/challenger/match/:matchUuid/scoreboard`, {
+      matchUuid: stringParser
+    }, {}),
   },
   merchandise: {
     index: route(`/merchandise/&:uuid?`, {

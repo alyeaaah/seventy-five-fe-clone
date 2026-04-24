@@ -517,7 +517,13 @@ export const MatchMediaAndInfoSection = ({
 
           <div className="col-span-2 hidden sm:flex flex-col justify-start items-center">
             {/* sort and remove first index */}
-            <div className="rounded-xl overflow-hidden border">
+            <div
+              className="rounded-xl overflow-hidden border cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => {
+                const scoreboardUrl = `${window.location.origin}${paths.challenger.scoreboard({ matchUuid }).$}`;
+                window.open(scoreboardUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no');
+              }}
+            >
               {(currentMatchScore?.game_scores || [])
                 .sort((a: any, b: any) => a.game - b.game)
                 .slice(0, -1)
