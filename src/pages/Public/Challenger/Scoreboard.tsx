@@ -197,7 +197,7 @@ export const ChallengerScoreboard = () => {
 
         {/* Footer */}
         <div className="text-center mt-8 text-white opacity-75">
-          <p className="text-sm">© 2024 Seventy Five - Professional Badminton Tournament Management</p>
+          <p className="text-sm">© 2026 Seventy Five</p>
         </div>
       </div>
     </div>

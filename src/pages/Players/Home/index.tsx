@@ -73,7 +73,7 @@ export const PlayerHome = () => {
         </div>
         <div className="sm:col-span-4 col-span-12 flex flex-col justify-center sm:items-end items-center">
 
-          {(userData?.isReferee || assignedRefereesData?.data?.length) && (
+          {(userData?.isReferee || !!assignedRefereesData?.data?.length) && (
             <div className="flex flex-row my-1 sm:my-2" onClick={() => {
               navigate(paths.player.referee.index.template);
             }}>

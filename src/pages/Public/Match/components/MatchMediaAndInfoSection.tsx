@@ -12,7 +12,7 @@ import Image from "@/components/Image";
 import { PublicTournamentApiHooks } from "../../Tournament/api";
 import { Menu } from "@/components/Base/Headless";
 import { useScore } from "@/utils/score.util";
-import { FullMatchDetail } from "@/pages/Admin/MatchDetail/api/schema";
+import { FullMatchDetail, matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 
 interface MatchMediaAndInfoSectionProps {
   data: FullMatchDetail;
@@ -259,7 +259,13 @@ export const MatchMediaAndInfoSection = ({
         <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
           <span className="hidden sm:flex">MATCH&nbsp;</span>INFORMATION
         </div>
-        <div className="h-10 ml-1.5 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
+        <div
+          className="h-10 ml-1.5 aspect-square border-[3px] border-emerald-800 rounded-full"
+          onClick={() => {
+            const scoreboardUrl = `${window.location.origin}${paths.challenger.scoreboard({ matchUuid }).$}`;
+            window.open(scoreboardUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no');
+          }}
+        ></div>
         <div className="flex-1"></div>
         <div className="lg:flex hidden">
           {matchTitle !== "" ? <Menu>
