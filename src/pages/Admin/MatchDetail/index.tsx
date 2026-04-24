@@ -28,6 +28,9 @@ import { clientEnv } from "@/env";
 import { useMatchSocket } from "@/hooks/useMatchSocket";
 import Image from "@/components/Image";
 import { PublicTournamentApiHooks } from "@/pages/Public/Tournament/api";
+import { PlayersApiHooks } from "../Players/api";
+import { AssignRefereeModal } from "./AssignRefereeModal";
+import { PlayerMatchApiHooks } from "@/pages/Players/Matches/api";
 
 export const MatchDetail = () => {
   const navigate = useNavigate();
@@ -39,6 +42,8 @@ export const MatchDetail = () => {
   const [youtubePreviewUrl, setYoutubePreviewUrl] = useState("");
   const [hostUrl, setHostUrl] = useState("");
   const [matchTitle, setMatchTitle] = useState("");
+  const [showAssignRefereeModal, setShowAssignRefereeModal] = useState(false);
+  const [selectedReferee, setSelectedReferee] = useState("");
   const { data } = MatchDetailApiHooks.useGetMatchDetail({
     params: {
       uuid: matchUuid
@@ -48,6 +53,42 @@ export const MatchDetail = () => {
     },
     retry: false
   });
+
+  const { data: playersData } = PlayersApiHooks.useGetPlayersList({
+    queries: {
+      page: 1,
+      limit: 1000
+    }
+  });
+
+  const { mutate: assignReferee } = MatchDetailApiHooks.useAssignRefereeApi({
+    params: {
+      uuid: matchUuid
+    }
+  });
+
+  const handleAssignReferee = (refereeUuid: string) => {
+    assignReferee({
+      referee_uuid: refereeUuid,
+      status: "ACTIVE"
+    }, {
+      onSuccess: () => {
+        showNotification({
+          duration: 3000,
+          text: "Referee assigned successfully",
+          variant: "success"
+        });
+        queryClient.invalidateQueries({ queryKey: PlayerMatchApiHooks.getKeyByAlias("getPlayerRefereeMatches") });
+      },
+      onError: (error: any) => {
+        showNotification({
+          duration: 3000,
+          text: error?.message || "Failed to assign referee",
+          variant: "danger"
+        });
+      }
+    });
+  };
 
   useEffect(() => {
     setHostUrl(window.location.origin);
@@ -1161,6 +1202,12 @@ export const MatchDetail = () => {
           </div>
           <div className="p-5 box col-span-12 h-fit">
             <div className="grid grid-cols-10 gap-2">
+              <div className="col-span-12 flex flex-row gap-2 justify-center whitespace-nowrap">
+
+                <Button onClick={() => setShowAssignRefereeModal(true)}>
+                  Assign Referee
+                </Button>
+              </div>
               <div className="col-span-12 aspect-square lg:aspect-auto flex justify-center" key={JSON.stringify(data?.data)}>
                 {/* display qrcode here */}
                 <QRCode
@@ -1186,7 +1233,16 @@ export const MatchDetail = () => {
             </div>
           </div>
         </div>
-      </div >
+      </div>
+
+      {/* Assign Referee Modal */}
+      <AssignRefereeModal
+        open={showAssignRefereeModal}
+        onClose={() => setShowAssignRefereeModal(false)}
+        onAssign={handleAssignReferee}
+        matchUuid={matchUuid}
+      />
+
       <Confirmation
         open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}

@@ -13,7 +13,8 @@ export const PlayerMatchApiClient = new Zodios(
     endpoints.playerMatchesApi,
     endpoints.playerTournamentsJoinedApi,
     endpoints.playerTournamentsUpcomingApi,
-    endpoints.openChallengerApi
+    endpoints.openChallengerApi,
+    endpoints.playerRefereeMatchesApi
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

@@ -84,6 +84,7 @@ export const ModalAddTeam: React.FC<ModalAddTeamProps> = ({
       queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentTeamParticipants") });
       queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentParticipants") });
       queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentTeams") });
+      queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentTeams") });
       handleClose();
       showNotification({
         text: "Team created successfully",

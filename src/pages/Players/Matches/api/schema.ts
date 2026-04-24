@@ -136,6 +136,21 @@ const leagueSchema = z.object({
   year: z.number(),
 });
 
+// Schema for referee assignment
+export const refereeSchema = z.object({
+  id: z.number(),
+  match_uuid: z.string(),
+  player_uuid: z.string(),
+  status: z.enum(["ACTIVE", "INACTIVE"]),
+  createdBy: z.string().nullish(),
+  deletedBy: z.string().nullish(),
+  deletedAt: z.string().nullish(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  match: matchSchema.nullish(),
+  player: playerSchema.nullish(),
+});
+
 // Schema for the tournament
 export const tournamentsSchema = z.object({
   uuid: z.string(),

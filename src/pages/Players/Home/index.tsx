@@ -15,7 +15,6 @@ import { PlayerPartnersComponent } from "./components/PlayerPartnersComponent";
 import { PlayerNewsComponent } from "./components/PlayerNewsComponent";
 import { PartnersComponent } from "@/pages/Public/LandingPage/components/PartnersComponent";
 import { defaultAvatar } from "@/utils/faker";
-import { ModalCompleteProfile } from "../Components/ModalCompleteProfile";
 import { PlayerMatchApiHooks } from "../Matches/api";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 import { PublicBlogApiHooks } from "@/pages/Public/Blog/api";
@@ -46,6 +45,14 @@ export const PlayerHome = () => {
     }
   });
 
+
+  const { data: assignedRefereesData } = PlayerMatchApiHooks.useGetPlayerRefereeMatches({
+    queries: {
+      player_uuid: userData?.uuid as string, // This endpoint expects player_uuid, but we want all referees for this match
+      match_uuid: ""
+    }
+  });
+
   const getAge = (birthdate: string) => {
     const birth = moment(birthdate);
     const now = moment();
@@ -55,32 +62,36 @@ export const PlayerHome = () => {
   }
   return (
     <div className="w-full py-5 grid grid-cols-12 gap-4">
-      <div className="col-span-12 rounded-2xl grid grid-cols-12 gap-4 p-4">
-        <div className="sm:col-span-8 col-span-12 flex flex-row">
-          <div className="rounded-full mr-4 w-20 h-20 p-1 border overflow-hidden">
-            <img src={data?.data.media_url || data?.data.avatar_url || defaultAvatar[data?.data?.gender as "m" | "f"]} className="rounded-full" />
+      <div className="col-span-12 rounded-2xl grid grid-cols-12 gap-4 sm:p-4 p-1">
+        <div className="sm:col-span-8 col-span-12 flex flex-row items-center">
+          <div className="rounded-full mr-4 w-20 h-20 aspect-square p-1 border overflow-hidden flex items-center justify-center">
+            <img src={data?.data.media_url || data?.data.avatar_url || defaultAvatar[data?.data?.gender as "m" | "f"]} className="rounded-full aspect-square" />
           </div>
           <div className="flex flex-col justify-center hover:animate-pulse">
             <div className="font-bold text-2xl text-primary">Welcome, {data?.data?.name}!</div>
           </div>
         </div>
         <div className="sm:col-span-4 col-span-12 flex flex-col justify-center sm:items-end items-center">
-          <div className="flex flex-row my-3">
+
+          {(userData?.isReferee || assignedRefereesData?.data?.length) && (
+            <div className="flex flex-row my-1 sm:my-2" onClick={() => {
+              navigate(paths.player.referee.index.template);
+            }}>
+              <div className="w-6">
+                <Lucide icon="ShieldCheck" />
+              </div>
+              <div className="w-max">Referee Access</div>
+            </div>
+          )}
+
+          <div className="flex flex-row my-1 sm:my-2">
             <div className="w-6">
               <Lucide icon="Mail" />
             </div>
             <div className="w-max">{data?.data?.email}</div>
           </div>
-          <div className="flex flex-row my-3" onClick={() => {
-            navigate(paths.player.referee.index.template);
-          }}>
-            <div className="w-6">
-              <Lucide icon="ShieldCheck" />
-            </div>
-            <div className="w-max">Referee Access</div>
-          </div>
           {
-            data?.data?.socialMediaIg && <div className="flex flex-row mb-3">
+            data?.data?.socialMediaIg && <div className="flex flex-row my-1 sm:my-2">
               <div className="w-6">
                 <Lucide icon="Instagram" />
               </div>

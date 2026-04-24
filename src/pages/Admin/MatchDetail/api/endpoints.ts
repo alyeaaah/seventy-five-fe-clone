@@ -65,10 +65,26 @@ const MatchStatusUpdateApi = makeEndpoint({
     })
 });
 
+const MatchAssignRefereeApi = makeEndpoint({
+  alias: "assignRefereeApi",
+  method: "post",
+  path: `/match/assign-referee/:uuid`,
+  parameters: parametersBuilder().addBody(z.object({
+    referee_uuid: z.string().uuid(),
+    status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
+    notes: z.string().optional()
+  })).build(),
+  response: z
+    .object({
+      message: z.string().nullish(),
+    })
+});
+
 export const endpoints = {
   MatchDetailApi,
   MatchScoreUpdateApi,
   MatchVideoUpdateApi,
   MatchStatusUpdateApi,
-  MatchNextRoundApi
+  MatchNextRoundApi,
+  MatchAssignRefereeApi
 };

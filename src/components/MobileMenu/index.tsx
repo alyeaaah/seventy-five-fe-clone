@@ -45,10 +45,23 @@ function Main() {
           activeMobileMenu && "mobile-menu--active",
         ])}
       >
-        <div className="h-[70px] px-3 sm:px-8 flex items-center">
-          <a href="" className="flex mr-auto">
+        <div className="h-[70px] px-3 sm:px-8 flex items-center justify-between">
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              window.history.back();
+            }}
+            className="flex text-white"
+          >
+            {window.history.length > 1 ?
+
+              <Lucide icon="ChevronLeft" className="w-6 h-6" /> : <></>
+            }
+          </a>
+          <a href="" className="flex mr text-white">
             <IconLogo
-              className="w-6 h-8"
+              className="w-16 h-10"
             />
           </a>
           <a href="#" onClick={(e) => e.preventDefault()}>
@@ -157,7 +170,7 @@ function Main() {
                                     className={clsx([
                                       "menu__sub-icon",
                                       subMenu.activeDropdown &&
-                                        "transform rotate-180",
+                                      "transform rotate-180",
                                     ])}
                                   >
                                     <Lucide icon="ChevronDown" />
