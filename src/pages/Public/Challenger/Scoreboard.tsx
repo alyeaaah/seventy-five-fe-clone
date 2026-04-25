@@ -151,7 +151,7 @@ export const ChallengerScoreboard = () => {
                     {match.away_team?.name?.slice(0, 3).toUpperCase()}
                   </div>
                   <div>
-                    <div className="text-xl font-semibold text-white uppercase line-clamp-1">{match.away_team?.players?.map(player => player.nickname || player.name).join('/') || "Away Team"}ksad sasjdk asdjka skdjskasd</div>
+                    <div className="text-xl font-semibold text-white uppercase line-clamp-1">{match.away_team?.players?.map(player => player.nickname || player.name).join('/') || "Away Team"}</div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
