@@ -56,6 +56,27 @@ const convertMatchToRound = (matches: any[]): IRound[] => {
         }
       ]
     };
+    transformedMatch.teams = transformedMatch.teams.filter(team => team.uuid !== '');
+    
+    // Sort teams by priority: default teams first, TBD second, BYE last
+    transformedMatch.teams.sort((a, b) => {
+      const getPriority = (team: any) => {
+        if (team.name === "BYE") return 3;
+        if (team.name === "TBD") return 2;
+        return 1; // default teams
+      };
+      
+      const priorityA = getPriority(a);
+      const priorityB = getPriority(b);
+      
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      
+      // If same priority, sort by team name alphabetically
+      return a.name.localeCompare(b.name);
+    });
+    
     round[match.roundKey || 0].seeds.push({
       ...transformedMatch,
       seed_index: seedIndex,
@@ -69,6 +90,9 @@ const convertMatchToRound = (matches: any[]): IRound[] => {
   }
   if (round.length >= 2) {
     round[round.length - 2].title = `Semifinal`
+  }
+  if (round.length >= 3) {
+    round[round.length - 3].title = `Quarter Final`
   }
   return round;
 }
