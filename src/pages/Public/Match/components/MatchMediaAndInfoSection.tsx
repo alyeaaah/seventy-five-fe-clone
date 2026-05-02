@@ -301,6 +301,7 @@ export const MatchMediaAndInfoSection = ({
           <div className="col-span-12 flex flex-col justify-center items-center">
             <div className="text-xl font-bold capitalize" key={matchTitle} onClick={() => navigate(paths.tournament.index({ uuid: data?.tournament_uuid || "" }).$)}>
               {!data?.tournament_uuid && "Challenger "}{data?.group_uuid ? `Group ${data?.home_team?.name ? data?.home_team?.name[0] : ''} ` : ""}{!!matchTitle ? matchTitle : `Match ${(data?.seed_index !== null && data?.seed_index !== undefined && data?.seed_index >= 0) ? data?.seed_index + 1 : ''} `}
+              {data?.home_team?.name}
             </div>
             <div className="hidden sm:flex text-sm text-center text-emerald-800" onClick={() => navigate(paths.tournament.index({ uuid: data?.tournament_uuid || "" }).$)}>
               {tournamentInfo?.data?.name}

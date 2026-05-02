@@ -1,7 +1,5 @@
 import ThemeSwitcher from "@/components/ThemeSwitcher";
-import logoUrl from "@/assets/images/logo.svg";
-import illustrationUrl from "@/assets/images/illustration.svg";
-import { FormInput, FormCheck, FormLabel, InputGroup, FormHelp, FormTextarea } from "@/components/Base/Form";
+import { FormInput, FormCheck, FormLabel, FormHelp } from "@/components/Base/Form";
 import Button from "@/components/Base/Button";
 import clsx from "clsx";
 import { IconLogo } from "@/assets/images/icons";
@@ -11,19 +9,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterPayload, registerSchema } from "./api/schema";
 import Litepicker from "@/components/Base/Litepicker";
 import moment from "moment";
-import { GenderTypeValue } from "@/utils/faker";
 import { useRef, useState } from "react";
 import { RegisterApiHooks } from "./api";
 import { useToast } from "@/components/Toast/ToastContext";
 import { useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
+import { useRouteParams } from "typesafe-routes/react-router";
 
 export const Register = () => {
   const [agreement, setAgreement] = useState<boolean>(false);
   const { showNotification } = useToast();
   const navigate = useNavigate();
   const formRef = useRef<HTMLFormElement>(null);
+  const { redirect } = useRouteParams(paths.register);
 
   const [modalAlert, setModalAlert] = useState<AlertProps>({
     open: false,
@@ -61,6 +60,31 @@ export const Register = () => {
           icon: "WashingMachine",
           variant: "success",
         });
+
+        if (redirect) {
+          setModalAlert({
+            ...modalAlert,
+            title: "Register Success",
+            description: "You have successfully registered. You will be redirected to the login page.",
+            open: true,
+            icon: "MailCheck",
+            variant: "warning",
+            onClose: () => {
+              setModalAlert({ ...modalAlert, open: false })
+              navigate(paths.login({ redirect }).$);
+            },
+            buttons: [
+              {
+                label: "Okay",
+                variant: "primary",
+                onClick: () => {
+                  navigate(paths.login({ redirect }).$);
+                }
+              }
+            ]
+          })
+          return;
+        }
         setModalAlert({
           ...modalAlert,
           title: "Register Success",

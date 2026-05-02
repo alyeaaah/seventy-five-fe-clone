@@ -245,13 +245,15 @@ export const paths = {
     cart: "/shop/cart",
     checkout: "/shop/checkout",
   },
-  register: "/register",
+  register: route("/register/&:redirect?", {
+    redirect: stringParser
+  }, {}),
   error: "/error",
   login: route("/login/&:redirect?", {
     redirect: stringParser
   }, {}),
   matchFullscreen: route(`/match/fullscreen/:match`, {
-      match: stringParser
+    match: stringParser
   }, {}),
   forgotPassword: "/forgot-password",
   resetPassword: route("/reset-password", {}, {}),

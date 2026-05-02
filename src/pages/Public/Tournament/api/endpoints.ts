@@ -205,6 +205,7 @@ const getTournamentTeamParticipantsApi = makeEndpoint({
 
 export const endpoints = {
   featuredTournamentApi,
+  recentTournamentApi,
   tournamentDetailApi,
   tournamentDetailAuthApi,
   joinTournamentApi,

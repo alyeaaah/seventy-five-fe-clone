@@ -29,24 +29,38 @@ export const PublicTournament = () => {
       }
     }, {}
   );
-  const { data: detailTournament } = !userIsLogin ? PublicTournamentApiHooks.useGetTournamentDetail(
+
+  const { data: recentData, isLoading: recentTournamentsLoading } = PublicTournamentApiHooks.useGetRecentTournament(
     {
-      params: {
-        uuid: uuid || data?.data?.[0]?.uuid || ''
+      queries: {
+        limit: 99
       }
     },
     {
-      enabled: !!data?.data?.[0]?.uuid,
+      enabled: !tournamentsLoading && (!data?.data || data?.data?.length === 0)
+    }
+  );
+
+  // Use featured data if available, otherwise use recent data
+  const tournamentData = data?.data && data.data.length > 0 ? data : recentData;
+  const { data: detailTournament } = !userIsLogin ? PublicTournamentApiHooks.useGetTournamentDetail(
+    {
+      params: {
+        uuid: uuid || tournamentData?.data?.[0]?.uuid || ''
+      }
+    },
+    {
+      enabled: !!tournamentData?.data?.[0]?.uuid,
       retry: false
     }
   ) : PublicTournamentApiHooks.useGetTournamentDetailAuth(
     {
       params: {
-        uuid: uuid || data?.data?.[0]?.uuid || ''
+        uuid: uuid || tournamentData?.data?.[0]?.uuid || ''
       }
     },
     {
-      enabled: !!data?.data?.[0]?.uuid,
+      enabled: !!tournamentData?.data?.[0]?.uuid,
       retry: false
     }
   );
@@ -54,11 +68,11 @@ export const PublicTournament = () => {
   const { data: tournamentSponsors } = PublicTournamentApiHooks.useGetTournamentDetailSponsors(
     {
       params: {
-        tournament_uuid: uuid || data?.data?.[0]?.uuid || ''
+        tournament_uuid: uuid || tournamentData?.data?.[0]?.uuid || ''
       }
     },
     {
-      enabled: !!data?.data?.[0]?.uuid,
+      enabled: !!tournamentData?.data?.[0]?.uuid,
       retry: false
     }
   );
@@ -80,7 +94,7 @@ export const PublicTournament = () => {
         limit: 6
       }
     }, {
-    enabled: !!uuid || !!data?.data?.[0]?.uuid
+    enabled: !!uuid || !!tournamentData?.data?.[0]?.uuid
   }
   );
   return (
@@ -102,7 +116,7 @@ export const PublicTournament = () => {
                   </div>
                 ))
               ) : (
-                data?.data?.map((tournament, index) => (
+                tournamentData?.data?.map((tournament, index) => (
                   <div key={index} className={`flex min-w-96 max-w-96 flex-row rounded-2xl bg-gray-100 hover:bg-emerald-800 group cursor-pointer border-emerald-800 ${uuid === tournament.uuid ? 'border-4' : ''}`} onClick={() => navigate(`${paths.tournament.index({ uuid: tournament.uuid || "" }).$}`)}>
                     <img
                       src={imageResizerDimension(tournament.media_url, 220, "h")}
@@ -126,7 +140,7 @@ export const PublicTournament = () => {
               </div>
             </div>
             <TournamentDetailCard
-              tournamentUuid={uuid || data?.data?.[0]?.uuid || ""}
+              tournamentUuid={uuid || tournamentData?.data?.[0]?.uuid || ""}
             />
           </div>
         </FadeAnimation>
@@ -151,13 +165,12 @@ export const PublicTournament = () => {
         </FadeAnimation>
 
         <FadeAnimation className="col-span-12 md:col-span-12 grid grid-cols-12 gap-0 h-max" direction="up">
-
           {(detailTournament?.data?.show_bracket == true) && (
-            <TournamentDetailMatches tournamentUuid={uuid || data?.data?.[0]?.uuid || ''} />
+            <TournamentDetailMatches tournamentUuid={uuid || tournamentData?.data?.[0]?.uuid || ''} />
           )}
 
           {((!detailTournament?.data?.show_bracket) && !!tournamentTeamParticipants?.data && tournamentTeamParticipants.data.teams.length > 0) &&
-            <TournamentDetailParticipants tournamentUuid={uuid || data?.data?.[0]?.uuid || ''} />
+            <TournamentDetailParticipants tournamentUuid={uuid || tournamentData?.data?.[0]?.uuid || ''} />
           }
         </FadeAnimation>
         {detailTournament?.data && (

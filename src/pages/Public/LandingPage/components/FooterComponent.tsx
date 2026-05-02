@@ -28,7 +28,7 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
             <div className='flex flex-row items-center justify-start'>
               <Button
                 className="text-white my-3 hover:text-[#EBCE56] hover:border-[#EBCE56]"
-                onClick={() => navigate(paths.register)}
+                onClick={() => navigate(paths.register({}).$)}
               >
                 Become a Member
               </Button>

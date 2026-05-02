@@ -50,7 +50,7 @@ function Main() {
         adminApiClient.get("/user/get").then((res) => {
           setUser(res.data);
 
-          if (redirect && res.data.role != "admin") {
+          if (redirect) {
             navigate(redirect);
             return;
           }
@@ -208,7 +208,7 @@ function Main() {
                       <Button
                         variant="outline-secondary"
                         className="w-full px-4 py-3 mt-3 align-top xl:w-32 xl:mt-0"
-                        onClick={() => navigate(paths.register)}
+                        onClick={() => navigate(paths.register({}).$)}
                       >
                         Register
                       </Button>

@@ -414,7 +414,25 @@ const generateGroupMatches = (groups: IGroup[], info: ITournamentInfo):IMatch[] 
           court: "",
           court_uuid: "",
           groupKey: group.groupKey,
-          date: faker.date.between({from:info?.startDate || "", to: info?.endDate ||""}).toISOString(),
+          date: (() => {
+            const startDate = info?.startDate ? new Date(info?.startDate) : null;
+            const endDate = info?.endDate ? new Date(info?.endDate) : null;
+            
+            if (!startDate || !endDate) {
+              return faker.date.past().toISOString();
+            }
+            
+            if (startDate.getTime() === endDate.getTime()) {
+              return startDate.toISOString();
+            }
+            
+            if (endDate.getTime() < startDate.getTime()) {
+              // If end date is before start date, swap them
+              return faker.date.between({from:endDate, to:startDate}).toISOString();
+            }
+            
+            return faker.date.between({from:startDate, to:endDate}).toISOString();
+          })(),
           teams: [teams[i], teams[j]]
         }
         matches.push(match)

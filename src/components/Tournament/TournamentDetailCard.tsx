@@ -4,6 +4,7 @@ import moment from 'moment';
 import { imageResizerDimension } from '../../utils/helper';
 import { TournamentStory } from '../TournamentStory';
 import { useNavigate } from 'react-router-dom';
+import { paths } from '../../router/paths';
 import { PublicTournamentApiHooks } from '../../pages/Public/Tournament/api';
 import { useAtomValue } from 'jotai';
 import { accessTokenAtom, userAtom } from '../../utils/store';
@@ -180,7 +181,7 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
     });
   };
 
-  if (detailLoading) {
+  if (detailLoading && tournamentUuid) {
     return (
       <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
         <div className="col-span-12 sm:col-span-8">
@@ -354,6 +355,44 @@ const TournamentDetailCard: React.FC<TournamentDetailCardProps> = ({
                 </Button>
               )}
             </>
+          )}
+
+          {(!detailTournament?.data?.join_status && !user && detailTournament.data?.end_date && new Date(detailTournament.data.end_date) > new Date()) && (
+            <Button
+              variant="primary"
+              color="primary"
+              disabled={isJoining}
+              className="font-medium text-xs shadow-none uppercase"
+              onClick={() => {
+                setModalAlert({
+                  description: "You need to create an account to join this tournament. Register now or sign in to your existing account.",
+                  open: true,
+                  onClose: () => setModalAlert(undefined),
+                  buttons: [
+                    {
+                      label: "Create Account",
+                      onClick: () => {
+                        const currentPath = window.location.pathname;
+                        navigate(paths.register({ redirect: `${(currentPath)}` }).$);
+                      },
+                      variant: "primary",
+                    },
+                    {
+                      label: "Sign In",
+                      onClick: () => {
+                        const currentPath = window.location.pathname;
+                        navigate(paths.login({ redirect: `${(currentPath)}` }).$);
+                      },
+                      variant: "secondary",
+                    },
+                  ],
+                  icon: "Info",
+                  title: "Join Tournament",
+                })
+              }}
+            >
+              Ask to Join
+            </Button>
           )}
           {(detailTournament?.data && tournamentMatches?.data) && (
             <TournamentStory tournament={detailTournament?.data} matches={tournamentMatches?.data} />
