@@ -14,6 +14,7 @@ import { accessTokenAtom, userAtom } from "@/utils/store";
 import { useAtomValue } from "jotai";
 import TournamentDetailMatches from "@/components/Tournament/TournamentDetailMatches";
 import { TournamentDetailParticipants } from "@/components/Tournament/TournamentDetailParticipants";
+import TournamentEventCard from "@/components/Tournament/TournamentEventCard";
 export const PublicTournament = () => {
   const navigate = useNavigate();
   const queryParams = useRouteParams(paths.tournament.index);
@@ -29,6 +30,14 @@ export const PublicTournament = () => {
       }
     }, {}
   );
+  const { data: tournamentEvents, isLoading: tournamentEventsLoading } = PublicTournamentApiHooks.useGetPublicTournamentEventList(
+    {
+      queries: {
+      }
+    },
+    {
+    }
+  );
 
   const { data: recentData, isLoading: recentTournamentsLoading } = PublicTournamentApiHooks.useGetRecentTournament(
     {
@@ -37,9 +46,10 @@ export const PublicTournament = () => {
       }
     },
     {
-      enabled: !tournamentsLoading && (!data?.data || data?.data?.length === 0)
+      enabled: !tournamentsLoading && (!data?.data || data?.data?.length === 0) && !tournamentEvents?.data?.length
     }
   );
+
 
   // Use featured data if available, otherwise use recent data
   const tournamentData = data?.data && data.data.length > 0 ? data : recentData;
@@ -101,7 +111,7 @@ export const PublicTournament = () => {
     <>
       <LayoutWrapper className="grid grid-cols-12 gap-4 sm:gap-8 mt-4 sm:mt-8 min-h-[calc(100vh-300px)]">
         <FadeAnimation className="col-span-12 md:col-span-8 grid grid-cols-12 gap-0 h-max" direction="up">
-          <div className="col-span-12 mt-4">
+          {!tournamentEvents?.data?.length && <div className="col-span-12 mt-4">
             <div className="col-span-12 flex flex-row overflow-scroll gap-2 mt-2 rounded-xl">
               {tournamentsLoading ? (
                 // Loading skeleton
@@ -130,7 +140,7 @@ export const PublicTournament = () => {
                 ))
               )}
             </div>
-          </div>
+          </div>}
           <div className="col-span-12 grid grid-cols-12 gap-2 mt-4 h-max">
             <div className="col-span-12 text-emerald-800 flex flex-row my-4">
               <IconLogoAlt className="h-10 w-20" />
@@ -139,9 +149,20 @@ export const PublicTournament = () => {
                 Tournament
               </div>
             </div>
-            <TournamentDetailCard
-              tournamentUuid={uuid || tournamentData?.data?.[0]?.uuid || ""}
-            />
+            {
+              !tournamentEvents?.data?.length && (
+                <TournamentDetailCard
+                  tournamentUuid={uuid || tournamentData?.data?.[0]?.uuid || ""}
+                />
+              )
+            }
+            {
+              !!tournamentEvents?.data?.length && (
+                <TournamentEventCard
+                  tournamentEventUuid={tournamentEvents?.data[0].uuid || ""}
+                />
+              )
+            }
           </div>
         </FadeAnimation>
 

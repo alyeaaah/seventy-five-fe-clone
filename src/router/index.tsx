@@ -42,6 +42,11 @@ const TournamentFormGroup = lazy(() => import("@/pages/Admin/Tournaments/Forms/F
 const TournamentFormDone = lazy(() => import("@/pages/Admin/Tournaments/Forms/FormDone").then(m => ({ default: m.TournamentFormDone })));
 const TournamentDetail = lazy(() => import("@/pages/Admin/Tournaments/detail").then(m => ({ default: m.TournamentDetail })));
 
+// Admin Tournament Events
+const CreateTournamentEvent = lazy(() => import("@/pages/Admin/Tournaments/TournamentEvents/Create"));
+const EditTournamentEvent = lazy(() => import("@/pages/Admin/Tournaments/TournamentEvents/Edit"));
+const TournamentEventDetail = lazy(() => import("@/pages/Admin/Tournaments/TournamentEvents/Detail"));
+
 // Admin Point Config
 const PointConfigurations = lazy(() => import("@/pages/Admin/PointConfig"));
 const PointConfigurationsForm = lazy(() => import("@/pages/Admin/PointConfig/New").then(m => ({ default: m.PointConfigurationsForm })));
@@ -580,6 +585,30 @@ function Router() {
               element: (
                 <LazyWrapper>
                   <TournamentForm />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: paths.administrator.tournamentEvents.new,
+              element: (
+                <LazyWrapper>
+                  <CreateTournamentEvent />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: paths.administrator.tournamentEvents.edit.template,
+              element: (
+                <LazyWrapper>
+                  <EditTournamentEvent />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: paths.administrator.tournamentEvents.detail.template,
+              element: (
+                <LazyWrapper>
+                  <TournamentEventDetail />
                 </LazyWrapper>
               ),
             },

@@ -1,6 +1,7 @@
 
 import { z } from "zod";
 import { matchTeamSchema } from "../../MatchDetail/api/schema";
+import { publicTournamentDetailSchema } from "@/pages/Public/Tournament/api/schema";
 
 export const draftPickStatusEnum = z.enum(["AVAILABLE", "PICKING", "PICKED"]);
 
@@ -13,7 +14,7 @@ export const draftPickPayloadSchema = z.object({
   seeded: z.boolean().default(false),
 });
 
-export const tournamentStatusEnum = z.enum(['DRAFT', 'POSTPONED','CANCELLED','ENDED','ONGOING']);
+export const tournamentStatusEnum = z.enum(['DRAFT', 'POSTPONED','CANCELLED','ENDED','ONGOING', 'PUBLISHED']);
 
 export const tournamentsSchema = z.object({
   id: z.number().nullish(),
@@ -255,3 +256,56 @@ export type TournamentJoinStatusEnum = z.infer<typeof tournamentDetailSchema>['j
 export type TournamentUpdateGroupPayload = z.infer<typeof tournamentGroupPayloadSchema>;
 export type TournamentUpdateGroupOnlyPayload = z.infer<typeof tournamentGroupOnlyPayloadSchema>;
 export type UpdateMatchPayload = z.infer<typeof updateMatchPayloadSchema>;
+
+// Tournament Event Schemas
+export const tournamentEventStatusEnum = z.enum(["DRAFT", "POSTPONED", "ONGOING", "ENDED", "CANCELLED", "PUBLISHED"]);
+
+export const tournamentEventSchema = z.object({
+  id: z.number().nullish(),
+  media_url: z.string().nullish(),
+  uuid: z.string().nullish(),
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  rules: z.string().optional(),
+  commitment_fee: z.number().min(0).optional().default(0),
+  status: tournamentEventStatusEnum.default("DRAFT"),
+  published_at: z.string().datetime().nullable(),
+  created_by: z.string().nullable(),
+  updated_by: z.string().nullable(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime().nullable(),
+  tournaments: z.array(tournamentsSchema.partial()).optional(),
+});
+
+export const tournamentEventCreatePayloadSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  rules: z.string().optional(),
+  commitment_fee: z.number().min(0).optional().default(0),
+  status: tournamentEventStatusEnum.optional().default("DRAFT"),
+  published_at: z.string().datetime().optional(),
+  media_url: z.string().optional(),
+});
+
+export const tournamentEventUpdatePayloadSchema = z.object({
+  name: z.string().min(1, "Name is required").optional(),
+  description: z.string().optional(),
+  rules: z.string().optional(),
+  commitment_fee: z.number().min(0).optional(),
+  status: tournamentEventStatusEnum.optional(),
+  published_at: z.string().datetime().nullish(),
+  media_url: z.string().optional(),
+});
+
+export const tournamentEventAssignmentPayloadSchema = z.object({
+  tournament_uuid: z.string(),
+  tournament_event_uuid: z.string(),
+});
+
+
+
+export type TournamentEvent = z.infer<typeof tournamentEventSchema>;
+export type TournamentEventCreatePayload = z.infer<typeof tournamentEventCreatePayloadSchema>;
+export type TournamentEventUpdatePayload = z.infer<typeof tournamentEventUpdatePayloadSchema>;
+export type TournamentEventAssignmentPayload = z.infer<typeof tournamentEventAssignmentPayloadSchema>;
+export type TournamentEventStatusEnum = z.infer<typeof tournamentEventStatusEnum>;

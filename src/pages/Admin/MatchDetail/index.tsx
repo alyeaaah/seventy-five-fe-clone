@@ -298,7 +298,6 @@ export const MatchDetail = () => {
 
         // Update score using the utility function (skip API call since we received from WebSocket)
         setScore(updatedScoreData, true);
-        // console.log("ssss");
 
         // showNotification({
         //   text: "Score updated in real-time",

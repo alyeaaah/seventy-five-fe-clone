@@ -13,10 +13,12 @@ import {
   tournamentTeamsSchema,
   updateMatchPayloadSchema,
   draftPickPayloadSchema,
+  tournamentEventSchema,
+  tournamentEventCreatePayloadSchema,
+  tournamentEventUpdatePayloadSchema,
+  tournamentEventAssignmentPayloadSchema,
 } from "./schema";
 import { sponsorsSchema } from "../../MasterData/Sponsors/api/schema";
-import { matchTeamSchema } from "../../MatchDetail/api/schema";
-import { message } from "antd";
 
 const TournamentsListApi = makeEndpoint({
   alias: "getTournamentsList",
@@ -355,6 +357,79 @@ const TournamentsStartDraftPickApi = makeEndpoint({
   })
 });
 
+// Tournament Event APIs
+const TournamentEventsListApi = makeEndpoint({
+  alias: "getTournamentEventsList",
+  method: "get",
+  path: `/tournament-event/list`,
+  parameters: parametersBuilder().addQueries({
+    search: z.string().optional(),
+    page: z.number().optional(),
+    limit: z.number().optional(),
+    status: z.enum(["DRAFT", "POSTPONED", "ONGOING", "ENDED", "CANCELLED"]).optional(),
+    published: z.enum(["true", "false"]).optional(),
+  }).build(),
+  response: z.object({
+    data: z.array(tournamentEventSchema),
+    totalRecords: z.number(),
+    currentPage: z.number(),
+    totalPages: z.number(),
+    message: z.string(),
+  })
+});
+
+const TournamentEventsDetailApi = makeEndpoint({
+  alias: "getTournamentEventDetail",
+  method: "get",
+  path: `/tournament-event/detail/:uuid`,
+  response: z.object({
+    data: tournamentEventSchema,
+    message: z.string(),
+  })
+});
+
+const TournamentEventsCreateApi = makeEndpoint({
+  alias: "createTournamentEvent",
+  method: "post",
+  path: `/tournament-event/create`,
+  parameters: parametersBuilder().addBody(tournamentEventCreatePayloadSchema).build(),
+  response: z.object({
+    // data: tournamentEventSchema,
+    message: z.string(),
+  })
+});
+
+const TournamentEventsUpdateApi = makeEndpoint({
+  alias: "updateTournamentEvent",
+  method: "put",
+  path: `/tournament-event/update/:uuid`,
+  parameters: parametersBuilder().addBody(tournamentEventUpdatePayloadSchema).build(),
+  response: z.object({
+    // data: tournamentEventSchema,
+    message: z.string(),
+  })
+});
+
+const TournamentEventsDeleteApi = makeEndpoint({
+  alias: "deleteTournamentEvent",
+  method: "delete",
+  path: `/tournament-event/delete/:uuid`,
+  response: z.object({
+    message: z.string(),
+  })
+});
+
+const TournamentEventsAssignmentApi = makeEndpoint({
+  alias: "assignTournamentEvent",
+  method: "put",
+  path: `/tournament-event/assignment`,
+  parameters: parametersBuilder().addBody(tournamentEventAssignmentPayloadSchema).build(),
+  response: z.object({
+    data: tournamentsSchema,
+    message: z.string(),
+  })
+});
+
 export const endpoints = {
   TournamentsListApi,
   TournamentsCreateApi,
@@ -383,4 +458,11 @@ export const endpoints = {
   TournamentsAddDraftPickApi,
   TournamentsUpdateDraftPickPositionApi,
   TournamentsStartDraftPickApi,
+  // Tournament Event APIs
+  TournamentEventsListApi,
+  TournamentEventsDetailApi,
+  TournamentEventsCreateApi,
+  TournamentEventsUpdateApi,
+  TournamentEventsDeleteApi,
+  TournamentEventsAssignmentApi,
 };

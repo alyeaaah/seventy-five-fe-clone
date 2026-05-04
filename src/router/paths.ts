@@ -63,6 +63,16 @@ export const paths = {
       }, {}),
       index: "/admin/tournaments", 
     },
+    tournamentEvents: {
+      new: "/admin/tournaments/events/new",
+      edit: route(`/admin/tournaments/events/edit/:id`, {
+        id: stringParser
+      }, {}),
+      detail: route(`/admin/tournaments/events/detail/:id`, {
+        id: stringParser
+      }, {}),
+      index: "/admin/tournaments/events",
+    },
     customMatch: {
       index: "/admin/custom-match",
       new: "/admin/custom-match/new",

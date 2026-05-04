@@ -1,8 +1,8 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { tournamentMatchDetailSchema, tournamentsSchema, tournamentTeamsSchema } from "@/pages/Admin/Tournaments/api/schema";
+import { tournamentMatchDetailSchema, tournamentsSchema, tournamentTeamsSchema, tournamentEventStatusEnum } from "@/pages/Admin/Tournaments/api/schema";
 import { matchesListSchema } from "@/pages/Admin/CustomMatch/api/schema";
-import { publicTournamentDetailSchema, groupResponseSchema, draftPickSchema, tournamentJoinStatusSchema } from "./schema";
+import { publicTournamentDetailSchema, groupResponseSchema, draftPickSchema, tournamentJoinStatusSchema, publicTournamentEventSchema } from "./schema";
 import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
 
 
@@ -16,7 +16,7 @@ const featuredTournamentApi = makeEndpoint({
       limit: z.number().optional(),
   }).build(),
   response: z.object({
-    data: z.array(tournamentsSchema)
+    data: z.array(publicTournamentDetailSchema)
   })
 });
 
@@ -71,7 +71,9 @@ const joinTournamentApi = makeEndpoint({
   method: "post",
   path: `/tournament/:uuid/join`,
   parameters: parametersBuilder().addBody(z.object({
-    player_uuid: z.string().nullish()
+    player_uuid: z.string().nullish(),
+    media_url: z.string(),
+    commitment_fee: z.number().nullish()
   }).nullish()).build(),
   response: z.object({
     message: z.string(),
@@ -203,6 +205,50 @@ const getTournamentTeamParticipantsApi = makeEndpoint({
 });
 
 
+
+// Tournament Event Endpoints
+const publicTournamentEventListApi = makeEndpoint({
+  alias: "getPublicTournamentEventList",
+  method: "get",
+  path: `/public/tournament-event`,
+  parameters: parametersBuilder().addQueries({
+    page: z.string().transform(Number).optional().default("1"),
+    limit: z.string().transform(Number).optional().default("10"),
+    search: z.string().optional(),
+    status: tournamentEventStatusEnum.optional(),
+    published: z.enum(["true", "false"]).optional().default("true"),
+  }).build(),
+  response: z.object({
+    success: z.boolean(),
+    data: z.array(publicTournamentEventSchema),
+    totalRecords: z.number(),
+    currentPage: z.number(),
+    totalPages: z.number(),
+    message: z.string(),
+  }),
+});
+
+const publicTournamentEventDetailApi = makeEndpoint({
+  alias: "getPublicTournamentEventDetail",
+  method: "get",
+  path: `/public/tournament-event/:uuid`,
+  response: z.object({
+    success: z.boolean(),
+    data: publicTournamentEventSchema,
+    message: z.string(),
+  }),
+});
+const publicTournamentEventDetailAuthApi = makeEndpoint({
+  alias: "getPublicTournamentEventAuthDetail",
+  method: "get",
+  path: `/tournament-event/:uuid`,
+  response: z.object({
+    success: z.boolean(),
+    data: publicTournamentEventSchema,
+    message: z.string(),
+  }),
+});
+
 export const endpoints = {
   featuredTournamentApi,
   recentTournamentApi,
@@ -219,4 +265,7 @@ export const endpoints = {
   assignTournamentDraftPickApi,
   getTournamentJoinStatusApi,
   getTournamentTeamParticipantsApi,
+  publicTournamentEventListApi,
+  publicTournamentEventDetailApi,
+  publicTournamentEventDetailAuthApi,
 };

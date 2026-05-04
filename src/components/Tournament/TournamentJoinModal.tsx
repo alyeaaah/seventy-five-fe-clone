@@ -93,7 +93,8 @@ const TournamentJoinModal: React.FC<TournamentJoinModalProps> = ({
       return;
     }
     await joinTournament({
-      player_uuid: selectedPlayer?.uuid
+      player_uuid: selectedPlayer?.uuid,
+      media_url: ""
     });
   };
 

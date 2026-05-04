@@ -176,7 +176,7 @@ export const tournamentsSchema = z.object({
   playerTeams: z.array(playerTeamSchema).nullish(),
   commitment_fee: z.number().default(0),
   participants: z.number().nullish(),
-  join_status: z.enum(['REQUESTED', 'APPROVED', 'CONFIRMED', 'REJECTED']).nullish(),
+  join_status: z.enum(['REQUESTED', 'APPROVED', 'REJECTED', 'AVAILABLE', 'PICKING', 'PICKED']).nullish(),
   max_player: z.number().nullish(),
 });
 

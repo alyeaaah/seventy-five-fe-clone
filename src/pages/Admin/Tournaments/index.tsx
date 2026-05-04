@@ -13,7 +13,7 @@ import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import { Outlet, useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import styles from "./index.module.scss";
-import { TournamentsPayload, TournamentStatusEnum } from "./api/schema";
+import { TournamentsPayload, TournamentStatusEnum, TournamentEvent } from "./api/schema";
 import Image from "@/components/Image";
 import Tippy from "@/components/Base/Tippy";
 import { imageResizer } from "@/utils/helper";
@@ -91,6 +91,27 @@ function Tournaments() {
     },
     retry: false
   });
+
+  // Tournament Event mutations
+  const { mutate: actionDeleteTournamentEvent } = TournamentsApiHooks.useDeleteTournamentEvent({
+    params: {
+      uuid: modalAlert?.refId || ""
+    },
+  }, {
+    onSuccess: () => {
+      showNotification({
+        duration: 3000,
+        text: "Tournament event deleted successfully",
+        icon: "WashingMachine",
+        variant: "danger",
+      });
+      setModalAlert(undefined);
+      queryClient.invalidateQueries({
+        queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentEventsList"),
+      });
+    },
+    retry: false
+  });
   const { data, isLoading, refetch } = TournamentsApiHooks.useGetTournamentsList(
     {
       queries: {
@@ -98,6 +119,18 @@ function Tournaments() {
         limit,
         search: useDebounce(filter.search, { wait: 500 }),
         type: "KNOCKOUT, ROUND ROBIN"
+      },
+      cacheTime: 0,
+    },
+  );
+
+  // Tournament Events data fetching
+  const { data: tournamentEventsData, isLoading: isLoadingEvents, refetch: refetchEvents } = TournamentsApiHooks.useGetTournamentEventsList(
+    {
+      queries: {
+        page,
+        limit,
+        search: useDebounce(filter.search, { wait: 500 }),
       },
       cacheTime: 0,
     },
@@ -128,6 +161,32 @@ function Tournaments() {
       ]
     });
   };
+
+  const handleDeleteTournamentEvent = (refId: string) => {
+    setModalAlert({
+      open: true,
+      onClose: () => setModalAlert(undefined),
+      icon: "XCircle",
+      title: "Are you sure?",
+      description: "Do you really want to delete this tournament event? This process cannot be undone.",
+      refId: refId,
+      buttons: [
+        {
+          label: "Cancel",
+          onClick: () => setModalAlert(undefined),
+          variant: "secondary"
+        },
+        {
+          label: "Delete",
+          onClick: () => {
+            actionDeleteTournamentEvent(undefined)
+          },
+          variant: "danger"
+        }
+      ]
+    });
+  };
+
   const handlePublishTournament = (refId: string, unpublish?: boolean) => {
     setModalAlert({
       open: true,
@@ -213,6 +272,13 @@ function Tournaments() {
           {record.published_at && <div className="text-[8px] !text-emerald-800 border border-emerald-800 px-1 py-0 font-bold rounded ml-2 tracking-wider">PUBLISHED</div>}
         </div>
       ),
+      onCell: (record) => ({
+        onClick: () => {
+          if (record.uuid) {
+            navigate(paths.administrator.tournaments.detail({ id: record.uuid }).$)
+          }
+        }
+      })
     },
     {
       title: "Commitment Fee",
@@ -394,63 +460,254 @@ function Tournaments() {
     },
   ]
 
+  const tableColumnsTournamentEvents: ColumnsType<TournamentEvent> = [
+    {
+      title: "",
+      dataIndex: "id",
+      align: "center",
+      width: "5%",
+      render(value, record, index) {
+        return index + 1;
+      },
+      responsive: ["lg"],
+      className: "rounded-l-xl"
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      align: "left",
+      width: screens.xs || screens.sm ? "55%" : "30%",
+      render: (text, record) => (
+        <div className="flex items-center">
+          <div className="flex flex-col mr-2">
+            <Image
+              src={imageResizer(record.media_url || '')}
+              alt={record.name}
+              className="rounded-full w-7 h-7 object-cover"
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">{text}</span>
+          </div>
+          {record.published_at && <div className="text-[8px] !text-emerald-800 border border-emerald-800 px-1 py-0 font-bold rounded ml-2 tracking-wider">PUBLISHED</div>}
+        </div>
+      ),
+      onCell: (record) => ({
+        onClick: () => {
+          if (record.uuid) {
+            navigate(paths.administrator.tournamentEvents.detail({ id: record.uuid }).$)
+          }
+        }
+      })
+    },
+    {
+      title: "Commitment Fee",
+      dataIndex: "commitment_fee",
+      align: "right",
+      ellipsis: true,
+      width: "20%",
+      responsive: ["md"],
+      render: (text) => {
+        return <span className="text-end">{text > 0 ? Intl.NumberFormat("id-ID").format(text) : "Free"}</span>;
+      }
+    },
+    {
+      title: "Level",
+      dataIndex: "level",
+      align: "left",
+      ellipsis: true,
+      width: "20%",
+      responsive: ["md"],
+    },
+    {
+      title: "Participants",
+      dataIndex: "player_count",
+      align: "center",
+      width: "20%",
+      responsive: ["md"],
+      render: (text: string, record) => {
+        if (text == '0') {
+          return <span>No Players</span>;
+        }
+        return <span>{text} Players</span>;
+      },
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      align: "center",
+      responsive: ["md"],
+      width: "20%",
+      render: (text: string, record) => {
+        return (
+          <div className="flex flex-col justify-center items-center">
+            <span className="text">{text}</span>
+            {text}
+          </div>
+        );
+      },
+    },
+    {
+      title: "",
+      dataIndex: "uuid",
+      responsive: ["md"],
+      align: "right",
+      className: "rounded-r-xl",
+      width: "20%",
+      render(value, record, index) {
+        let rtp = false;
+        if (record.status == "DRAFT") {
+          rtp = true;
+        }
+        return (
+          <div className="flex lg:justify-end items-center gap-1 pr-1">
+            {rtp && <Tippy
+              as="div"
+              className="flex items-center justify-center dark:border-darkmode-400 text-slate-400"
+              content="Start Tournament"
+            >
+              <Button
+                className="flex items-center"
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  handleUpdateStatus(value, "ONGOING");
+                }}
+              >
+                <Lucide icon="Sparkles" className="w-4 h-4 mr-1" /> Start
+              </Button>
+            </Tippy>}
+            <Tippy
+              as="div"
+              className="flex items-center justify-center dark:border-darkmode-400 text-slate-400"
+              content="Detail"
+            >
+              <Button
+                className="flex items-center"
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => {
+                  navigate(paths.administrator.tournamentEvents.detail({ id: record.uuid || "" }).$);
+                }}
+              >
+                <Lucide icon="Eye" className="w-4 h-4" />
+              </Button>
+            </Tippy>
+            <Menu>
+              <Menu.Button as={Button} variant="secondary" size="sm">
+                <Lucide icon="MoreHorizontal" className="w-4 h-4" />
+              </Menu.Button>
+              <Menu.Items>
+                {
+                  (!record.published_at && record.status != "ONGOING") &&
+                  <Menu.Item
+                    className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                    onClick={() => {
+                      navigate(paths.administrator.tournamentEvents.edit({ id: record.uuid || "" }).$);
+                    }}
+                  >
+                    <Lucide icon="Pencil" className="w-4 h-4" /> Edit
+                  </Menu.Item>
+                }
+                {
+                  !record.published_at &&
+                  <Menu.Item
+                    className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                    onClick={() => {
+                      handlePublishTournament(value, false);
+                    }}
+                  >
+                    <Lucide icon="Rocket" className="w-4 h-4" /> Publish
+                  </Menu.Item>
+                }
+                {
+                  !!record.published_at &&
+                  <Menu.Item
+                    className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                    onClick={() => {
+                      handlePublishTournament(value, true);
+                    }}
+                  >
+                    <Lucide icon="Rocket" className="w-4 h-4 rotate-[135deg]" /> Unpublish
+                  </Menu.Item>
+                }
+                {(!record.published_at && record.status != "ONGOING") &&
+                  <Menu.Item
+                    className="flex flex-row items-center gap-2 w-40 text-danger cursor-pointer hover:text-danger hover:bg-slate-200 bg-red-50"
+                    onClick={() => {
+                      handleDeleteTournament(value);
+                    }}
+                  >
+                    <Lucide icon="Trash" className="w-4 h-4" /> Delete
+                  </Menu.Item>
+                }
+              </Menu.Items>
+            </Menu>
+          </div >
+        )
+      },
+    },
+  ]
+
   const handleFilter = () => {
     refetch();
   };
 
   return (
     <>
-      <div className="flex flex-row items-center mt-8 intro-y justify-between">
-        <h2 className="mr-auto text-lg font-medium">Tournaments</h2>
-        <div className="flex">
-          <Button variant="primary" className="mr-2 shadow-md" onClick={() => navigate(paths.administrator.tournaments.new.index)} >
-            Add New Tournament
-          </Button>
-        </div>
-      </div>
       {/* BEGIN: HTML Table Data */}
       <div className="p-5 mt-5 intro-y box">
-        <div className="flex flex-col sm:flex-row sm:items-end xl:items-start">
-          <form
-            id="tabulator-html-filter-form"
-            className="sm:ml-auto sm:mb-4 flex-col sm:flex-row flex"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleFilter();
-            }}
-          >
-            <div className="items-center mt-2 sm:mr-4 xl:mt-0">
-              <FormInput
-                id="tabulator-html-filter-value"
-                value={filter.search}
-                onChange={(e) => {
-                  setPage(1);
-                  setFilter({
-                    ...filter,
-                    search: e.target.value,
-                  });
-                  if (!e.target.value) {
-                    queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsList") });
-                  }
-                }}
-                type="text"
-                className="mt-2 sm:w-40 2xl:w-full sm:mt-0"
-                placeholder="Search..."
-              />
-            </div>
-            <div className="mt-2 xl:mt-0 md:w-16 sm:w-full">
-              <Button
-                id="tabulator-html-filter-go"
-                variant="primary"
-                type="button"
-                className="w-full flex align-middle"
-                onClick={handleFilter}
-              >
-                <Lucide icon="Search" className="h-full" />
+        <div className="flex sm:flex-row flex-col items-center intro-y justify-between">
+          <div className="flex flex-row items-center gap-2">
+            <h2 className="mr-auto sm:text-lg text-xl font-medium">Tournaments</h2>
+            <div className="flex">
+              <Button variant="primary" className="mr-2 shadow-md flex flex-row items-center" onClick={() => navigate(paths.administrator.tournaments.new.index)} >
+                <Lucide icon="PlusCircle" className="sm:mr-2" /> <span className="hidden sm:block">Add New</span>
               </Button>
             </div>
-          </form>
-          <div className="flex mt-4 sm:mt-0">
+          </div>
+          <div className="flex flex-col sm:flex-row w-full sm:w-auto">
+            <form
+              id="tabulator-html-filter-form"
+              className="sm:ml-auto sm:mb-4 flex-col sm:flex-row flex"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleFilter();
+              }}
+            >
+              <div className="items-center mt-2 sm:mr-4 xl:mt-0">
+                <FormInput
+                  id="tabulator-html-filter-value"
+                  value={filter.search}
+                  onChange={(e) => {
+                    setPage(1);
+                    setFilter({
+                      ...filter,
+                      search: e.target.value,
+                    });
+                    if (!e.target.value) {
+                      queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsList") });
+                    }
+                  }}
+                  type="text"
+                  className="mt-2 sm:w-40 2xl:w-full sm:mt-0"
+                  placeholder="Search..."
+                />
+              </div>
+              <div className="mt-2 xl:mt-0 md:w-16 sm:w-full">
+                <Button
+                  id="tabulator-html-filter-go"
+                  variant="primary"
+                  type="button"
+                  className="w-full flex align-middle"
+                  onClick={handleFilter}
+                >
+                  <Lucide icon="Search" className="h-full" />
+                </Button>
+              </div>
+            </form>
+            <div className="flex mt-4 sm:mt-0">
+            </div>
           </div>
         </div>
         <div className="overflow-x-auto scrollbar-hidden">
@@ -574,7 +831,178 @@ function Tournaments() {
             showHeader
           />
         </div>
-      </div>
+      </div >
+      {/* BEGIN: HTML Table Data for tournament events */}
+      < div className="p-5 mt-5 intro-y box" >
+        <div className="flex sm:flex-row flex-col items-center intro-y justify-between">
+          <div className="flex flex-row items-center gap-2">
+            <h2 className="mr-auto sm:text-lg text-xl font-medium">Tournament Events</h2>
+            <div className="flex">
+              <Button variant="primary" className="mr-2 shadow-md flex flex-row items-center" onClick={() => navigate(paths.administrator.tournamentEvents.new)} >
+                <Lucide icon="PlusCircle" className="sm:mr-2" /> <span className="hidden sm:block">Add New</span>
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row w-full sm:w-auto">
+            <form
+              id="tabulator-html-filter-form"
+              className="sm:ml-auto sm:mb-4 flex-col sm:flex-row flex"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleFilter();
+              }}
+            >
+              <div className="items-center mt-2 sm:mr-4 xl:mt-0">
+                <FormInput
+                  id="tabulator-html-filter-value"
+                  value={filter.search}
+                  onChange={(e) => {
+                    setPage(1);
+                    setFilter({
+                      ...filter,
+                      search: e.target.value,
+                    });
+                    if (!e.target.value) {
+                      queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentEventsList") });
+                    }
+                  }}
+                  type="text"
+                  className="mt-2 sm:w-40 2xl:w-full sm:mt-0"
+                  placeholder="Search..."
+                />
+              </div>
+              <div className="mt-2 xl:mt-0 md:w-16 sm:w-full">
+                <Button
+                  id="tabulator-html-filter-go"
+                  variant="primary"
+                  type="button"
+                  className="w-full flex align-middle"
+                  onClick={handleFilter}
+                >
+                  <Lucide icon="Search" className="h-full" />
+                </Button>
+              </div>
+            </form>
+            <div className="flex mt-4 sm:mt-0">
+            </div>
+          </div>
+        </div>
+        <div className="overflow-x-auto scrollbar-hidden">
+          <Table
+            dataSource={tournamentEventsData?.data || []}
+            columns={tableColumnsTournamentEvents}
+            rowKey={(d) => d.uuid || ""}
+            rowClassName={(record) => `${styles.customTableRow} ${!record.published_at ? "!bg-slate-100" : "!bg-emerald-100"}`}
+            className={styles.customTableStyle}
+            loading={isLoadingEvents}
+            pagination={{
+              total: tournamentEventsData?.totalRecords,
+              defaultCurrent: page,
+              defaultPageSize: limit,
+              onChange: (page, limit) => {
+                setPage(page);
+                setLimit(limit);
+              }
+            }}
+            expandable={screens.xs ? {
+              expandedRowRender: (record) => {
+                return (
+                  <div>
+                    <p>Nickname: {record.name}</p>
+                    <p>Status: {record.status}</p>
+                    <div className="flex justify-end mt-2 gap-1">
+                      {record.status === "DRAFT" && <Tippy
+                        as="div"
+                        className="flex items-center justify-center dark:border-darkmode-400 text-slate-400"
+                        content="Start Tournament"
+                      >
+                        <Button
+                          className="flex items-center"
+                          variant="primary"
+                          size="sm"
+                          onClick={() => {
+                            navigate(paths.administrator.tournamentEvents.detail({ id: record.uuid || "" }).$);
+                          }}
+                        >
+                          <Lucide icon="Sparkles" className="w-4 h-4 mr-1" /> Start
+                        </Button>
+                      </Tippy>}
+                      <Tippy
+                        as="div"
+                        className="flex items-center justify-center dark:border-darkmode-400 text-slate-400"
+                        content="Detail"
+                      >
+                        <Button
+                          className="flex items-center"
+                          variant="outline-secondary"
+                          size="sm"
+                          onClick={() => {
+                            navigate(paths.administrator.tournamentEvents.detail({ id: record.uuid || "" }).$);
+                          }}
+                        >
+                          <Lucide icon="Eye" className="w-4 h-4" />
+                        </Button>
+                      </Tippy>
+                      <Menu>
+                        <Menu.Button as={Button} variant="secondary" size="sm">
+                          <Lucide icon="MoreHorizontal" className="w-4 h-4" />
+                        </Menu.Button>
+                        <Menu.Items>
+                          {
+                            (!record.published_at && record.status != "ONGOING") &&
+                            <Menu.Item
+                              className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                              onClick={() => {
+                                navigate(paths.administrator.tournamentEvents.edit({ id: record.uuid || "" }).$);
+                              }}
+                            >
+                              <Lucide icon="Pencil" className="w-4 h-4" /> Edit
+                            </Menu.Item>
+                          }
+                          {
+                            !record.published_at &&
+                            <Menu.Item
+                              className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                              onClick={() => {
+                                handlePublishTournament(record.uuid || "", false);
+                              }}
+                            >
+                              <Lucide icon="Rocket" className="w-4 h-4" /> Publish
+                            </Menu.Item>
+                          }
+                          {
+                            !!record.published_at &&
+                            <Menu.Item
+                              className="flex flex-row items-center gap-2 w-40 cursor-pointer hover:bg-slate-200"
+                              onClick={() => {
+                                handlePublishTournament(record.uuid || "", true);
+                              }}
+                            >
+                              <Lucide icon="Rocket" className="w-4 h-4 rotate-[135deg]" /> Unpublish
+                            </Menu.Item>
+                          }
+                          {(!record.published_at && record.status != "ONGOING") &&
+                            <Menu.Item
+                              className="flex flex-row items-center gap-2 w-40 text-danger cursor-pointer hover:text-danger hover:bg-slate-200 bg-red-50"
+                              onClick={() => {
+                                handleDeleteTournament(record.uuid || "");
+                              }}
+                            >
+                              <Lucide icon="Trash" className="w-4 h-4" /> Delete
+                            </Menu.Item>
+                          }
+                        </Menu.Items>
+                      </Menu>
+                    </div>
+                  </div>
+                )
+              },
+              rowExpandable: (record) => !!record.uuid, // Only expand rows with an address
+            } : undefined}
+            showHeader
+          />
+        </div >
+      </div >
       <Confirmation
         open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
