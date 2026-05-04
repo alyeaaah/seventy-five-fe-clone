@@ -429,12 +429,12 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
                 <div className="flex flex-col text-gray-600 ">
                   <div className='flex flex-row'>
                     <div className='bank-logo'>
-
+                      <Image src='https://res.cloudinary.com/doqyrkqgw/image/upload/v1777909173/kw9sfycyym8lifowv55b.jpg' alt="bca" />
                     </div>
                     <div className='flex flex-col'>
                       <div className='text-sm font-medium'>Bank BCA</div>
-                      <div className='text-lg font-bold'>4233 3423 535</div>
-                      <div className='text-sm font-semibold'>an. Hamzah</div>
+                      <div className='text-lg font-bold'>7881 233 944</div>
+                      <div className='text-sm font-semibold'>an. Dedhi Ruliawan</div>
                       <div className='flex flex-col gap-4'>
                         <div className='flex flex-col'>
                           <label className='text-sm font-medium text-gray-700 mb-2'>

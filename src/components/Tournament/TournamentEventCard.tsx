@@ -30,6 +30,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
   const userIsLogin = !!accessToken && !!user;
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const [modalJoin, setModalJoin] = useState<AlertProps | undefined>(undefined);
+  const [showRules, setShowRules] = useState(false);
 
 
   const { mutate: joinTournament, isLoading: isJoining } = PublicTournamentApiHooks.useJoinTournament({
@@ -181,18 +182,9 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
 
         <div
           className="text-sm font-light text-gray-500 py-4"
-          dangerouslySetInnerHTML={{ __html: event.description || "" }}
+          dangerouslySetInnerHTML={{ __html: decodeURIComponent(event.description || "") }}
         />
 
-        {event.rules && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">Rules</h4>
-            <div
-              className="text-sm text-gray-600"
-              dangerouslySetInnerHTML={{ __html: event.rules || "" }}
-            />
-          </div>
-        )}
 
         <div className="mt-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
@@ -204,7 +196,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                   {event.commitment_fee > 0 ? `Rp ${event.commitment_fee.toLocaleString()}` : 'Free'}
                 </span>
 
-                <span className="text-gray-400 text-xs font-medium line-clamp-2">
+                <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-8">
                   {event.commitment_fee > 0 ? 'Early Bird' : 'Normal Price'}
                 </span>
               </div>
@@ -237,7 +229,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                     )
                   }
                 </span>
-                <span className="text-gray-400 text-xs font-medium line-clamp-2">
+                <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-8">
                   {moment(startDate).format('HH:mm')} - {moment(endDate).format('HH:mm')} GMT +7
                 </span>
               </div>
@@ -245,7 +237,42 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        {event.rules && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className='flex flex-row gap-2 items-center mb-2'>
+              <h4 className="text-sm font-semibold text-gray-700">Tournament Rules</h4>
+            </div>
+            <div
+              className={`text-sm text-gray-600 overflow-hidden ${showRules ? 'h-auto' : 'h-24'}`}
+              dangerouslySetInnerHTML={{ __html: decodeURIComponent(event.rules || "") }}
+            />
+            <Button variant='outline-primary' className='h-8 mt-2' onClick={() => setShowRules(!showRules)}>{showRules ? 'See less' : 'Show More'}</Button>
+
+          </div>
+        )}
+      </div>
+
+      <div className="col-span-12 sm:col-span-4">
+        {event.media_url && (
+          <img
+            src={imageResizerDimension(event.media_url, 400, "h")}
+            className="w-full h-48 sm:h-64 object-cover rounded-xl shadow-sm border border-gray-100"
+            alt={event.name}
+            onClick={() => {
+              if (event.media_url) {
+                window.open(event.media_url, '_blank');
+              }
+            }}
+          />
+        )}
+
+        {!event.media_url && (
+          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center">
+            <Lucide icon="Calendar" className="h-16 w-16 text-emerald-400" />
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-3">
 
           {userIsLogin && (
             <>
@@ -253,7 +280,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                 <Button
                   variant="primary"
                   color="primary"
-                  className="font-medium text-xs shadow-none uppercase"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
                 >
                   Confirmed to join
                 </Button>
@@ -262,7 +289,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                 <Button
                   variant="danger"
                   color="danger"
-                  className="font-medium text-xs shadow-none uppercase"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
                 >
                   Rejected
                 </Button>
@@ -271,7 +298,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                 <Button
                   variant="primary"
                   color="primary"
-                  className="font-medium text-xs shadow-none uppercase"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
                   onClick={() => {
                     setModalAlert({
                       title: "Please Wait",
@@ -292,7 +319,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                 <Button
                   variant="primary"
                   color="primary"
-                  className="font-medium text-xs shadow-none uppercase"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
                 >
                   {/* Pay IDR {new Intl.NumberFormat('id-ID', {}).format(commitmentFee || 0)} */}
                   You have approved! check your email inbox!
@@ -303,7 +330,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                   variant="primary"
                   color="primary"
                   disabled={isJoining}
-                  className="font-medium text-xs shadow-none uppercase"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
                   onClick={handleJoinTournament}
                 >
                   Request to Join
@@ -349,33 +376,11 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
             </Button>
           )}
         </div>
-      </div>
-
-      <div className="col-span-12 sm:col-span-4">
-        {event.media_url && (
-          <img
-            src={imageResizerDimension(event.media_url, 400, "h")}
-            className="w-full h-48 sm:h-64 object-cover rounded-xl shadow-sm border border-gray-100"
-            alt={event.name}
-            onClick={() => {
-              if (event.media_url) {
-                window.open(event.media_url, '_blank');
-              }
-            }}
-          />
-        )}
-
-        {!event.media_url && (
-          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center">
-            <Lucide icon="Calendar" className="h-16 w-16 text-emerald-400" />
-          </div>
-        )}
-
         {event.tournaments && event.tournaments.length > 0 && (
           <div className="mt-4 p-4 bg-emerald-50 rounded-lg">
             <h4 className="text-sm font-semibold text-emerald-800 mb-2">Tournament Categories</h4>
             <div className="space-y-2">
-              {event.tournaments.slice(0, 3).map((tournament, index) => (
+              {event.tournaments.slice(0, 12).map((tournament, index) => (
                 <div
                   key={index}
                   className="text-sm text-emerald-700 hover:text-emerald-900 cursor-pointer"
