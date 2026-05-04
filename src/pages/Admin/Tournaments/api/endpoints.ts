@@ -95,7 +95,7 @@ const TournamentsUpdateStatusApi = makeEndpoint({
   method: "put",
   path: `/tournament/edit/status/:uuid`,
   parameters: parametersBuilder().addBody(z.object({
-    status: z.enum(["DRAFT", "POSTPONED", "CANCELLED", "ENDED", "ONGOING"]),
+    status: z.enum(["DRAFT", "POSTPONED", "CANCELLED", "ENDED", "ONGOING", "PUBLISHED"]),
   })).build(),
   response: z
     .object({
