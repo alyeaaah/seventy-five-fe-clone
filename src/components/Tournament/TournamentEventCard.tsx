@@ -41,6 +41,26 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
     onSuccess: () => {
       setModalAlert(undefined);
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetail") });
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventDetail") });
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventAuthDetail") });
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetailAuth") });
+      setTimeout(() => {
+        setModalAlert({
+          title: 'Success',
+          description: 'You have successfully joined the tournament',
+          type: 'success',
+          icon: "CheckCircle",
+          onClose: () => setModalAlert(undefined),
+          open: true,
+          buttons: [
+            {
+              label: 'Okay',
+              variant: 'primary',
+              onClick: () => setModalAlert(undefined),
+            }
+          ]
+        })
+      }, 500);
     }
   });
   // Get tournament event detail data
@@ -160,6 +180,25 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
   return (
     <div className="col-span-12 grid grid-cols-12 sm:gap-4 gap-2 mt-2 rounded-xl min-h-20 text-emerald-800">
       <div className="col-span-12 sm:col-span-8">
+
+        {event.media_url && (
+          <img
+            src={imageResizerDimension(event.media_url, 400, "h")}
+            className="w-full h-fit sm:h-64 object-cover rounded-xl shadow-sm border border-gray-100 sm:hidden visible mb-2"
+            alt={event.name}
+            onClick={() => {
+              if (event.media_url) {
+                window.open(event.media_url, '_blank');
+              }
+            }}
+          />
+        )}
+
+        {!event.media_url && (
+          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl items-center justify-center hidden sm:visible">
+            <Lucide icon="Calendar" className="h-16 w-16 text-emerald-400" />
+          </div>
+        )}
         <div className="flex items-center gap-2 mb-3">
           <span className="px-3 py-1 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white text-xs font-semibold rounded-full uppercase">
             Tournament Event
@@ -237,6 +276,110 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
           </div>
         </div>
 
+        <div className="flex-wrap gap-3 flex sm:hidden">
+
+          {userIsLogin && (
+            <>
+              {joinStatus === "CONFIRMED" && (
+                <Button
+                  variant="primary"
+                  color="primary"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
+                >
+                  Confirmed to join
+                </Button>
+              )}
+              {joinStatus === "REJECTED" && (
+                <Button
+                  variant="danger"
+                  color="danger"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
+                >
+                  Rejected
+                </Button>
+              )}
+              {joinStatus === "REQUESTED" && (
+                <Button
+                  variant="primary"
+                  color="primary"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
+                  onClick={() => {
+                    setModalAlert({
+                      title: "Please Wait",
+                      message: "",
+                      description: "Your request has been submitted and is awaiting review by our tournament officials.",
+                      icon: "Clock",
+                      open: true,
+                      onClose: () => {
+                        setModalAlert(undefined)
+                      }
+                    });
+                  }}
+                >
+                  JOINED
+                </Button>
+              )}
+              {joinStatus === "APPROVED" && (
+                <Button
+                  variant="primary"
+                  color="primary"
+                  className="font-medium text-xs shadow-none uppercase mt-3"
+                >
+                  {/* Pay IDR {new Intl.NumberFormat('id-ID', {}).format(commitmentFee || 0)} */}
+                  You have approved! check your email inbox!
+                </Button>
+              )}
+              {(!joinStatus && new Date(startDate || "") > new Date()) && (
+                <Button
+                  variant="primary"
+                  color="primary"
+                  disabled={isJoining}
+                  className="font-medium text-xs shadow-none uppercase mt-3"
+                  onClick={handleJoinTournament}
+                >
+                  Request to Join
+                </Button>
+              )}
+            </>
+          )}
+          {(!joinStatus && !user && endDate && new Date(endDate) > new Date()) && (
+            <Button
+              variant="primary"
+              color="primary"
+              disabled={isJoining}
+              className="font-medium text-xs shadow-none uppercase mt-2 w-full"
+              onClick={() => {
+                setModalAlert({
+                  description: "You need to create an account to join this tournament. Register now or sign in to your existing account.",
+                  open: true,
+                  onClose: () => setModalAlert(undefined),
+                  buttons: [
+                    {
+                      label: "Create Account",
+                      onClick: () => {
+                        const currentPath = window.location.pathname + window.location.search;
+                        navigate(paths.register({ redirect: `${(currentPath)}` }).$);
+                      },
+                      variant: "primary",
+                    },
+                    {
+                      label: "Sign In",
+                      onClick: () => {
+                        const currentPath = window.location.pathname;
+                        navigate(paths.login({ redirect: `${(currentPath)}` }).$);
+                      },
+                      variant: "secondary",
+                    },
+                  ],
+                  icon: "Info",
+                  title: "Join Tournament",
+                })
+              }}
+            >
+              Ask to Join
+            </Button>
+          )}
+        </div>
         {event.rules && (
           <div className="mt-4 p-4 bg-gray-50 rounded-lg">
             <div className='flex flex-row gap-2 items-center mb-2'>
@@ -256,7 +399,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
         {event.media_url && (
           <img
             src={imageResizerDimension(event.media_url, 400, "h")}
-            className="w-full h-48 sm:h-64 object-cover rounded-xl shadow-sm border border-gray-100"
+            className="w-full h-48 sm:h-fit object-cover rounded-xl shadow-sm border border-gray-100 hidden sm:flex"
             alt={event.name}
             onClick={() => {
               if (event.media_url) {
@@ -267,12 +410,12 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
         )}
 
         {!event.media_url && (
-          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center">
+          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center hidden sm:visible">
             <Lucide icon="Calendar" className="h-16 w-16 text-emerald-400" />
           </div>
         )}
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex-wrap gap-3 sm:flex hidden">
 
           {userIsLogin && (
             <>
@@ -343,7 +486,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
               variant="primary"
               color="primary"
               disabled={isJoining}
-              className="font-medium text-xs shadow-none uppercase"
+              className="font-medium text-xs shadow-none uppercase mt-2 w-full"
               onClick={() => {
                 setModalAlert({
                   description: "You need to create an account to join this tournament. Register now or sign in to your existing account.",

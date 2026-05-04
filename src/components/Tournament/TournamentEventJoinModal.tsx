@@ -70,7 +70,7 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
   const startDate = tournamentEvent?.data?.tournaments?.length ? tournamentEvent?.data?.tournaments?.sort((a, b) => new Date(a.start_date || '').getTime() - new Date(b.start_date || '').getTime())?.[0]?.start_date : undefined;
   const endDate = tournamentEvent?.data?.tournaments?.length ? tournamentEvent?.data?.tournaments?.sort((a, b) => new Date(b.end_date || '').getTime() - new Date(a.end_date || '').getTime())?.[0]?.end_date : undefined;
   // State for selected tournament
-  const [selectedTournament, setSelectedTournament] = React.useState<string | null>(tournamentEvent?.data?.tournaments?.[0]?.uuid || null);
+  const [selectedTournament, setSelectedTournament] = React.useState<string | null>(null);
 
   // State for agreement checkbox
   const [isAgreed, setIsAgreed] = React.useState(false);
@@ -116,11 +116,14 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
     setModalAlert({
       title: 'Rules',
       description: "",
+      size: "lg",
       onClose: () => {
         setModalAlert(undefined);
       },
       icon: 'Info',
-      content: <></>,
+      content: <div className='min-w-32 p-4' dangerouslySetInnerHTML={{ __html: decodeURIComponent(tournamentEvent?.data?.rules || "") }}>
+
+      </div>,
       open: true,
     })
 
@@ -286,7 +289,7 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
               <h3 className="text-lg font-semibold text-gray-900">
                 {tournamentEventData.name}
               </h3>
-              <p className="text-xs opacity-80 mb-2 line-clamp-3" dangerouslySetInnerHTML={{ __html: tournamentEventData?.description }}>
+              <p className="text-xs opacity-80 mb-2 line-clamp-3" dangerouslySetInnerHTML={{ __html: decodeURIComponent(tournamentEventData?.description || "") }}>
               </p>
             </div>
           </div>
@@ -298,8 +301,8 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
                   <Lucide icon="Network" className="h-5 min-w-5 text-gray-400" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Game System</p>
-                    <p className="text-sm text-gray-600 capitalize">{tournamentEventData?.tournaments?.find(t => t.uuid === selectedTournament)?.type || 'Round Robin'}</p>
-                    <p className="text-xs text-gray-600">{tournamentEventData?.tournaments?.find(t => t.uuid === selectedTournament)?.max_player || '16'} Participants</p>
+                    <p className="text-sm text-gray-600 capitalize">{tournamentEventData?.tournaments?.find((t, i) => selectedTournament ? t.uuid === selectedTournament : i === 0)?.type || 'Round Robin'}</p>
+                    <p className="text-xs text-gray-600">{tournamentEventData?.tournaments?.find((t, i) => selectedTournament ? t.uuid === selectedTournament : i === 0)?.max_player || '16'} Participants</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -428,29 +431,30 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
               <div>
                 <div className="flex flex-col text-gray-600 ">
                   <div className='flex flex-row'>
-                    <div className='bank-logo'>
-                      <Image src='https://res.cloudinary.com/doqyrkqgw/image/upload/v1777909173/kw9sfycyym8lifowv55b.jpg' alt="bca" />
+                    <div className='bank-logo flex items-center justify-center'>
+                      <Image src='https://res.cloudinary.com/doqyrkqgw/image/upload/v1777910633/pngwing.com_2_c4flh0.png' alt="bca" className=' object-contain aspect-video h-8' />
                     </div>
                     <div className='flex flex-col'>
                       <div className='text-sm font-medium'>Bank BCA</div>
                       <div className='text-lg font-bold'>7881 233 944</div>
                       <div className='text-sm font-semibold'>an. Dedhi Ruliawan</div>
-                      <div className='flex flex-col gap-4'>
-                        <div className='flex flex-col'>
-                          <label className='text-sm font-medium text-gray-700 mb-2'>
-                            Upload Payment Receipt
-                          </label>
-                          <UploadDropzone
-                            uploadType="image"
-                            name="payment_receipt"
-                            index={0}
-                            onChange={handleReceiptUpload}
-                            fileList={paymentReceipt ? [paymentReceipt] : []}
-                            onRemove={handleRemoveReceipt}
-                            loading={uploading}
-                          />
-                        </div>
-                      </div>
+
+                    </div>
+                  </div>
+                  <div className='flex flex-col gap-4 mt-4'>
+                    <div className='flex flex-col'>
+                      <label className='text-sm font-medium text-gray-700 mb-2'>
+                        Upload Your Payment Receipt
+                      </label>
+                      <UploadDropzone
+                        uploadType="image"
+                        name="payment_receipt"
+                        index={0}
+                        onChange={handleReceiptUpload}
+                        fileList={paymentReceipt ? [paymentReceipt] : []}
+                        onRemove={handleRemoveReceipt}
+                        loading={uploading}
+                      />
                     </div>
                   </div>
                 </div>
@@ -484,7 +488,7 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
               <Button
                 variant="primary"
                 onClick={handleContinueTournament}
-                disabled={(step == 2 && !paymentReceipt) || !isAgreed || isJoining || tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED' || t.join_status === 'APPROVED')}
+                disabled={(step == 2 && !paymentReceipt) || !isAgreed || !selectedTournament || isJoining || tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED' || t.join_status === 'APPROVED')}
                 className="flex-1"
               >
                 {isJoining ? 'Joining...' :
@@ -516,6 +520,7 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
       <Confirmation
         open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
+        size={modalAlert?.size}
         icon={modalAlert?.icon || "Info"}
         iconClassname={modalAlert?.iconClassname}
         title={modalAlert?.title || ""}
