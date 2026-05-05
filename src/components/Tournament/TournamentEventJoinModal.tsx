@@ -240,7 +240,7 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
     }
     await joinTournament({
       player_uuid: selectedPlayer?.uuid,
-      commitment_fee: Number(tournamentEvent?.data?.tournaments?.find(t => t.uuid === selectedTournament)?.commitment_fee || "0"),
+      commitment_fee: Number((selectedTournamentData && isEarlyBird(selectedTournamentData) ? selectedTournamentData?.early_bird_price : selectedTournamentData?.commitment_fee) || 0),
       media_url: paymentReceipt
     });
   };

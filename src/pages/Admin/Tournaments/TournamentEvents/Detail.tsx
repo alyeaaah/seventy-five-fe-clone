@@ -357,6 +357,25 @@ const TournamentEventDetail = () => {
                 )}
               </div>
             </div>
+            {/* Tournaments */}
+            <div className="bg-white p-6 rounded-lg border border-slate-200">
+              <h3 className="text-base font-medium mb-4 flex items-center">
+                <Lucide icon="Zap" className="w-4 h-4 mr-2" />
+                Tournaments
+              </h3>
+              <div className="space-y-2">
+                {eventData?.data?.tournaments?.map((tournament) => (
+                  <Button
+                    variant="outline-primary"
+                    className="w-full justify-start"
+                    onClick={() => navigate(paths.administrator.tournamentEvents.edit({ id: eventData.data?.uuid! }).$)}
+                  >
+                    <Lucide icon="Pencil" className="w-4 h-4 mr-2" />
+                    {tournament.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
