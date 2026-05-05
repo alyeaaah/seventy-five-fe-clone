@@ -368,6 +368,7 @@ const TournamentEventDetail = () => {
                   <Button
                     variant="outline-primary"
                     className="w-full justify-start"
+                    key={tournament.uuid}
                     onClick={() => navigate(paths.administrator.tournaments.detail({ id: tournament?.uuid! }).$)}
                   >
                     <Lucide icon="Pencil" className="w-4 h-4 mr-2" />

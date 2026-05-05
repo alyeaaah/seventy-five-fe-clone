@@ -20,6 +20,7 @@ import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 import { PublicBlogApiHooks } from "@/pages/Public/Blog/api";
 import { useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
+import { ModalCompleteProfile } from "../Components/ModalCompleteProfile";
 
 export const PlayerHome = () => {
   const navigate = useNavigate();
@@ -207,7 +208,7 @@ export const PlayerHome = () => {
       {/* <div className="col-span-12 p-4"> */}
       <PartnersComponent className='col-span-12 grid grid-cols-12 gap-6 w-full my-6' />
       {/* </div> */}
-      {/* <ModalCompleteProfile /> */}
+      <ModalCompleteProfile />
 
     </div>
   );

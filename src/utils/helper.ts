@@ -1,3 +1,4 @@
+import { clientEnv } from "@/env";
 import { CourtField } from "@/pages/Admin/Courts/api/schema";
 import { MatchScoreFirestore } from "@/pages/Admin/MatchDetail/api/schema";
 import { PlayerSkillsPayload } from "@/pages/Players/Home/api/schema";
@@ -7,19 +8,29 @@ import { parseColor } from "tailwindcss/lib/util/color";
 
 dayjs.extend(duration);
 
-export const profileChecker = ({ uuid, name, skills, height }: { uuid?: string | undefined | null, name?: string | undefined | null, skills?: PlayerSkillsPayload | undefined | null, height?: number | undefined | null }): "UPDATE" | "COMPLETE" | "INCOMPLETE" => {
-  if (!uuid) return "INCOMPLETE";
-  const isNameComplete = name ? name.length > 2 : false;
-  const isSkillsComplete = skills ? Object.values(skills).every((value) => value > 0) : false;
-  const isHeightComplete = height ? height > 100 : false;
-  
-  if (isNameComplete && isSkillsComplete && isHeightComplete) {
-    return "COMPLETE";
-  } else if (!isSkillsComplete && !isHeightComplete) {
-    return "UPDATE";
+export const profileChecker = ({ uuid, name, skills, height, media_url }: { uuid?: string | undefined | null, name?: string | undefined | null, skills?: PlayerSkillsPayload | undefined | null, height?: number | undefined | null, media_url?: string | undefined | null }): "UPDATE" | "COMPLETE" | "INCOMPLETE" => {
+  if (clientEnv.PROFILE_UPDATE) {
+    if (!media_url) {
+      return "UPDATE";
+    } else {
+      return "COMPLETE";
+    }
   } else {
-    return "INCOMPLETE";
+      return "COMPLETE";
+    
   }
+  // if (!uuid) return "INCOMPLETE";
+  // const isNameComplete = name ? name.length > 2 : false;
+  // const isSkillsComplete = skills ? Object.values(skills).every((value) => value > 0) : false;
+  // const isHeightComplete = height ? height > 100 : false;
+  
+  // if (isNameComplete && isSkillsComplete && isHeightComplete) {
+  //   return "COMPLETE";
+  // } else if (!isSkillsComplete && !isHeightComplete) {
+  //   return "UPDATE";
+  // } else {
+  //   return "INCOMPLETE";
+  // }
 }
   
 export const getZodiac = (dateInput: Date | string): { sign: string; symbol: string } => {

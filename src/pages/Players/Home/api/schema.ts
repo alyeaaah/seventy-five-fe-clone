@@ -19,7 +19,10 @@ export const playersSchema = z.object({
   name: z.string()
     .min(2, "Player name must be at least 2 characters long"),
   username: z.string()
-    .min(2, "Username must be at least 2 characters long"),
+    .min(2, "Username must be at least 2 characters long")
+    .max(32, "Username must be at most 32 characters long")
+    .regex(/^[a-zA-Z0-9._]+$/, "Username can only contain letters, numbers, dots, and underscores")
+    .transform((val) => val?.trim()),
   nickname: z.string()
     .min(2, "Nickname must be at least 2 characters long"),
   email: z.string().email().nullish(),
@@ -74,6 +77,7 @@ export const playersPartialSchema = playersSchema.extend({
   city: z.string().nullish(),
   address: z.string().nullish(),
   height: z.number().nullish(),
+  phone: z.string(),
 })
 export const playerDetailSchema = z.object({
   uuid: z.string(),

@@ -28,7 +28,7 @@ import { LandingPageApiHooks } from "@/pages/Public/LandingPage/api";
 import { PublicPlayerApiHooks } from "@/pages/Public/Player/api";
 import { paths } from "@/router/paths";
 import { useRouteParams } from "typesafe-routes/react-router";
-
+import { compressImage } from "@/utils/image-compression";
 
 export const ModalCompleteProfile = () => {
 
@@ -156,29 +156,44 @@ export const ModalCompleteProfile = () => {
 
   const uploadHandler = async (info: UploadChangeParam, index: number) => {
     setUploading(true);
-    await actionUploadImage({ image: info.file as RcFile }, {
-      onError: (error) => {
-        setUploading(false);
-        showNotification({
-          duration: 3000,
-          text: `Failed to upload image ${error?.message}`,
-          icon: "XCircle",
-          variant: "danger",
-        });
-      },
-      onSuccess: (res) => {
-        setValue(`media_url`, res.imageUrl, {
-          shouldValidate: true,
-        });
-      }
-    });
-    setUploading(false);
+
+    try {
+      // Compress image before upload
+      const compressedImage = await compressImage(info.file as RcFile);
+
+      await actionUploadImage({ image: compressedImage }, {
+        onError: (error) => {
+          setUploading(false);
+          showNotification({
+            duration: 3000,
+            text: `Failed to upload image ${error?.message}`,
+            icon: "XCircle",
+            variant: "danger",
+          });
+        },
+        onSuccess: (res) => {
+          setValue(`media_url`, res.imageUrl, {
+            shouldValidate: true,
+          });
+        }
+      });
+    } catch (error: any) {
+      showNotification({
+        duration: 3000,
+        text: `Failed to process image ${error?.message}`,
+        icon: "XCircle",
+        variant: "danger",
+      });
+    } finally {
+      setUploading(false);
+    }
   }
-  return profileChecker({
+  return data && profileChecker({
     uuid: data?.data?.uuid,
     name: data?.data?.name,
     skills: data?.data?.skills,
-    height: data?.data?.height
+    height: data?.data?.height,
+    media_url: data?.data?.media_url
   }) === "UPDATE" ? (
     <div>
       <Modal
@@ -193,12 +208,12 @@ export const ModalCompleteProfile = () => {
               </div>
             </div>
             <div className="flex w-full lg:w-fit flex-col pt-2 lg:pt-0">
-              <Button
+              {/* <Button
                 variant="primary"
                 onClick={() => {
                   navigate(paths.player.referee.index.template)
                 }}
-              >Continue as Referee</Button>
+              >Continue as Referee</Button> */}
             </div>
           </div>
         }

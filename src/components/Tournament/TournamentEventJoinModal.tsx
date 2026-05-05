@@ -108,9 +108,12 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
           description: 'You have successfully joined the tournament',
           type: 'success',
           icon: "CheckCircle",
+          dismissable: true,
           onClose: () => {
             setModalAlert(undefined);
-            onClose();
+            setTimeout(() => {
+              onClose();
+            }, 500);
           },
           open: true,
           buttons: [
@@ -119,7 +122,9 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
               variant: 'primary',
               onClick: () => {
                 setModalAlert(undefined);
-                onClose();
+                setTimeout(() => {
+                  onClose();
+                }, 500);
               },
             }
           ]
@@ -157,6 +162,25 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
     })
   }
   const handleContinueTournament = () => {
+    if (selectedTournament && !getTournamentQuota(selectedTournament)?.remaining_quota) {
+      toast.showNotification({
+        text: "Tournament is full",
+        duration: 2000,
+        icon: "UserRoundX"
+      });
+      return;
+    }
+    if (
+      selectedPrice === selectedTournamentData?.early_bird_price &&
+      (
+        selectedTournament &&
+        !!getTournamentQuota(selectedTournament) &&
+        (getTournamentQuota(selectedTournament)?.remaining_quota_early_bird || 0) <= 0)
+    ) {
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventDetail") });
+    queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventQuota") });
     if (!isAgreed) return;
     if (step < 2) {
       setStep(step + 1)
@@ -240,7 +264,7 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
     }
     await joinTournament({
       player_uuid: selectedPlayer?.uuid,
-      commitment_fee: Number((selectedTournamentData && isEarlyBird(selectedTournamentData) ? selectedTournamentData?.early_bird_price : selectedTournamentData?.commitment_fee) || 0),
+      commitment_fee: selectedPrice,
       media_url: paymentReceipt
     });
   };
@@ -291,6 +315,8 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
 
   const tournamentEventData = tournamentEvent?.data;
   const selectedTournamentData = tournamentEventData?.tournaments?.find(t => t.uuid == selectedTournament);
+  const selectedPrice = !!getTournamentQuota(selectedTournamentData?.uuid || '')?.remaining_quota_early_bird && selectedTournamentData?.early_bird_price ? Number(selectedTournamentData?.early_bird_price) : Number(selectedTournamentData?.commitment_fee || 0);
+  const canNotContinue = selectedPrice === selectedTournamentData?.early_bird_price && (selectedTournament && !!getTournamentQuota(selectedTournament) && (getTournamentQuota(selectedTournament)?.remaining_quota_early_bird || 0) <= 0);
 
   return (
     <Modal
@@ -407,8 +433,8 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
                     <div className='flex flex-col'>
                       <span className="text-xs text-gray-500 p-0">{tournament.level}</span>
                       <p className="text-base font-semibold text-emerald-800">{tournament.name}</p>
-                      <p className="text-sm text-gray-600 font-bold">IDR {Intl.NumberFormat('id-ID').format(Number(isEarlyBird(tournament).active ? tournament.early_bird_price || 0 : tournament.commitment_fee || 0))}</p>
-                      <p className="text-xs text-purple-600">{isEarlyBird(tournament).active ? 'Early Bird' : 'Regular'}</p>
+                      <p className="text-sm text-gray-600 font-bold">IDR {Intl.NumberFormat('id-ID').format(Number((getTournamentQuota(tournament.uuid || "")?.remaining_quota_early_bird || 0) > 0 ? tournament.early_bird_price || 0 : tournament.commitment_fee || 0))}</p>
+                      <p className="text-xs text-purple-600">{(getTournamentQuota(tournament.uuid || "")?.remaining_quota_early_bird || 0) > 0 ? 'Early Bird' : 'Regular'}</p>
                     </div>
                     <div className='flex flex-col items-center justify-center'>
                       {selectedTournament === tournament.uuid && (
@@ -505,13 +531,13 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
                         <td className='py-3 text-sm text-gray-900 font-medium'>Tournament Registration</td>
                         <td className='py-3 text-sm text-gray-900 text-center'>1 Slot</td>
                         <td className='py-3 text-sm text-gray-900 text-right font-semibold'>
-                          IDR {(selectedTournamentData && isEarlyBird(selectedTournamentData) ? selectedTournamentData?.early_bird_price : selectedTournamentData?.commitment_fee)?.toLocaleString()}
+                          IDR {Intl.NumberFormat('id-ID').format(selectedPrice || 0)}
                         </td>
                       </tr>
                       <tr className='bg-gray-50'>
                         <td colSpan={3} className='py-3 text-sm font-semibold text-gray-900 text-right pr-4'>TOTAL</td>
                         <td className='py-3 text-lg font-bold text-emerald-600 text-right'>
-                          IDR {(selectedTournamentData && isEarlyBird(selectedTournamentData) ? selectedTournamentData?.early_bird_price : selectedTournamentData?.commitment_fee)?.toLocaleString()}
+                          IDR {Intl.NumberFormat('id-ID').format(selectedPrice || 0)}
                         </td>
                       </tr>
                     </tbody>
@@ -587,7 +613,7 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
               <Button
                 variant="primary"
                 onClick={handleContinueTournament}
-                disabled={(step == 2 && !paymentReceipt) || !isAgreed || !selectedTournament || isJoining || tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED' || t.join_status === 'APPROVED')}
+                disabled={canNotContinue || (selectedTournament && !getTournamentQuota(selectedTournament)?.remaining_quota) || (step == 2 && !paymentReceipt) || !isAgreed || !selectedTournament || isJoining || tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED' || t.join_status === 'APPROVED')}
                 className="flex-1"
               >
                 {isJoining ? 'Joining...' :

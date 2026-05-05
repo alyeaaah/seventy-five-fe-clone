@@ -43,6 +43,7 @@ jobs:
           VITE_BASENAME: ${{ secrets.VITE_BASENAME }}
           VITE_SOCKET_URL: ${{ secrets.VITE_SOCKET_URL }}
           VITE_SOCKET_SECRET_KEY: ${{ secrets.VITE_SOCKET_SECRET_KEY }}
+          VITE_PROFILE_UPDATE: ${{ secrets.VITE_PROFILE_UPDATE }}
 
       - name: Prepare SSH key
         run: |
