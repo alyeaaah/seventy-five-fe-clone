@@ -368,10 +368,10 @@ const TournamentEventDetail = () => {
                   <Button
                     variant="outline-primary"
                     className="w-full justify-start"
-                    onClick={() => navigate(paths.administrator.tournamentEvents.edit({ id: eventData.data?.uuid! }).$)}
+                    onClick={() => navigate(paths.administrator.tournaments.detail({ id: tournament?.uuid! }).$)}
                   >
                     <Lucide icon="Pencil" className="w-4 h-4 mr-2" />
-                    {tournament.name}
+                    {tournament.name} {tournament.counter?.requested ? `(${tournament.counter.requested})` : ""}
                   </Button>
                 ))}
               </div>

@@ -43,6 +43,10 @@ export const TournamentsApiClient = new Zodios(
     endpoints.TournamentEventsUpdateApi,
     endpoints.TournamentEventsDeleteApi,
     endpoints.TournamentEventsAssignmentApi,
+    endpoints.GetTournamentDraftParticipantsApi,
+    endpoints.UpdateTournamentParticipantsApi,
+    endpoints.RemoveTournamentParticipantsApi,
+    endpoints.BulkUpdateTournamentParticipantsApi,
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

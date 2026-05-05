@@ -3,7 +3,7 @@ import { z } from "zod";
 import { matchTeamSchema } from "../../MatchDetail/api/schema";
 import { publicTournamentDetailSchema } from "@/pages/Public/Tournament/api/schema";
 
-export const draftPickStatusEnum = z.enum(["AVAILABLE", "PICKING", "PICKED"]);
+export const draftPickStatusEnum = z.enum(["AVAILABLE", "PICKING", "PICKED", "REQUESTED", "REJECTED", "APPROVED"]);
 
 export const draftPickPayloadSchema = z.object({
   id:z.number().nullish(),
@@ -275,7 +275,12 @@ export const tournamentEventSchema = z.object({
   updated_by: z.string().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime().nullable(),
-  tournaments: z.array(tournamentsSchema.partial()).optional(),
+  tournaments: z.array(tournamentsSchema.extend({
+    counter: z.object({
+      approved: z.number().optional(),
+      requested: z.number().optional(),
+    }).nullish(),
+  }).partial()).optional(),
 });
 
 export const tournamentEventCreatePayloadSchema = z.object({
@@ -303,10 +308,62 @@ export const tournamentEventAssignmentPayloadSchema = z.object({
   tournament_event_uuid: z.string(),
 });
 
+// Tournament Participant Schemas
+const draftPickPlayerSchema = z.object({
+  uuid: z.string(),
+  name: z.string(),
+  nickname: z.string().nullable(),
+  email: z.string().nullable(),
+  level: z.object({
+    uuid: z.string(),
+    name: z.string(),
+  }).nullable(),
+  media_url: z.string().nullable(),
+  city: z.string().nullable(),
+});
+export const tournamentParticipantSchema = z.object({
+  id: z.number(),
+  player_uuid: z.string(),
+  tournament_uuid: z.string().nullable(),
+  tournament_event_uuid: z.string().nullable(),
+  status: draftPickStatusEnum,
+  position: z.number(),
+  commitment_fee: z.number().or(z.string()).nullable(),
+  seeded: z.boolean(),
+  pickingAt: z.string().datetime().nullable(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  player: draftPickPlayerSchema.nullable(),
+  partner: draftPickPlayerSchema.nullable(),
+  attachment: z.string().nullable(),
+});
 
+
+export const updateParticipantPayloadSchema = z.object({
+  draft_pick_id: z.number(),
+  player_uuid: z.string(),
+  status: draftPickStatusEnum,
+});
+
+export const removeParticipantPayloadSchema = z.object({
+  draft_pick_id: z.number(),
+  playerUuid: z.string(),
+});
+
+export const bulkUpdateStatusPayloadSchema = z.object({
+  draft_pick_ids: z.array(z.number()),
+  status: draftPickStatusEnum,
+});
 
 export type TournamentEvent = z.infer<typeof tournamentEventSchema>;
 export type TournamentEventCreatePayload = z.infer<typeof tournamentEventCreatePayloadSchema>;
 export type TournamentEventUpdatePayload = z.infer<typeof tournamentEventUpdatePayloadSchema>;
 export type TournamentEventAssignmentPayload = z.infer<typeof tournamentEventAssignmentPayloadSchema>;
 export type TournamentEventStatusEnum = z.infer<typeof tournamentEventStatusEnum>;
+
+// Tournament Participant Types
+export type TournamentParticipant = z.infer<typeof tournamentParticipantSchema>;
+export type UpdateParticipantPayload = z.infer<typeof updateParticipantPayloadSchema>;
+export type RemoveParticipantPayload = z.infer<typeof removeParticipantPayloadSchema>;
+export type BulkUpdateStatusPayload = z.infer<typeof bulkUpdateStatusPayloadSchema>;
+export type DraftPickStatusEnum = z.infer<typeof draftPickStatusEnum>;

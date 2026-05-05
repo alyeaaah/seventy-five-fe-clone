@@ -17,6 +17,10 @@ import {
   tournamentEventCreatePayloadSchema,
   tournamentEventUpdatePayloadSchema,
   tournamentEventAssignmentPayloadSchema,
+  updateParticipantPayloadSchema,
+  removeParticipantPayloadSchema,
+  bulkUpdateStatusPayloadSchema,
+  tournamentParticipantSchema,
 } from "./schema";
 import { sponsorsSchema } from "../../MasterData/Sponsors/api/schema";
 
@@ -430,6 +434,66 @@ const TournamentEventsAssignmentApi = makeEndpoint({
   })
 });
 
+// Tournament Participant APIs
+const GetTournamentDraftParticipantsApi = makeEndpoint({
+  alias: "getTournamentDraftParticipants",
+  method: "get",
+  path: `/tournament/:tournamentUuid/participants`,
+  parameters: parametersBuilder().addQueries({
+    status: z.array(z.string()).optional(),
+    page: z.number().optional(),
+    limit: z.number().optional(),
+  }).build(),
+  response: z.object({
+    data: z.object({
+      participants: z.array(tournamentParticipantSchema),
+      pagination: z.object({
+        current: z.number(),
+        pageSize: z.number(),
+        total: z.number(),
+        totalPages: z.number(),
+      }),
+    }),
+  }),
+});
+
+const UpdateTournamentParticipantsApi = makeEndpoint({
+  alias: "updateTournamentParticipant",
+  method: "put",
+  path: `/tournament/:tournamentUuid/participants`,
+  parameters: parametersBuilder().addBody(updateParticipantPayloadSchema).build(),
+  response: z.object({
+    success: z.boolean(),
+    message: z.string(),
+  }),
+});
+
+const RemoveTournamentParticipantsApi = makeEndpoint({
+  alias: "removeTournamentParticipant",
+  method: "delete",
+  path: `/tournament/:tournamentUuid/participants/:playerUuid`,
+  parameters: parametersBuilder().addBody(removeParticipantPayloadSchema).build(),
+  response: z.object({
+    success: z.boolean(),
+    message: z.string(),
+  }),
+});
+
+const BulkUpdateTournamentParticipantsApi = makeEndpoint({
+  alias: "bulkUpdateTournamentParticipants",
+  method: "put",
+  path: `/tournament/:tournamentUuid/participants/bulk-status`,
+  parameters: parametersBuilder().addBody(bulkUpdateStatusPayloadSchema).build(),
+  response: z.object({
+    success: z.boolean(),
+    message: z.string(),
+    data: z.object({
+      tournamentUuid: z.string(),
+      updatedCount: z.number(),
+      status: z.string(),
+    }),
+  }),
+});
 export const endpoints = {
   TournamentsListApi,
   TournamentsCreateApi,
@@ -465,4 +529,9 @@ export const endpoints = {
   TournamentEventsUpdateApi,
   TournamentEventsDeleteApi,
   TournamentEventsAssignmentApi,
+  // Tournament Participant APIs
+  GetTournamentDraftParticipantsApi,
+  UpdateTournamentParticipantsApi,
+  RemoveTournamentParticipantsApi,
+  BulkUpdateTournamentParticipantsApi,
 };

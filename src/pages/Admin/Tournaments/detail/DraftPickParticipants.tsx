@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Divider, Table, Pagination } from "antd";
 import { TournamentsApiHooks } from "../api";
-import { TournamentsPayload, TournamentTeams } from "../api/schema";
+import { draftPickStatusEnum, DraftPickStatusEnum, TournamentParticipant, TournamentsPayload, TournamentTeams } from "../api/schema";
 import Button from "@/components/Base/Button";
 import Image from "@/components/Image";
 import { Menu } from "@/components/Base/Headless";
@@ -35,6 +35,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
   const [showRejectedModal, setShowRejectedModal] = useState(false);
   const [showAddTeamModal, setShowAddTeamModal] = useState(false);
+  const [showModalContent, setShowModalContent] = useState(false);
   const screens = useBreakpoint();
   const [pagination, setPagination] = useState<PaginationConfig>({
     current: 1,
@@ -53,12 +54,13 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentTeamParticipants") })
     queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentParticipants") })
+    queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentDraftParticipants") })
     queryClient.invalidateQueries({ queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentTeams") })
   }
   // Team approval mutation
-  const updateTeamApprovalMutation = TournamentsApiHooks.useUpdateTournamentTeamApproval({
+  const { mutateAsync: updateParticipant, isPending: isUpdatingParticipant } = TournamentsApiHooks.useUpdateTournamentParticipant({
     params: {
-      tournamentUuid: tournamentUuid || ""
+      tournamentUuid: tournamentUuid || "",
     }
   }, {
     onSuccess(data, variables, context) {
@@ -67,50 +69,50 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   });
 
   // Get requested Players
-  const { data: requestedTeamsData } = TournamentsApiHooks.useGetTournamentTeamParticipants({
+  const { data: requestedTeamsData } = TournamentsApiHooks.useGetTournamentDraftParticipants({
     params: {
-      tournamentUuid: tournamentUuid || ""
+      tournamentUuid: tournamentUuid || "",
     },
     queries: {
-      status: "requested",
-      page: pagination.current.toString(),
-      limit: pagination.pageSize.toString()
+      status: ["REQUESTED"],
+      page: pagination.current,
+      limit: pagination.pageSize
     }
   }, {
     enabled: !!tournamentUuid
   });
 
   // Get confirmed teams
-  const { data: confirmedTeamsData } = TournamentsApiHooks.useGetTournamentTeamParticipants({
+  const { data: confirmedTeamsData } = TournamentsApiHooks.useGetTournamentDraftParticipants({
     params: {
       tournamentUuid: tournamentUuid || ""
     },
     queries: {
-      status: "approved,confirmed",
-      page: pagination.current.toString(),
-      limit: pagination.pageSize.toString()
+      status: ["APPROVED", "CONFIRMED"],
+      page: pagination.current,
+      limit: pagination.pageSize
     }
   }, {
     enabled: !!tournamentUuid
   });
 
   // Get rejected teams
-  const { data: rejectedTeamsData } = TournamentsApiHooks.useGetTournamentTeamParticipants({
+  const { data: rejectedTeamsData } = TournamentsApiHooks.useGetTournamentDraftParticipants({
     params: {
       tournamentUuid: tournamentUuid || ""
     },
     queries: {
-      status: "rejected",
-      page: pagination.current.toString(),
-      limit: pagination.pageSize.toString()
+      status: ["rejected"],
+      page: pagination.current,
+      limit: pagination.pageSize
     }
   }, {
     enabled: !!tournamentUuid
   });
 
-  const requestedTeams = requestedTeamsData?.data?.teams || [];
-  const registeredTeams = confirmedTeamsData?.data?.teams || [];
-  const rejectedTeams = rejectedTeamsData?.data?.teams || [];
+  const requestedTeams = requestedTeamsData?.data?.participants || [];
+  const registeredTeams = confirmedTeamsData?.data?.participants || [];
+  const rejectedTeams = rejectedTeamsData?.data?.participants || [];
 
   const { data: matchesData } = TournamentsApiHooks.useGetTournamentMatches({
     queries: {
@@ -122,16 +124,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   const groupIsLocked = matchesData?.data?.some(match => match.group_uuid);
 
   // Update pagination when data changes
-  useEffect(() => {
-    const totalTeams = (requestedTeamsData?.data?.totalTeams || 0) +
-      (confirmedTeamsData?.data?.totalTeams || 0) +
-      (rejectedTeamsData?.data?.totalTeams || 0);
-    setPagination(prev => ({
-      ...prev,
-      total: totalTeams
-    }));
-  }, [requestedTeamsData, confirmedTeamsData, rejectedTeamsData]);
-
+  const totalTeams = (requestedTeamsData?.data?.pagination?.total || 0)
   // Handle pagination change
   const handlePaginationChange = (page: number, pageSize: number) => {
     setPagination({
@@ -149,10 +142,11 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
     setShowAddTeamModal(false);
   };
 
-  const actionUpdateTeamApproval = async (teamUuid: string, status: 'approved' | 'rejected' | 'confirmed') => {
+  const actionUpdateTeamApproval = async (id: number, playerUuid: string, status: DraftPickStatusEnum) => {
     setModalAlert(undefined);
-    const result = await updateTeamApprovalMutation.mutateAsync({
-      teamUuid: teamUuid,
+    const result = await updateParticipant({
+      draft_pick_id: id,
+      player_uuid: playerUuid,
       status: status
     }).catch((error) => {
       console.error("Error updating team approval:", error);
@@ -176,22 +170,25 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   }
 
   // Handle team approval
-  const handleTeamApproval = async (teamUuid: string, status: 'approved' | 'rejected' | 'confirmed') => {
+  const handleTeamApproval = async (id: number, status: 'approved' | 'rejected' | 'confirmed') => {
     try {
-      const teamOfPlayers = requestedTeams.find(d => d.uuid === teamUuid)?.players?.map(d => d.name).join(" & ") ||
-        registeredTeams.find(d => d.uuid === teamUuid)?.players?.map(d => d.name).join(" & ");
+      const team = requestedTeams.find(d => d.id === id)
       setModalAlert({
         open: true,
         icon: "Users",
         title: status === "approved" ? `Approve Team` : status == "rejected" ? "Reject Team?" : "Team Confirmed",
-        description: status === "approved" ? `Are you sure you want to approve ${teamOfPlayers}?` : status == "rejected" ? `Are you sure you want to reject ${teamOfPlayers}?` : "Team confirmed",
+        description: status === "approved" ? `Are you sure you want to approve ${team?.player?.name} ${!!team?.partner?.name ? "& " + team?.partner?.name : ''}?` : status == "rejected" ? `Are you sure you want to reject ${team?.player?.name} ${!!team?.partner?.name ? "& " + team?.partner?.name : ''}?` : "Team confirmed",
         onClose: () => setModalAlert(undefined),
+        size: "lg",
+        content: team?.attachment ? <div className="p-2 rounded-lg overflow-hidden">
+          <Image src={team.attachment} alt="" className="w-full max-h-32 hover:max-h-fit object-contain" />
+        </div> : <>sss</>,
         buttons: status === "rejected" ? [
           {
             label: "Reject",
             variant: "danger",
             onClick: async () => {
-              actionUpdateTeamApproval(teamUuid, status);
+              actionUpdateTeamApproval(id, team?.player?.uuid || "", status.toUpperCase() as DraftPickStatusEnum);
             }
           }
         ] : [
@@ -199,13 +196,13 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
             label: "Approve",
             variant: "primary",
             onClick: async () => {
-              actionUpdateTeamApproval(teamUuid, status);
+              actionUpdateTeamApproval(id, team?.player?.uuid || "", status.toUpperCase() as DraftPickStatusEnum);
             }
           },
           {
             label: "Confirmed to Join",
             variant: "outline-primary",
-            onClick: () => actionUpdateTeamApproval(teamUuid, status)
+            onClick: () => actionUpdateTeamApproval(id, team?.player?.uuid || "", status.toUpperCase() as DraftPickStatusEnum)
           },
           {
             label: "Cancel",
@@ -234,24 +231,33 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
     }
   };
 
-  const tableColumns: ColumnType<TournamentTeams>[] = [
+  const tableColumns: ColumnType<TournamentParticipant>[] = [
     {
       title: "Players",
-      key: "players",
+      key: "player",
       responsive: ['lg'],
 
       render: (_, record: any) => (
         <div className="flex flex-col items-start justify-center gap-1">
-          {record.players.map((player: any, index: number) => (
-            <Link key={player.uuid || player.id || index} to={`/admin/players/${player.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
+          {record.player && (
+            <Link key={record.player.uuid} to={`/admin/players/${record.player.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
               <Image
-                src={player.media_url || '/path/to/default-avatar.jpg'}
-                alt={player.name || 'Player'}
+                src={record.player.media_url || '/path/to/default-avatar.jpg'}
+                alt={record.player.name || 'Player'}
                 className="w-5 h-5 rounded-full object-cover flex-shrink-0"
               />
-              <span className="text-xs truncate max-w-[150px]" title={player.name}>{player.name}</span>
+              <span className="text-xs truncate max-w-[150px]" title={record.player.name}>{record.player.name}</span>
             </Link>
-          ))}
+          )}{record.partner && (
+            <Link key={record.partner.uuid} to={`/admin/players/${record.partner.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
+              <Image
+                src={record.partner.media_url || '/path/to/default-avatar.jpg'}
+                alt={record.partner.name || 'Player'}
+                className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+              />
+              <span className="text-xs truncate max-w-[150px]" title={record.player.name}>{record.player.name}</span>
+            </Link>
+          )}
         </div>
       )
     },
@@ -275,56 +281,53 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
       width: 120,
       render: (_, record) => (
         <div className="flex flex-col gap-2">
-          {record.players?.map((player: any) => (
-            <div key={player.id} className="flex flex-row justify-center gap-1">
-              <span className={`inline-flex px-2 py-1 w-fit text-xs font-medium rounded-full ${player.status.toLowerCase() === 'confirmed'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                {player.status}
-              </span>
-            </div>
-          ))}
+          <div key={record.id} className="flex flex-row justify-center gap-1">
+            <span className={`inline-flex px-2 py-1 w-fit text-xs font-medium rounded-full ${record.status.toLowerCase() === 'confirmed'
+              ? 'bg-green-100 text-green-800'
+              : 'bg-yellow-100 text-yellow-800'
+              }`}>
+              {record.status}
+            </span>
+          </div>
         </div>
       )
     },
     {
       title: "Actions",
-      key: "actions",
+      key: "player",
       width: 100,
       align: "center",
       responsive: ['lg'],
       render: (_, record) => (
         <div className="flex flex-col gap-2">
-          {record?.players?.map((player) => (
-            <div key={player.id || player.uuid} className="flex justify-center gap-1">
-              {player.status === 'APPROVED' && (
-                <Menu>
-                  <Menu.Button className="flex items-center justify-center rounded-md h-8 w-8 border border-emerald-800 p-1.5 shadow-none hover:bg-emerald-50" disabled={groupIsLocked}>
-                    <Lucide icon="Settings2" className="w-3.5 h-3.5 !text-emerald-800" />
-                  </Menu.Button>
-                  <Menu.Items className="w-48 mt-px z-99">
-                    <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(player.uuid || "", 'confirmed')}>
-                      Mark as Confirmed
-                    </Menu.Item>
-                    <Divider className="m-0" />
-                    <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(player.uuid || "", 'confirmed')}>
-                      Process Payment
-                    </Menu.Item>
-                  </Menu.Items>
-                </Menu>
-              )}
-              <Button
-                variant="outline-danger"
-                size="sm"
-                className="px-1.5 py-1.5 min-w-[32px] h-[32px]"
-                disabled={groupIsLocked}
-                onClick={() => handleTeamApproval(record.uuid || "", "rejected")}
-              >
-                <Lucide icon="Trash" className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-          ))}
+
+          <div key={record.id} className="flex justify-center gap-1">
+            {record.status === 'APPROVED' && (
+              <Menu>
+                <Menu.Button className="flex items-center justify-center rounded-md h-8 w-8 border border-emerald-800 p-1.5 shadow-none hover:bg-emerald-50" disabled={groupIsLocked}>
+                  <Lucide icon="Settings2" className="w-3.5 h-3.5 !text-emerald-800" />
+                </Menu.Button>
+                <Menu.Items className="w-48 mt-px z-99">
+                  <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.id, record.player?.uuid || "", draftPickStatusEnum.Enum.AVAILABLE)}>
+                    Mark as Confirmed
+                  </Menu.Item>
+                  <Divider className="m-0" />
+                  {/* <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.id, record.player?.uuid || "", draftPickStatusEnum.Enum.APPROVED)}>
+                    Process Payment
+                  </Menu.Item> */}
+                </Menu.Items>
+              </Menu>
+            )}
+            <Button
+              variant="outline-danger"
+              size="sm"
+              className="px-1.5 py-1.5 min-w-[32px] h-[32px]"
+              disabled={groupIsLocked}
+              onClick={() => handleTeamApproval(record.id || 0, "rejected")}
+            >
+              <Lucide icon="Trash" className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
       )
     }
@@ -341,30 +344,30 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
         <div className="overflow-x-auto pb-2">
           <div className="flex gap-4 min-w-max">
             {requestedTeams.map((team) => (
-              <div key={team.uuid} className="bg-white border border-gray-200 rounded-lg py-2 px-4 sm:min-w-[360px] min-w-[60vw] ">
+              <div key={team.id} className="bg-white border border-gray-200 rounded-lg py-2 px-4 sm:min-w-[360px] min-w-[60vw] ">
                 <div className="flex flex-row items-center justify-between mb-2">
-                  <h3 className="font-medium text-xs text-gray-900 truncate">Request Code: {team.uuid?.substring(0, 2).toUpperCase()}{team.uuid?.substring(team.uuid.length - 4, team.uuid.length).toUpperCase()}</h3>
+                  <h3 className="font-medium text-xs text-gray-900 truncate">Request Code: {team.player_uuid?.substring(0, 2).toUpperCase()}{team.id}</h3>
                   <div className="text-xs text-gray-500 pl-4">
-                    {moment(team.registeredAt).format('DD MMM YYYY')} at {moment(team.registeredAt).format('HH:mm')}
+                    {moment(team.createdAt).format('DD MMM YYYY')} at {moment(team.createdAt).format('HH:mm')}
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   {/* Team Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col items-start justify-center gap-2 mt-1">
-                      {team.players.map((player, index: number) => (
-                        <Link key={index} to={paths.administrator.players.edit({ player: player.player_uuid || "" }).$} className="flex items-center gap-2">
+                      {team.player &&
+                        <Link key={team.player.uuid} to={paths.administrator.players.edit({ player: team.player.uuid || "" }).$} className="flex items-center gap-2">
                           <Image
-                            src={player.media_url || '/path/to/default-avatar.jpg'}
-                            alt={player.name || 'Player'}
+                            src={team.player.media_url || '/path/to/default-avatar.jpg'}
+                            alt={team.player.name || 'Player'}
                             className="h-8 max-h-8 rounded-full object-cover aspect-square"
                           />
                           <div className="flex-col flex">
-                            <span className="text-sm text-gray-800 truncate">{player.name} {(player.nickname && player.nickname !== player.name) && <span className="text-xs italic text-gray-500">({player.nickname})</span>}</span>
-                            <span className="text-xs text-gray-500">{player.level}</span>
+                            <span className="text-sm text-gray-800 truncate">{team.player.name} {(team.player.nickname && team.player.nickname !== team.player.name) && <span className="text-xs italic text-gray-500">({team.player.nickname})</span>}</span>
+                            <span className="text-xs text-gray-500">{team.player.level?.name}</span>
                           </div>
                         </Link>
-                      ))}
+                      }
                     </div>
                   </div>
 
@@ -374,8 +377,8 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
                       variant="outline-danger"
                       size="sm"
                       className="px-3 py-1"
-                      onClick={() => team.uuid && handleTeamApproval(team.uuid, 'rejected')}
-                      disabled={updateTeamApprovalMutation.isLoading}
+                      onClick={() => team.id && handleTeamApproval(team.id, 'rejected')}
+                      disabled={isUpdatingParticipant}
                     >
                       Reject
                     </Button>
@@ -383,8 +386,8 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
                       variant="primary"
                       size="sm"
                       className="px-3 py-1"
-                      onClick={() => team.uuid && handleTeamApproval(team.uuid, 'approved')}
-                      disabled={updateTeamApprovalMutation.isLoading || groupIsLocked}
+                      onClick={() => team.id && handleTeamApproval(team.id, 'approved')}
+                      disabled={isUpdatingParticipant || groupIsLocked}
                     >
                       Accept
                     </Button>
@@ -456,8 +459,10 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
                     <Lucide icon={expanded ? "ChevronUp" : "ChevronDown"} className="w-4 h-4" />
                   </button> */}
                   <div className="flex flex-col items-start w-full">
-                    <span className="font-semibold">{record.players.map(p => p.name).join(', ')}</span>
-                    <span className="text-xs text-gray-500">{moment(record.registeredAt).format('DD MMM YYYY HH:mm')}</span>
+                    <span className="font-semibold">
+                      {record.player?.name}{record.partner?.name && `/${record.partner.name}`}
+                    </span>
+                    <span className="text-xs text-gray-500">{moment(record.createdAt).format('DD MMM YYYY HH:mm')}</span>
                     <div className="flex flex-row justify-between w-full items-end">
                       <span className="text-[10px] bg-yellow-100 h-fit font-medium px-2 py-1 rounded text-yellow-800">{record.status}</span>
 
@@ -471,11 +476,11 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
                           <Lucide icon="Settings2" className="w-3.5 h-3.5 !text-emerald-800" />
                         </Menu.Button>
                         <Menu.Items className="w-48 mt-px z-99">
-                          <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.uuid || '', 'confirmed')}>
+                          <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.id, record.player_uuid, draftPickStatusEnum.Enum.AVAILABLE)}>
                             Mark as Confirmed
                           </Menu.Item>
                           <Divider className="m-0" />
-                          <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.uuid || "", 'confirmed')}>
+                          <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.id || 0, record.player_uuid, draftPickStatusEnum.Enum.APPROVED)}>
                             Process Payment
                           </Menu.Item>
                         </Menu.Items>
@@ -485,7 +490,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
                       variant="outline-danger"
                       size="sm"
                       className="px-1 py-1 h-6 w-6"
-                      onClick={() => handleTeamApproval(record.uuid || "", "rejected")}
+                      onClick={() => handleTeamApproval(record.id || 0, 'rejected')}
                       disabled={groupIsLocked}
                     >
                       <Lucide icon="Trash" className="w-3.5 h-3.5" />
@@ -509,6 +514,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
         description={modalAlert?.description || ""}
         refId={modalAlert?.refId}
         buttons={modalAlert?.buttons}
+        content={modalAlert?.content}
       />
 
       <ModalRejectedParticipants
