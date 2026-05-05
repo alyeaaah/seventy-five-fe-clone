@@ -15,6 +15,8 @@ import { adminApiHooks } from "@/pages/Login/api";
 import { RcFile, UploadChangeParam } from "antd/es/upload";
 import UploadDropzone from "@/components/UploadDropzone";
 import { queryClient } from "@/utils/react-query";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const EditTournamentEvent = () => {
   const navigate = useNavigate();
@@ -64,7 +66,7 @@ const EditTournamentEvent = () => {
     },
     {
       enabled: !!id,
-      onSuccess: (response: any) => {
+      onSuccess: (response) => {
         if (response?.data) {
           const data = response.data;
           setValue("name", data.name || "");
@@ -72,6 +74,7 @@ const EditTournamentEvent = () => {
           setValue("rules", data.rules || "");
           setValue("commitment_fee", data.commitment_fee || 0);
           setValue("status", data.status || "DRAFT");
+          setValue("media_url", data.media_url || "");
           setValue("published_at", data.published_at || undefined);
         }
         setIsLoading(false);
@@ -173,149 +176,177 @@ const EditTournamentEvent = () => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Event Image */}
-          <div className="col-span-2 lg:col-span-4">
-            <FormLabel htmlFor="event-image">Event Image</FormLabel>
-            <Controller
-              name="media_url"
-              control={control}
-              render={({ field, fieldState }) => (
-                <>
-                  <UploadDropzone
-                    uploadType="image"
-                    name="media_url"
-                    index={0}
-                    onChange={uploadHandler}
-                    fileList={field.value ? [field.value as any] : []}
-                    onRemove={() => {
-                      setValue("media_url" as any, "", {
-                        shouldValidate: true,
-                      });
-                    }}
-                    loading={uploading}
+        <div className="grid grid-cols-2 sm:grid-cols-12 gap-6">
+          <div className="col-span-8 gap-2 flex flex-col">
+
+            {/* Name */}
+            <div className="col-span-2">
+              <FormLabel htmlFor="name">Event Name *</FormLabel>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <FormInput
+                    {...field}
+                    id="name"
+                    type="text"
+                    placeholder="Enter tournament event name"
+                    className={errors.name ? "border-danger" : ""}
                   />
-                  {!!fieldState.error && (
-                    <FormHelp className="text-danger">
-                      {fieldState.error.message || "Image upload failed"}
-                    </FormHelp>
-                  )}
-                </>
+                )}
+              />
+              {errors.name && (
+                <p className="text-danger text-sm mt-1">{errors.name.message}</p>
               )}
-            />
+            </div>
+
+            {/* Description */}
+            <div className="col-span-2">
+              <FormLabel htmlFor="description">Description</FormLabel>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <ReactQuill
+                    value={field.value ? decodeURIComponent(field.value) : ''}
+                    onChange={(value) => field.onChange(encodeURIComponent(value))}
+                    theme="snow"
+                    modules={{
+                      toolbar: [
+                        [
+                          { 'size': ['small', false, 'large', 'huge'] },
+                          'bold', 'italic', 'underline', 'link',
+                          { 'color': [] },
+                          { 'background': [] },
+                          { 'align': [] },
+                          { 'list': 'ordered' }, { 'list': 'bullet' }],
+                      ]
+                    }}
+                    placeholder="Enter tournament event description"
+                    className={errors.description ? "border-danger" : ""}
+                  />
+                )}
+              />
+              {errors.description && (
+                <p className="text-danger text-sm mt-1">{errors.description.message}</p>
+              )}
+            </div>
+
+            {/* Rules */}
+            <div className="col-span-2">
+              <FormLabel htmlFor="rules">Rules</FormLabel>
+              <Controller
+                name="rules"
+                control={control}
+                render={({ field }) => (
+                  <ReactQuill
+                    value={field.value ? decodeURIComponent(field.value) : ''}
+                    onChange={(value) => field.onChange(encodeURIComponent(value))}
+                    theme="snow"
+                    modules={{
+                      toolbar: [
+                        [
+                          { 'size': ['small', false, 'large', 'huge'] },
+                          'bold', 'italic', 'underline', 'link',
+                          { 'color': [] },
+                          { 'background': [] },
+                          { 'align': [] },
+                          { 'list': 'ordered' }, { 'list': 'bullet' }],
+                      ]
+                    }}
+                    placeholder="Enter tournament event rules"
+                    className={errors.rules ? "border-danger" : ""}
+                  />
+                )}
+              />
+              {errors.rules && (
+                <p className="text-danger text-sm mt-1">{errors.rules.message}</p>
+              )}
+            </div>
+          </div>
+          <div className="col-span-4 gap-2 flex flex-col">
+            {/* Event Image */}
+            <div className="">
+              <FormLabel htmlFor="event-image">Event Image</FormLabel>
+              <Controller
+                name="media_url"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <UploadDropzone
+                      uploadType="image"
+                      name="media_url"
+                      index={0}
+                      onChange={uploadHandler}
+                      fileList={field.value ? [field.value as any] : []}
+                      onRemove={() => {
+                        setValue("media_url" as any, "", {
+                          shouldValidate: true,
+                        });
+                      }}
+                      loading={uploading}
+                    />
+                    {!!fieldState.error && (
+                      <FormHelp className="text-danger">
+                        {fieldState.error.message || "Image upload failed"}
+                      </FormHelp>
+                    )}
+                  </>
+                )}
+              />
+            </div>
+
+
+            {/* Commitment Fee */}
+            <div>
+              <FormLabel htmlFor="commitment_fee">Commitment Fee</FormLabel>
+              <Controller
+                name="commitment_fee"
+                control={control}
+                render={({ field }) => (
+                  <FormInput
+                    {...field}
+                    id="commitment_fee"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    className={errors.commitment_fee ? "border-danger" : ""}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  />
+                )}
+              />
+              {errors.commitment_fee && (
+                <p className="text-danger text-sm mt-1">{errors.commitment_fee.message}</p>
+              )}
+            </div>
+
+            {/* Status */}
+            <div>
+              <FormLabel htmlFor="status">Status</FormLabel>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <FormSelect
+                    {...field}
+                    id="status"
+                    className={errors.status ? "border-danger" : ""}
+                  >
+                    <option value="DRAFT">Draft</option>
+                    <option value="POSTPONED">Postponed</option>
+                    <option value="ONGOING">Ongoing</option>
+                    <option value="ENDED">Ended</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </FormSelect>
+                )}
+              />
+              {errors.status && (
+                <p className="text-danger text-sm mt-1">{errors.status.message}</p>
+              )}
+            </div>
           </div>
 
-          {/* Name */}
-          <div className="col-span-2">
-            <FormLabel htmlFor="name">Event Name *</FormLabel>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <FormInput
-                  {...field}
-                  id="name"
-                  type="text"
-                  placeholder="Enter tournament event name"
-                  className={errors.name ? "border-danger" : ""}
-                />
-              )}
-            />
-            {errors.name && (
-              <p className="text-danger text-sm mt-1">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="col-span-2">
-            <FormLabel htmlFor="description">Description</FormLabel>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <FormTextarea
-                  {...field}
-                  id="description"
-                  rows={4}
-                  placeholder="Enter tournament event description"
-                  className={errors.description ? "border-danger" : ""}
-                />
-              )}
-            />
-            {errors.description && (
-              <p className="text-danger text-sm mt-1">{errors.description.message}</p>
-            )}
-          </div>
-
-          {/* Rules */}
-          <div className="col-span-2">
-            <FormLabel htmlFor="rules">Rules</FormLabel>
-            <Controller
-              name="rules"
-              control={control}
-              render={({ field }) => (
-                <FormTextarea
-                  {...field}
-                  id="rules"
-                  rows={6}
-                  placeholder="Enter tournament event rules"
-                  className={errors.rules ? "border-danger" : ""}
-                />
-              )}
-            />
-            {errors.rules && (
-              <p className="text-danger text-sm mt-1">{errors.rules.message}</p>
-            )}
-          </div>
-
-          {/* Commitment Fee */}
-          <div>
-            <FormLabel htmlFor="commitment_fee">Commitment Fee</FormLabel>
-            <Controller
-              name="commitment_fee"
-              control={control}
-              render={({ field }) => (
-                <FormInput
-                  {...field}
-                  id="commitment_fee"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  className={errors.commitment_fee ? "border-danger" : ""}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                />
-              )}
-            />
-            {errors.commitment_fee && (
-              <p className="text-danger text-sm mt-1">{errors.commitment_fee.message}</p>
-            )}
-          </div>
-
-          {/* Status */}
-          <div>
-            <FormLabel htmlFor="status">Status</FormLabel>
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <FormSelect
-                  {...field}
-                  id="status"
-                  className={errors.status ? "border-danger" : ""}
-                >
-                  <option value="DRAFT">Draft</option>
-                  <option value="POSTPONED">Postponed</option>
-                  <option value="ONGOING">Ongoing</option>
-                  <option value="ENDED">Ended</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </FormSelect>
-              )}
-            />
-            {errors.status && (
-              <p className="text-danger text-sm mt-1">{errors.status.message}</p>
-            )}
-          </div>
         </div>
 
         {/* Form Actions */}
