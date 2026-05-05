@@ -269,7 +269,7 @@ const TournamentEventDetail = () => {
                   <Lucide icon="FileText" className="w-4 h-4 mr-2" />
                   Description
                 </h3>
-                <p className="text-sm whitespace-pre-wrap">{eventData.data.description}</p>
+                <p className="text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: decodeURIComponent(eventData.data.description || "") }}></p>
               </div>
             )}
 
@@ -280,7 +280,7 @@ const TournamentEventDetail = () => {
                   <Lucide icon="BookOpen" className="w-4 h-4 mr-2" />
                   Rules
                 </h3>
-                <div className="text-sm whitespace-pre-wrap">{eventData.data.rules}</div>
+                <div className="text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: decodeURIComponent(eventData.data.rules || "") }}></div>
               </div>
             )}
           </div>

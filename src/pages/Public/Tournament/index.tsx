@@ -53,6 +53,8 @@ export const PublicTournament = () => {
 
   // Use featured data if available, otherwise use recent data
   const tournamentData = data?.data && data.data.length > 0 ? data : recentData;
+  const tournamentEvent = !!tournamentEvents?.data?.length ? tournamentEvents?.data?.[0] : null;
+  const currentTournament = !!tournamentEvents?.data?.length ? "EVENT" : 'TOURNEY';
   const { data: detailTournament } = !userIsLogin ? PublicTournamentApiHooks.useGetTournamentDetail(
     {
       params: {
@@ -104,7 +106,7 @@ export const PublicTournament = () => {
         limit: 6
       }
     }, {
-    enabled: !!uuid || !!tournamentData?.data?.[0]?.uuid
+    enabled: true
   }
   );
   return (
@@ -185,7 +187,7 @@ export const PublicTournament = () => {
           ))}
         </FadeAnimation>
 
-        <FadeAnimation className="col-span-12 md:col-span-12 grid grid-cols-12 gap-0 h-max" direction="up">
+        {currentTournament === "TOURNEY" && <FadeAnimation className="col-span-12 md:col-span-12 grid grid-cols-12 gap-0 h-max" direction="up">
           {(detailTournament?.data?.show_bracket == true) && (
             <TournamentDetailMatches tournamentUuid={uuid || tournamentData?.data?.[0]?.uuid || ''} />
           )}
@@ -193,7 +195,7 @@ export const PublicTournament = () => {
           {((!detailTournament?.data?.show_bracket) && !!tournamentTeamParticipants?.data && tournamentTeamParticipants.data.teams.length > 0) &&
             <TournamentDetailParticipants tournamentUuid={uuid || tournamentData?.data?.[0]?.uuid || ''} />
           }
-        </FadeAnimation>
+        </FadeAnimation>}
         {detailTournament?.data && (
           <FadeAnimation className="col-span-12 ">
             <div className="col-span-12 text-emerald-800 flex flex-row my-4">

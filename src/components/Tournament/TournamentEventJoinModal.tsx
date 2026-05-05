@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom';
 import Confirmation, { AlertProps } from '../Modal/Confirmation';
 import UploadDropzone from '../UploadDropzone';
 import { adminApiHooks } from '@/pages/Login/api';
+import { compressImage } from '@/utils/image-compression';
 
 interface TournamentEventJoinModalProps {
   show: boolean;
@@ -38,6 +39,11 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
   const userIsLogin = !!accessToken && !!user;
   const toast = useToast()
 
+  const { data: playerData } = PlayerHomeApiHooks.useGetPlayersDetail({
+    params: {
+      uuid: user?.uuid as string
+    }
+  });
   // Fetch tournament event details
   const { data: tournamentEvent, isLoading: eventLoading } = userIsLogin ? PublicTournamentApiHooks.useGetPublicTournamentEventAuthDetail({
     params: {
@@ -86,10 +92,35 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
     },
   }, {
     onSuccess: (data) => {
+      setModalAlert(undefined);
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetail") });
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventDetail") });
-      onClose(data);
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventAuthDetail") });
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetailAuth") });
+      setTimeout(() => {
+        setModalAlert({
+          title: 'Success',
+          description: 'You have successfully joined the tournament',
+          type: 'success',
+          icon: "CheckCircle",
+          onClose: () => setModalAlert(undefined),
+          open: true,
+          buttons: [
+            {
+              label: 'Okay',
+              variant: 'primary',
+              onClick: () => setModalAlert(undefined),
+            }
+          ]
+        })
+      }, 500);
+
     },
     onError: (error) => {
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetail") });
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventDetail") });
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventAuthDetail") });
+      queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetailAuth") });
       toast.showNotification({
         text: error.message,
         duration: 2000,
@@ -165,8 +196,11 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
       setUploading(true);
 
       try {
+        // Compress image before upload
+        const compressedFile = await compressImage(uploadedFile);
+
         // Upload to server with correct payload format
-        const response = await actionUploadImage({ image: uploadedFile });
+        const response = await actionUploadImage({ image: compressedFile });
 
         // Save URL to state
         if (response?.imageUrl) {
@@ -179,10 +213,10 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
         } else {
           throw new Error('Upload failed - no URL returned');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Upload error:', error);
         toast.showNotification({
-          text: 'Failed to upload payment receipt',
+          text: error?.message?.includes('compress') ? 'Failed to compress image' : 'Failed to upload payment receipt',
           duration: 2000,
           icon: 'AlertTriangle'
         });
@@ -259,6 +293,7 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
   };
 
   const tournamentEventData = tournamentEvent?.data;
+  const selectedTournamentData = tournamentEventData?.tournaments?.find(t => t.uuid == selectedTournament);
 
   return (
     <Modal
@@ -428,23 +463,87 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
                   </span>
                 </div>
               </div>
-              <div>
-                <div className="flex flex-col text-gray-600 ">
-                  <div className='flex flex-row'>
-                    <div className='bank-logo flex items-center justify-center'>
-                      <Image src='https://res.cloudinary.com/doqyrkqgw/image/upload/v1777910633/pngwing.com_2_c4flh0.png' alt="bca" className=' object-contain aspect-video h-8' />
-                    </div>
-                    <div className='flex flex-col'>
-                      <div className='text-sm font-medium'>Bank BCA</div>
-                      <div className='text-lg font-bold'>7881 233 944</div>
-                      <div className='text-sm font-semibold'>an. Dedhi Ruliawan</div>
+              <div className='border-2 border-gray-200 rounded-lg p-6 bg-white shadow-sm'>
+                <div className='flex justify-between items-start mb-6'>
+                  <div>
+                    <h3 className='text-lg font-bold text-gray-900 mb-2'>PAYMENT RECEIPT</h3>
+                    <p className='text-sm text-gray-500'>Tournament Registration Fee</p>
+                  </div>
+                  <div className='text-right'>
+                    <div className='text-sm text-gray-500'>Receipt ID</div>
+                    <div className='font-mono text-sm font-semibold'>#{Date.now()}</div>
+                  </div>
+                </div>
 
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                  <div className='border-l-4 border-emerald-500 pl-4'>
+                    <div className='text-xs text-gray-500 uppercase tracking-wide mb-1'>BILLED TO</div>
+                    <div className='font-semibold text-gray-900'>{user?.name}</div>
+                    <div className='text-sm text-gray-600 mt-1'>{playerData?.data?.email}</div>
+                    <div className='text-sm text-gray-600'>{playerData?.data?.phone}</div>
+                  </div>
+                  <div className='border-l-4 border-blue-500 pl-4'>
+                    <div className='text-xs text-gray-500 uppercase tracking-wide mb-1'>TOURNAMENT</div>
+                    <div className='font-semibold text-gray-900'>{selectedTournamentData?.name}</div>
+                    <div className='text-sm text-gray-600 mt-1'>{selectedTournamentData?.court || 'TBD'}</div>
+                  </div>
+                </div>
+
+                <div className='border-t border-gray-200 pt-4'>
+                  <table className='w-full'>
+                    <thead>
+                      <tr className='border-b border-gray-200'>
+                        <th className='text-left py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider'>No</th>
+                        <th className='text-left py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider'>Item</th>
+                        <th className='text-center py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider'>Qty</th>
+                        <th className='text-right py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider'>Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className='border-b border-gray-100'>
+                        <td className='py-3 text-sm text-gray-900'>1</td>
+                        <td className='py-3 text-sm text-gray-900 font-medium'>Tournament Registration</td>
+                        <td className='py-3 text-sm text-gray-900 text-center'>1 Slot</td>
+                        <td className='py-3 text-sm text-gray-900 text-right font-semibold'>
+                          IDR {(selectedTournamentData && isEarlyBird(selectedTournamentData) ? selectedTournamentData?.early_bird_price : selectedTournamentData?.commitment_fee)?.toLocaleString()}
+                        </td>
+                      </tr>
+                      <tr className='bg-gray-50'>
+                        <td colSpan={3} className='py-3 text-sm font-semibold text-gray-900 text-right pr-4'>TOTAL</td>
+                        <td className='py-3 text-lg font-bold text-emerald-600 text-right'>
+                          IDR {(selectedTournamentData && isEarlyBird(selectedTournamentData) ? selectedTournamentData?.early_bird_price : selectedTournamentData?.commitment_fee)?.toLocaleString()}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className='mt-6 pt-4 border-t border-gray-200'>
+                  <div className='flex justify-between items-center text-xs text-gray-500'>
+                    <div>Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    <div className='font-semibold text-emerald-600'>Payment Pending</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="grid grid-cols-2 text-gray-600 ">
+                  <div className='sm:col-span-1 col-span-2 flex flex-col gap-2 mt-4'>
+                    <span className='text-sm font-medium'>Bank Transfer</span>
+                    <div className='flex flex-row items-center bg-gray-100 w-fit p-2 rounded-lg'>
+                      <div className='bank-logo flex items-center justify-center'>
+                        <Image src='https://res.cloudinary.com/doqyrkqgw/image/upload/v1777910633/pngwing.com_2_c4flh0.png' alt="bca" className=' object-contain aspect-video h-8' />
+                      </div>
+                      <div className='flex flex-col'>
+                        <div className='text-sm font-medium'>Bank BCA</div>
+                        <div className='text-lg font-bold'>7881 233 944</div>
+                        <div className='text-sm font-semibold'>an. Dedhi Ruliawan</div>
+                      </div>
                     </div>
                   </div>
-                  <div className='flex flex-col gap-4 mt-4'>
+                  <div className='flex sm:col-span-1 col-span-2 gap-4 mt-4'>
                     <div className='flex flex-col'>
                       <label className='text-sm font-medium text-gray-700 mb-2'>
-                        Upload Your Payment Receipt
+                        Upload Bukti Transfer
                       </label>
                       <UploadDropzone
                         uploadType="image"

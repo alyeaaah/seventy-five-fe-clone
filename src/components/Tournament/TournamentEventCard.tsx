@@ -13,6 +13,7 @@ import { useToast } from '../Toast/ToastContext';
 import Button from '../Base/Button';
 import TournamentJoinModal from './TournamentJoinModal';
 import TournamentEventJoinModal from './TournamentEventJoinModal';
+import { PlayerHomeApiHooks } from '@/pages/Players/Home/api';
 
 interface TournamentEventCardProps {
   tournamentEventUuid?: string;
@@ -208,6 +209,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
               event.status === 'ENDED' ? 'bg-gray-100 text-gray-800' :
                 'bg-yellow-100 text-yellow-800'
             }`}>
+            {event.status}
             {event.status == 'ONGOING' && 'ONGOING'}
             {event.status == 'PUBLISHED' && 'SOON'}
             {event.status == 'ENDED' && 'ENDED'}
@@ -235,7 +237,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                   {event.commitment_fee > 0 ? `Rp ${event.commitment_fee.toLocaleString()}` : 'Free'}
                 </span>
 
-                <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-8">
+                <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-4">
                   {event.commitment_fee > 0 ? 'Early Bird' : 'Normal Price'}
                 </span>
               </div>
@@ -248,7 +250,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                 <span className="text-emerald-600 font-semibold">
                   {event.tournaments?.[0]?.court || 'TBD'}
                 </span>
-                <span className="text-gray-400 text-xs font-medium line-clamp-2">
+                <span className="text-gray-400 text-xs font-medium line-clamp-1">
                   {event.tournaments?.[0]?.court_info?.address}
                 </span>
               </div>
@@ -268,8 +270,8 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                     )
                   }
                 </span>
-                <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-8">
-                  {moment(startDate).format('HH:mm')} - {moment(endDate).format('HH:mm')} GMT +7
+                <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-4">
+                  {/* {moment(startDate).format('HH:mm')} - {moment(endDate).format('HH:mm')} GMT +7 */}
                 </span>
               </div>
             </div>
@@ -410,7 +412,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
         )}
 
         {!event.media_url && (
-          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center hidden sm:visible">
+          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl items-center justify-center hidden sm:flex">
             <Lucide icon="Calendar" className="h-16 w-16 text-emerald-400" />
           </div>
         )}
@@ -455,7 +457,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                     });
                   }}
                 >
-                  Requested
+                  Joined
                 </Button>
               )}
               {joinStatus === "APPROVED" && (
@@ -522,17 +524,27 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
         {event.tournaments && event.tournaments.length > 0 && (
           <div className="mt-4 p-4 bg-emerald-50 rounded-lg">
             <h4 className="text-sm font-semibold text-emerald-800 mb-2">Tournament Categories</h4>
-            <div className="space-y-2">
+            <ul className="space-y-2 list-disc ml-4 flex flex-col">
               {event.tournaments.slice(0, 12).map((tournament, index) => (
-                <div
+                <li
                   key={index}
-                  className="text-sm text-emerald-700 hover:text-emerald-900 cursor-pointer"
+                  className=" hover:text-emerald-900 cursor-pointer"
                   onClick={() => navigate(paths.tournament.index({ uuid: tournament.uuid || "" }).$)}
                 >
-                  • {tournament.name}
-                </div>
+                  <div className='flex flex-col'>
+
+                    <span className='text-sm font-medium  text-emerald-700'>
+                      {tournament.name}
+                    </span>
+                    {tournament.subtitle && (
+                      <span className='text-xs text-emerald-600'>
+                        ({tournament.subtitle})
+                      </span>
+                    )}
+                  </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
       </div>

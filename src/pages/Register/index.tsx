@@ -1,6 +1,7 @@
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { FormInput, FormCheck, FormLabel, FormHelp } from "@/components/Base/Form";
 import Button from "@/components/Base/Button";
+import UploadDropzone from "@/components/UploadDropzone";
 import clsx from "clsx";
 import { IconLogo } from "@/assets/images/icons";
 import { Illustration } from "@/assets/images/illustrations/illustrations";
@@ -16,10 +17,46 @@ import { useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { useRouteParams } from "typesafe-routes/react-router";
+import { adminApiHooks } from "@/pages/Login/api";
+import { compressImage } from "@/utils/image-compression";
 
 export const Register = () => {
-  const [agreement, setAgreement] = useState<boolean>(false);
+  const [uploading, setUploading] = useState(false);
+  const { mutateAsync: actionUploadImage } = adminApiHooks.useMediaUpload({});
   const { showNotification } = useToast();
+
+  const uploadHandler = async (info: any, index: number) => {
+    setUploading(true);
+    try {
+      const compressedFile = await compressImage(info.file);
+      await actionUploadImage({ image: compressedFile }, {
+        onError: (error: any) => {
+          setUploading(false);
+          showNotification({
+            duration: 3000,
+            text: `Failed to upload image ${error?.message}`,
+            icon: "XCircle",
+            variant: "danger",
+          });
+        },
+        onSuccess: (res: any) => {
+          setValue('media_url', res.imageUrl, {
+            shouldValidate: true,
+          });
+        }
+      });
+    } catch (error: any) {
+      showNotification({
+        duration: 3000,
+        text: `Failed to compress image ${error?.message}`,
+        icon: "XCircle",
+        variant: "danger",
+      });
+    } finally {
+      setUploading(false);
+    }
+  }
+  const [agreement, setAgreement] = useState<boolean>(false);
   const navigate = useNavigate();
   const formRef = useRef<HTMLFormElement>(null);
   const { redirect } = useRouteParams(paths.register);
@@ -40,6 +77,9 @@ export const Register = () => {
       name: "",
       email: "",
       username: "",
+      socialMediaIg: "",
+      socialMediaReclub: "",
+      media_url: "",
       phone: "",
       password: "",
       confirmPassword: "",
@@ -216,6 +256,36 @@ export const Register = () => {
                     </div>
 
                     <div className="mt-8 intro-x grid grid-cols-12 gap-4">
+
+                      <div className="col-span-12 sm:col-span-6">
+                        <FormLabel>Profile Picture</FormLabel>
+                        <Controller
+                          name="media_url"
+                          control={control}
+                          render={({ field, fieldState }) =>
+                            <>
+                              <UploadDropzone
+                                uploadType="image"
+                                name="media_url"
+                                index={0}
+                                onChange={uploadHandler}
+                                fileList={field.value ? [field.value] : []}
+                                onRemove={() => {
+                                  setValue('media_url', "", {
+                                    shouldValidate: true,
+                                  });
+                                }}
+                                loading={uploading}
+                              />
+                              {!!fieldState.error && (
+                                <FormHelp className={"text-danger"}>
+                                  {fieldState.error.message || "Form is not valid"}
+                                </FormHelp>
+                              )}
+                            </>
+                          }
+                        />
+                      </div>
                       <div className="col-span-12 sm:col-span-12">
                         <FormLabel>Player Name</FormLabel>
                         <Controller
@@ -439,6 +509,60 @@ export const Register = () => {
                                 }}
                                 className=" mx-auto"
                               />
+                              {!!fieldState.error && (
+                                <FormHelp className={"text-danger"}>
+                                  {fieldState.error.message || "Form is not valid"}
+                                </FormHelp>
+                              )}
+                            </>
+                          }
+                        />
+                      </div>
+                      <div className="col-span-12 sm:col-span-6">
+                        <FormLabel>Instagram Username</FormLabel>
+                        <Controller
+                          name="socialMediaIg"
+                          control={control}
+                          render={({ field, fieldState }) =>
+                            <>
+                              <FormInput
+
+                                name="socialMediaIg"
+                                value={field.value}
+                                className={clsx({
+                                  "border-danger": !!fieldState.error,
+                                })}
+                                onChange={field.onChange}
+                                placeholder="Instagram Username"
+                              >
+                              </FormInput>
+                              {!!fieldState.error && (
+                                <FormHelp className={"text-danger"}>
+                                  {fieldState.error.message || "Form is not valid"}
+                                </FormHelp>
+                              )}
+                            </>
+                          }
+                        />
+                      </div>
+                      <div className="col-span-12 sm:col-span-6">
+                        <FormLabel>Reclub Username</FormLabel>
+                        <Controller
+                          name="socialMediaReclub"
+                          control={control}
+                          render={({ field, fieldState }) =>
+                            <>
+                              <FormInput
+
+                                name="socialMediaReclub"
+                                value={field.value}
+                                className={clsx({
+                                  "border-danger": !!fieldState.error,
+                                })}
+                                onChange={field.onChange}
+                                placeholder="Reclub Username"
+                              >
+                              </FormInput>
                               {!!fieldState.error && (
                                 <FormHelp className={"text-danger"}>
                                   {fieldState.error.message || "Form is not valid"}

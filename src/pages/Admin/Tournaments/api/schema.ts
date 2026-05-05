@@ -21,6 +21,7 @@ export const tournamentsSchema = z.object({
   uuid: z.string().nullish(),
   name: z.string()
     .min(2, "Tournament name must be at least 2 characters long"),
+  subtitle: z.string().nullish(),
   description: z.string()
     .min(5, "Description must be at least 5 characters long"),
   media_url: z.string()

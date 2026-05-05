@@ -10,7 +10,11 @@ export const registerSchema = z.object({
     .refine(
       (value: string) => /^[0-9]+$/.test(value),
       "Phone can only contain numbers"
-    ),
+  ),
+  
+  socialMediaIg: z.string({required_error: "Instagram username is required"}),
+  socialMediaReclub: z.string().nullish(),
+  media_url: z.string({required_error: "Profile picture is required"}),
   dateOfBirth: z.string({required_error: "Date of birth is required"}),
   placeOfBirth: z.string({required_error: "Place of birth is required"}).min(2, "Place of birth is required"),
   gender: z.enum(['m', 'f'], {
