@@ -374,7 +374,8 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
                       )}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {moment(startDate).format('HH:mm')} - {moment(endDate).format('HH:mm')} GMT +7
+                      &nbsp;
+                      {/* {moment(startDate).format('HH:mm')} - {moment(endDate).format('HH:mm')} GMT +7 */}
                     </p>
 
                   </div>
