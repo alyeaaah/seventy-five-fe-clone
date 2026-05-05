@@ -9,7 +9,13 @@ import { parseColor } from "tailwindcss/lib/util/color";
 dayjs.extend(duration);
 
 export const profileChecker = ({ uuid, name, skills, height, media_url }: { uuid?: string | undefined | null, name?: string | undefined | null, skills?: PlayerSkillsPayload | undefined | null, height?: number | undefined | null, media_url?: string | undefined | null }): "UPDATE" | "COMPLETE" | "INCOMPLETE" => {
-  if (clientEnv.PROFILE_UPDATE) {
+  if (clientEnv.PROFILE_UPDATE == 2) {
+    if (!media_url) {
+      return "INCOMPLETE";
+    } else {
+      return "COMPLETE";
+    }
+  } else if (clientEnv.PROFILE_UPDATE != 2) { 
     if (!media_url) {
       return "UPDATE";
     } else {

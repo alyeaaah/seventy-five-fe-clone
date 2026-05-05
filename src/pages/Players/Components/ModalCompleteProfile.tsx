@@ -189,13 +189,14 @@ export const ModalCompleteProfile = () => {
       setUploading(false);
     }
   }
-  return data && profileChecker({
+  const checker = profileChecker({
     uuid: data?.data?.uuid,
     name: data?.data?.name,
     skills: data?.data?.skills,
     height: data?.data?.height,
     media_url: data?.data?.media_url
-  }) === "UPDATE" ? (
+  })
+  return data && checker !== "COMPLETE" ? (
     <div>
       <Modal
         classNames={{ body: "rounded-xl bg-gray-50 border" }}
@@ -1072,11 +1073,14 @@ export const ModalCompleteProfile = () => {
                     if (data?.data?.isReferee) {
                       setOpenModal(false);
                     } else {
-
-                      methods.reset();
-                      setToken(null);
-                      setUser(null)
-                      navigate(paths.login({}).$, { replace: true });
+                      if (checker === "UPDATE") {
+                        methods.reset();
+                        setToken(null);
+                        setUser(null)
+                        navigate(paths.login({}).$, { replace: true });
+                      } else {
+                        setOpenModal(false);
+                      }
                     }
                   }}
                   className="sm:mr-2"
