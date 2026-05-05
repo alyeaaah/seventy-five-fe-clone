@@ -102,20 +102,25 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventDetail") });
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventAuthDetail") });
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetailAuth") });
-      onClose();
       setTimeout(() => {
         setModalAlert({
           title: 'Success',
           description: 'You have successfully joined the tournament',
           type: 'success',
           icon: "CheckCircle",
-          onClose: () => setModalAlert(undefined),
+          onClose: () => {
+            setModalAlert(undefined);
+            onClose();
+          },
           open: true,
           buttons: [
             {
               label: 'Okay',
               variant: 'primary',
-              onClick: () => setModalAlert(undefined),
+              onClick: () => {
+                setModalAlert(undefined);
+                onClose();
+              },
             }
           ]
         })
