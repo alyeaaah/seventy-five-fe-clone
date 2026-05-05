@@ -29,6 +29,7 @@ import { PublicPlayerApiHooks } from "@/pages/Public/Player/api";
 import { paths } from "@/router/paths";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { compressImage } from "@/utils/image-compression";
+import Tippy from "@/components/Base/Tippy";
 
 export const ModalCompleteProfile = () => {
 
@@ -64,7 +65,7 @@ export const ModalCompleteProfile = () => {
           placeOfBirth: data.data.placeOfBirth || "",
           gender: data.data.gender || "",
           height: data.data.height || 0,
-          turnDate: data.data.turnDate || "",
+          turnDate: data.data.turnDate || new Date().toISOString(),
           playstyleForehand: data.data.playstyleForehand || "",
           playstyleBackhand: data.data.playstyleBackhand || "",
           socialMediaIg: data.data.socialMediaIg || "",
@@ -84,7 +85,7 @@ export const ModalCompleteProfile = () => {
     enabled: !!userData?.uuid
   });
   const methods = useForm({
-    mode: "onChange",
+    mode: "all",
     defaultValues: {
       uuid: userData?.uuid || "",
       name: data?.data?.name || "",
@@ -1002,7 +1003,9 @@ export const ModalCompleteProfile = () => {
                         />
                       </div>
                       <div className="col-span-12">
-                        <FormLabel>Turn Date</FormLabel>
+                        <Tippy content="The date when you first started playing tennis or had your first tennis experience">
+                          <FormLabel className="inline-flex" htmlFor="turnDate1">Turn Date <Lucide icon="BadgeHelp" className="ml-1 h-4 w-4" /></FormLabel>
+                        </Tippy>
                         <Controller
                           name="turnDate"
                           control={control}
@@ -1013,6 +1016,8 @@ export const ModalCompleteProfile = () => {
                                 onChange={(e) => {
                                   field.onChange(moment(e.target.value).format('Y-MM-DD'));
                                 }}
+                                id="turnDate"
+
                                 options={{
                                   autoApply: false,
                                   maxDate: new Date(),

@@ -29,7 +29,7 @@ export const playersSchema = z.object({
   city: z.string()
     .min(2, "City must be at least 2 characters long"),
   address: z.string()
-    .min(2, "Address must be at least 2 characters long").nullish(),
+    .min(0, "Address must be at least 2 characters long").nullish(),
   phone: z.string({required_error: "Phone is required" })
     .min(8, "Phone must be at least 8 characters long")
     .max(15, "Phone must be at most 15 characters long")
@@ -50,7 +50,7 @@ export const playersSchema = z.object({
   }),
   isVerified: z.boolean().default(false),
   height: z.number().min(120, "Height must be at least 120 cm").max(250, "Height must be at most 250 cm"),
-  turnDate: z.string().date().optional(),
+  turnDate: z.string().nullish().or(z.string().date().optional().nullish()),
   skills: playerSkillsSchema.nullish(),
   playstyleForehand: z.enum(['RIGHT', 'LEFT']).default('RIGHT').optional(),
   playstyleBackhand: z.enum(['One Handed', 'Double Handed']).default('Double Handed').optional(),
