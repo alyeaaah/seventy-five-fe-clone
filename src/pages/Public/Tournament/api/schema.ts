@@ -207,9 +207,18 @@ export const publicTournamentEventSchema = z.object({
   updated_at: z.string().datetime().nullable(),
   tournaments: z.array(publicTournamentDetailSchema.partial()).optional(),
 });
+export const tournamentEventQuotaSchema = z.object({
+  tournament_uuid: z.string(),
+  is_early_bird: z.boolean(),
+  remaining_quota_early_bird: z.number(),
+  has_joined: z.boolean(),
+  remaining_quota: z.number(),
+});
+
 export type PublicTournamentDetail = z.infer<typeof publicTournamentDetailSchema>;
 export type GroupResponse = z.infer<typeof groupResponseSchema>;
 export type GroupResponseTeam = z.infer<typeof groupResponseTeamSchema>;
 export type GroupResponsePlayer = z.infer<typeof groupResponsePlayerSchema>;
 export type FeaturedTourney = z.infer<typeof featuredTourneySchema>;
 export type PublicTournamentEvent = z.infer<typeof publicTournamentEventSchema>;
+export type TournamentEventQuota = z.infer<typeof tournamentEventQuotaSchema>;

@@ -2,7 +2,7 @@ import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
 import { tournamentMatchDetailSchema, tournamentsSchema, tournamentTeamsSchema, tournamentEventStatusEnum } from "@/pages/Admin/Tournaments/api/schema";
 import { matchesListSchema } from "@/pages/Admin/CustomMatch/api/schema";
-import { publicTournamentDetailSchema, groupResponseSchema, draftPickSchema, tournamentJoinStatusSchema, publicTournamentEventSchema } from "./schema";
+import { publicTournamentDetailSchema, groupResponseSchema, draftPickSchema, tournamentJoinStatusSchema, publicTournamentEventSchema, tournamentEventQuotaSchema } from "./schema";
 import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
 
 
@@ -249,6 +249,17 @@ const publicTournamentEventDetailAuthApi = makeEndpoint({
   }),
 });
 
+const publicTournamentEventQuotaApi = makeEndpoint({
+  alias: "getPublicTournamentEventQuota",
+  method: "get",
+  path: `/public/tournament-event/:uuid/quota`,
+  response: z.object({
+    success: z.boolean(),
+    data: z.array(tournamentEventQuotaSchema),
+    message: z.string(),
+  }),
+});
+
 export const endpoints = {
   featuredTournamentApi,
   recentTournamentApi,
@@ -268,4 +279,5 @@ export const endpoints = {
   publicTournamentEventListApi,
   publicTournamentEventDetailApi,
   publicTournamentEventDetailAuthApi,
+  publicTournamentEventQuotaApi,
 };

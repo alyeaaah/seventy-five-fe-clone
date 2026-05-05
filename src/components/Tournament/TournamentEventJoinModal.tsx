@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Modal } from 'antd';
 import Lucide from '@/components/Base/Lucide';
 import Button from '@/components/Base/Button';
-import { FormLabel } from '@/components/Base/Form';
-import { AutoComplete } from "antd";
 import Image from "@/components/Image";
 import moment from 'moment';
 import { imageResizerDimension } from '@/utils/helper';
@@ -17,7 +15,6 @@ import { queryClient } from '@/utils/react-query';
 import { useToast } from '../Toast/ToastContext';
 import { PublicTournamentDetail } from '@/pages/Public/Tournament/api/schema';
 import Tippy from '../Base/Tippy';
-import { Link } from 'react-router-dom';
 import Confirmation, { AlertProps } from '../Modal/Confirmation';
 import UploadDropzone from '../UploadDropzone';
 import { adminApiHooks } from '@/pages/Login/api';
@@ -44,6 +41,14 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
       uuid: user?.uuid as string
     }
   });
+  const { data: tournamentEventQuota } = PublicTournamentApiHooks.useGetPublicTournamentEventQuota({
+    params: {
+      uuid: tournamentEventUuid || ''
+    }
+  })
+  const getTournamentQuota = (uuid: string) => {
+    return tournamentEventQuota?.data?.find((item) => item.tournament_uuid === uuid)
+  }
   // Fetch tournament event details
   const { data: tournamentEvent, isLoading: eventLoading } = userIsLogin ? PublicTournamentApiHooks.useGetPublicTournamentEventAuthDetail({
     params: {
@@ -130,19 +135,6 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
     retry: false
   });
 
-  // Player dropdown hook
-  const { data: playersDropdown, isLoading: isLoadingPlayers } = PlayerHomeApiHooks.useGetPlayersDropdown(
-    {
-      queries: {
-        keyword: debouncedSearchKeyword,
-        tournamentEventUuid: tournamentEventUuid
-      }
-    },
-    {
-      enabled: !!debouncedSearchKeyword && debouncedSearchKeyword.length >= 2
-    }
-  );
-
   const handleModalTnC = () => {
     setModalAlert({
       title: 'Rules',
@@ -157,7 +149,6 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
       </div>,
       open: true,
     })
-
   }
   const handleContinueTournament = () => {
     if (!isAgreed) return;
@@ -401,8 +392,10 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
                     className={`flex-1 border pt-1 pb-2 px-3 rounded-lg cursor-pointer transition-all flex flex-row justify-between ${selectedTournament === tournament.uuid
                       ? 'border-emerald-600 bg-emerald-50'
                       : 'border-emerald-800 hover:border-emerald-600 hover:bg-emerald-50'
-                      }`}
-                    onClick={() => setSelectedTournament(tournament.uuid || "")}
+                      }
+                      ${(getTournamentQuota(tournament.uuid || "")?.remaining_quota || 0) <= 0 ? 'opacity-50 cursor-not-allowed' : ''}
+                      `}
+                    onClick={() => (getTournamentQuota(tournament.uuid || "")?.remaining_quota || 0) <= 0 ? null : setSelectedTournament(tournament.uuid || "")}
                   >
                     <div className='flex flex-col'>
                       <span className="text-xs text-gray-500 p-0">{tournament.level}</span>
