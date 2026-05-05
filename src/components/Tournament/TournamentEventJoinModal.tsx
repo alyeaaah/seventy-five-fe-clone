@@ -102,6 +102,7 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventDetail") });
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getPublicTournamentEventAuthDetail") });
       queryClient.invalidateQueries({ queryKey: PublicTournamentApiHooks.getKeyByAlias("getTournamentDetailAuth") });
+      onClose();
       setTimeout(() => {
         setModalAlert({
           title: 'Success',

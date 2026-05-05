@@ -22,7 +22,7 @@ import { compressImage } from "@/utils/image-compression";
 
 export const Register = () => {
   const [uploading, setUploading] = useState(false);
-  const { mutateAsync: actionUploadImage } = adminApiHooks.useMediaUpload({});
+  const { mutateAsync: actionUploadImage } = adminApiHooks.useMediaUploadPublic({});
   const { showNotification } = useToast();
 
   const uploadHandler = async (info: any, index: number) => {
@@ -48,7 +48,7 @@ export const Register = () => {
     } catch (error: any) {
       showNotification({
         duration: 3000,
-        text: `Failed to compress image ${error?.message}`,
+        text: `Failed to upload image ${error?.message}`,
         icon: "XCircle",
         variant: "danger",
       });

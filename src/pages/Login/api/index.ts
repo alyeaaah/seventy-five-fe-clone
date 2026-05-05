@@ -14,7 +14,8 @@ export const adminApiClient = new Zodios(
     endpoints.forgotPasswordApi,
     endpoints.resetPasswordApi,
     endpoints.userDataApi,
-    endpoints.mediaUploadApi
+    endpoints.mediaUploadApi,
+    endpoints.mediaUploadPublicApi,
   ],
   { validate: true, axiosInstance: createAxiosInstance() },
 );

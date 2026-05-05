@@ -207,21 +207,10 @@ const EditTournamentEvent = () => {
                 name="description"
                 control={control}
                 render={({ field }) => (
-                  <ReactQuill
-                    value={field.value ? decodeURIComponent(field.value) : ''}
-                    onChange={(value) => field.onChange(encodeURIComponent(value))}
-                    theme="snow"
-                    modules={{
-                      toolbar: [
-                        [
-                          { 'size': ['small', false, 'large', 'huge'] },
-                          'bold', 'italic', 'underline', 'link',
-                          { 'color': [] },
-                          { 'background': [] },
-                          { 'align': [] },
-                          { 'list': 'ordered' }, { 'list': 'bullet' }],
-                      ]
-                    }}
+                  <FormTextarea
+                    {...field}
+                    id="description"
+                    rows={4}
                     placeholder="Enter tournament event description"
                     className={errors.description ? "border-danger" : ""}
                   />
@@ -239,21 +228,10 @@ const EditTournamentEvent = () => {
                 name="rules"
                 control={control}
                 render={({ field }) => (
-                  <ReactQuill
-                    value={field.value ? decodeURIComponent(field.value) : ''}
-                    onChange={(value) => field.onChange(encodeURIComponent(value))}
-                    theme="snow"
-                    modules={{
-                      toolbar: [
-                        [
-                          { 'size': ['small', false, 'large', 'huge'] },
-                          'bold', 'italic', 'underline', 'link',
-                          { 'color': [] },
-                          { 'background': [] },
-                          { 'align': [] },
-                          { 'list': 'ordered' }, { 'list': 'bullet' }],
-                      ]
-                    }}
+                  <FormTextarea
+                    {...field}
+                    id="rules"
+                    rows={6}
                     placeholder="Enter tournament event rules"
                     className={errors.rules ? "border-danger" : ""}
                   />
@@ -263,6 +241,39 @@ const EditTournamentEvent = () => {
                 <p className="text-danger text-sm mt-1">{errors.rules.message}</p>
               )}
             </div>
+          </div>
+          <div className="col-span-4 gap-2 flex flex-col">
+            {/* Event Image */}
+            <div className="">
+              <FormLabel htmlFor="event-image">Event Image</FormLabel>
+              <Controller
+                name="media_url"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <UploadDropzone
+                      uploadType="image"
+                      name="media_url"
+                      index={0}
+                      onChange={uploadHandler}
+                      fileList={field.value ? [field.value as any] : []}
+                      onRemove={() => {
+                        setValue("media_url" as any, "", {
+                          shouldValidate: true,
+                        });
+                      }}
+                      loading={uploading}
+                    />
+                    {!!fieldState.error && (
+                      <FormHelp className="text-danger">
+                        {fieldState.error.message || "Image upload failed"}
+                      </FormHelp>
+                    )}
+                  </>
+                )}
+              />
+            </div>
+
           </div>
           <div className="col-span-4 gap-2 flex flex-col">
             {/* Event Image */}
@@ -349,6 +360,7 @@ const EditTournamentEvent = () => {
 
         </div>
 
+
         {/* Form Actions */}
         <div className="flex justify-end space-x-2 pt-6 border-t">
           <Button
@@ -377,8 +389,8 @@ const EditTournamentEvent = () => {
             )}
           </Button>
         </div>
-      </form>
-    </div>
+      </form >
+    </div >
   );
 };
 

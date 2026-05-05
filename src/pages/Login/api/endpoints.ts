@@ -54,11 +54,24 @@ const mediaUploadApi = makeEndpoint({
     imageUrl: z.string(),
   }),
 });
+const mediaUploadPublicApi = makeEndpoint({
+  alias: "mediaUploadPublic",
+  method: "post",
+  path: "/gallery/upload/public",
+  requestFormat:"form-data",
+  parameters: parametersBuilder().addBody(
+    mediaUploadPayloadSchema
+  ).build(),
+  response: z.object({
+    imageUrl: z.string(),
+  }),
+});
 
 export const endpoints = {
   loginApi,
   forgotPasswordApi,
   resetPasswordApi,
   userDataApi,
-  mediaUploadApi
+  mediaUploadApi,
+  mediaUploadPublicApi
 };
