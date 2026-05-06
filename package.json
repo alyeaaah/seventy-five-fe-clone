@@ -44,7 +44,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.10",
     "dropzone": "^6.0.0-beta.2",
-    "firebase": "^11.6.0",
+    "firebase": "^11.10.0",
     "flat": "^6.0.1",
     "highlight.js": "^11.9.0",
     "html-to-image": "^1.11.11",

@@ -73,3 +73,5 @@ export const LatestNews = ({ className, dehydratedState }: LatestNewsProps) => {
     // </SsrProvider>
   );
 };
+
+export default LatestNews;

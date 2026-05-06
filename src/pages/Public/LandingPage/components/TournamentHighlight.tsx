@@ -64,3 +64,5 @@ export const TournamentHighlight = ({ className }: HTMLProps<HTMLDivElement>) =>
     </div>
   );
 };
+
+export default TournamentHighlight;

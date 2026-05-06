@@ -161,3 +161,5 @@ export const StandingsComponent = ({ className, league }: StandingsComponentProp
     </div>
   );
 };
+
+export default StandingsComponent;

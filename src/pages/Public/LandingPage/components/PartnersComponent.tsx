@@ -64,3 +64,5 @@ export const PartnersComponent = ({ className, hideTitle }: PartnersComponentPro
     </div>
   );
 };
+
+export default PartnersComponent;

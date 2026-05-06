@@ -200,3 +200,5 @@ export const FeaturedPlayer = ({ className, title }: FeaturedPlayerProps) => {
     </div>
   );
 };
+
+export default FeaturedPlayer;

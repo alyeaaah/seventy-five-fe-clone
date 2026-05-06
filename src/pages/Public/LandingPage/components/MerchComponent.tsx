@@ -61,3 +61,5 @@ export const MerchComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
     </div>
   );
 };
+
+export default MerchComponent;

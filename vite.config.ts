@@ -29,10 +29,34 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       commonjsOptions: {
         include: ["tailwind.config.js", "node_modules/**"],
+        transformMixedEsModules: true,
       },
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Split vendor libraries into separate chunks
+            vendor: ['react', 'react-dom'],
+            antd: ['antd'],
+            router: ['react-router-dom'],
+            utils: ['dayjs', 'lodash-es', 'axios'],
+            ui: ['@headlessui/react', 'lucide-react'],
+            charts: ['chart.js'],
+            editor: ['@ckeditor/ckeditor5-build-classic', 'react-quill'],
+            maps: ['leaflet', 'react-leaflet'],
+            calendar: ['@fullcalendar/core', '@fullcalendar/react', '@fullcalendar/daygrid', '@fullcalendar/timegrid'],
+            animation: ['react-lottie', 'react-transition-group']
+          },
+          chunkFileNames: 'assets/js/[name]-[hash].js',
+          entryFileNames: 'assets/js/[name]-[hash].js',
+          assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
+        }
+      },
+      chunkSizeWarningLimit: 1000,
+      target: 'esnext'
     },
     optimizeDeps: {
-      include: ["tailwind-config"],
+      include: ["tailwind-config", "firebase/app", "firebase/analytics"],
+      exclude: ['react-visibility-sensor']
     },
     plugins: [
       react(),

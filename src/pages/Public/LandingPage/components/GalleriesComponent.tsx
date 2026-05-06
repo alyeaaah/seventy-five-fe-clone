@@ -110,3 +110,5 @@ export const Galleries = ({ className }: HTMLProps<HTMLDivElement>) => {
     </div>
   );
 };
+
+export default Galleries;
