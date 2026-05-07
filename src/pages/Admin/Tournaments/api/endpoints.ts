@@ -320,11 +320,9 @@ const TournamentsAddTeamApi = makeEndpoint({
 
 const TournamentsAddDraftPickApi = makeEndpoint({
   alias: "addTournamentDraftPick",
-  method: "post",
+  method: "put",
   path: `/tournament/draft-pick/:uuid`,
-  parameters: parametersBuilder().addBody(z.object({
-    teams: z.array(draftPickPayloadSchema)
-  })).build(),
+  parameters: parametersBuilder().addBody(draftPickPayloadSchema).build(),
   response: z.object({
     message: z.string(),
   })

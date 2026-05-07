@@ -220,15 +220,15 @@ export const TournamentDraftPickComponent = ({ tournamentUuid, players, onChange
         <div
           className="col-span-12 sm:col-span-6 p-2 sm:p-4 border-2 border-dashed rounded-lg border-gray-300"
         >
-          <h2 className="text-base font-semibold text-gray-900">Regular Players</h2>
-          <h3 className="text-sm text-gray-500 mb-2">List of players who will select their team</h3>
+          <h2 className="text-base font-semibold text-gray-900">Seeded Players</h2>
+          <h3 className="text-sm text-gray-500 mb-2">Players who will select their team</h3>
           {/* start of player card */}
-          <DroppableBoard type={PlayerType.REGULAR} boardId="regular-board" isEmpty={regularPlayers.length === 0}>
-            {regularPlayers.map((player, index) => (
+          <DroppableBoard type={PlayerType.SEEDED} boardId="seeded-board" isEmpty={seededPlayers.length === 0}>
+            {seededPlayers.map((player, index) => (
               <DraggablePlayerCard
                 key={player.uuid}
                 player={player}
-                type={PlayerType.REGULAR}
+                type={PlayerType.SEEDED}
                 index={index}
               />
             ))}
@@ -239,15 +239,15 @@ export const TournamentDraftPickComponent = ({ tournamentUuid, players, onChange
         <div
           className="col-span-12 sm:col-span-6 p-2 sm:p-4 border-2 border-dashed rounded-lg border-gray-300"
         >
-          <h2 className="text-base font-semibold text-gray-900">Seeded Players</h2>
-          <h3 className="text-sm text-gray-500 mb-2">Players available for team selection </h3>
+          <h2 className="text-base font-semibold text-gray-900">Regular Players</h2>
+          <h3 className="text-sm text-gray-500 mb-2">Players available for team selection</h3>
           {/* start of player card */}
-          <DroppableBoard type={PlayerType.SEEDED} boardId="seeded-board" isEmpty={seededPlayers.length === 0}>
-            {seededPlayers.map((player, index) => (
+          <DroppableBoard type={PlayerType.REGULAR} boardId="regular-board" isEmpty={regularPlayers.length === 0}>
+            {regularPlayers.map((player, index) => (
               <DraggablePlayerCard
                 key={player.uuid}
                 player={player}
-                type={PlayerType.SEEDED}
+                type={PlayerType.REGULAR}
                 index={index}
               />
             ))}

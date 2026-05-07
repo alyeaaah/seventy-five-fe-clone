@@ -11,8 +11,8 @@ import { Link } from "react-router-dom";
 import { paths } from "@/router/paths";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { queryClient } from "@/utils/react-query";
-import { ModalRejectedParticipants } from "./ModalRejectedParticipants";
 import { ModalAddTeam } from "./ModalAddTeam";
+import { ModalListParticipants } from "./ModalListParticipants";
 
 interface TournamentDetailParticipantsProps {
   tournamentUuid: string;
@@ -454,7 +454,7 @@ export const TournamentDetailParticipants: React.FC<TournamentDetailParticipants
         buttons={modalAlert?.buttons}
       />
 
-      <ModalRejectedParticipants
+      <ModalListParticipants
         tournamentUuid={tournamentUuid || ""}
         open={showRejectedModal}
         onClose={() => setShowRejectedModal(false)}

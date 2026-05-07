@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Divider, Table, Pagination } from "antd";
+import React, { useState } from "react";
+import { Divider, Table } from "antd";
 import { TournamentsApiHooks } from "../api";
-import { draftPickStatusEnum, DraftPickStatusEnum, TournamentParticipant, TournamentsPayload, TournamentTeams } from "../api/schema";
+import { draftPickStatusEnum, DraftPickStatusEnum, TournamentParticipant, TournamentsPayload } from "../api/schema";
 import Button from "@/components/Base/Button";
 import Image from "@/components/Image";
 import { Menu } from "@/components/Base/Headless";
@@ -11,8 +11,7 @@ import { Link } from "react-router-dom";
 import { paths } from "@/router/paths";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { queryClient } from "@/utils/react-query";
-import { ModalRejectedParticipants } from "./ModalRejectedParticipants";
-import { ModalAddTeam } from "./ModalAddTeam";
+import { ModalListParticipants } from "./ModalListParticipants";
 import { ColumnType } from "antd/es/table";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import { ModalAddPlayer } from "./ModalAddPlayer";
@@ -33,9 +32,8 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   data
 }) => {
   const [modalAlert, setModalAlert] = useState<AlertProps | undefined>(undefined);
-  const [showRejectedModal, setShowRejectedModal] = useState(false);
+  const [showlistModal, setShowlistModal] = useState<"REJECTED" | "REQUESTED" | undefined>(undefined);
   const [showAddTeamModal, setShowAddTeamModal] = useState(false);
-  const [showModalContent, setShowModalContent] = useState(false);
   const screens = useBreakpoint();
   const [pagination, setPagination] = useState<PaginationConfig>({
     current: 1,
@@ -102,7 +100,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
       tournamentUuid: tournamentUuid || ""
     },
     queries: {
-      status: ["rejected"],
+      status: ["REJECTED"],
       page: pagination.current,
       limit: pagination.pageSize
     }
@@ -170,7 +168,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   }
 
   // Handle team approval
-  const handleTeamApproval = async (id: number, status: 'approved' | 'rejected' | 'confirmed') => {
+  const handleTeamApproval = async (id: number, status: 'approved' | 'rejected' | 'requested') => {
     try {
       const team = requestedTeams.find(d => d.id === id)
       setModalAlert({
@@ -190,6 +188,11 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
             onClick: async () => {
               actionUpdateTeamApproval(id, team?.player?.uuid || "", status.toUpperCase() as DraftPickStatusEnum);
             }
+          },
+          {
+            label: "Cancel",
+            variant: "outline-primary",
+            onClick: () => setModalAlert(undefined)
           }
         ] : [
           {
@@ -199,11 +202,11 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
               actionUpdateTeamApproval(id, team?.player?.uuid || "", status.toUpperCase() as DraftPickStatusEnum);
             }
           },
-          {
-            label: "Confirmed to Join",
-            variant: "outline-primary",
-            onClick: () => actionUpdateTeamApproval(id, team?.player?.uuid || "", status.toUpperCase() as DraftPickStatusEnum)
-          },
+          // {
+          //   label: "Confirmed to Join",
+          //   variant: "outline-primary",
+          //   onClick: () => actionUpdateTeamApproval(id, team?.player?.uuid || "", status.toUpperCase() as DraftPickStatusEnum)
+          // },
           {
             label: "Cancel",
             variant: "outline-danger",
@@ -302,22 +305,6 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
         <div className="flex flex-col gap-2">
 
           <div key={record.id} className="flex justify-center gap-1">
-            {record.status === 'APPROVED' && (
-              <Menu>
-                <Menu.Button className="flex items-center justify-center rounded-md h-8 w-8 border border-emerald-800 p-1.5 shadow-none hover:bg-emerald-50" disabled={groupIsLocked}>
-                  <Lucide icon="Settings2" className="w-3.5 h-3.5 !text-emerald-800" />
-                </Menu.Button>
-                <Menu.Items className="w-48 mt-px z-99">
-                  <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.id, record.player?.uuid || "", draftPickStatusEnum.Enum.AVAILABLE)}>
-                    Mark as Confirmed
-                  </Menu.Item>
-                  <Divider className="m-0" />
-                  {/* <Menu.Item onClick={() => !groupIsLocked && actionUpdateTeamApproval(record.id, record.player?.uuid || "", draftPickStatusEnum.Enum.APPROVED)}>
-                    Process Payment
-                  </Menu.Item> */}
-                </Menu.Items>
-              </Menu>
-            )}
             <Button
               variant="outline-danger"
               size="sm"
@@ -336,8 +323,11 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
     <div className="grid grid-cols-12 gap-4">
       {/* Requested Teams Section */}
       {requestedTeams.length > 0 && <div className="col-span-12 box p-4">
-        <div className="flex flex-row items-center justify-between mb-3">
-          <h2 className="font-medium">Requested Players</h2>
+        <div className="flex sm:flex-row flex-col sm:items-center items-start justify-between mb-3">
+          <div className="flex flex-row items-center gap-2">
+            <h2 className="font-medium">Requested Players</h2>
+            <Button size="sm" className="h-6 px-4 !text-xs" onClick={() => setShowlistModal("REQUESTED")}>See All</Button>
+          </div>
           <span className="text-sm text-gray-500">{requestedTeams.length} pending</span>
         </div>
         {/* Horizontal scrollable list for mobile */}
@@ -417,12 +407,12 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
           </div>
           <div className="flex flex-row items-center gap-2">
             <button
-              onClick={() => setShowRejectedModal(true)}
+              onClick={() => setShowlistModal("REJECTED")}
               className="text-red-500 hover:text-red-700 border-red-600 border rounded px-2 text-xs py-1"
             >
               {rejectedTeams.length} Rejected
             </button>
-            <span className="text-sm text-gray-500">{registeredTeams.length} teams</span>
+            <span className="text-sm text-gray-500">{registeredTeams.length} Players</span>
           </div>
         </div>
         <Divider className="mb-4" />
@@ -517,11 +507,13 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
         content={modalAlert?.content}
       />
 
-      <ModalRejectedParticipants
+      <ModalListParticipants
         tournamentUuid={tournamentUuid || ""}
-        open={showRejectedModal}
-        onClose={() => setShowRejectedModal(false)}
+        open={!!showlistModal}
+        onClose={() => setShowlistModal(undefined)}
         isDraftPick
+        mode={showlistModal}
+        action={handleTeamApproval}
       />
 
       <ModalAddPlayer

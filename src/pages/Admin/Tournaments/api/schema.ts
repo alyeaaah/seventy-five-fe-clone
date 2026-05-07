@@ -9,7 +9,7 @@ export const draftPickPayloadSchema = z.object({
   id:z.number().nullish(),
   player_uuid: z.string(),
   team_uuid: z.string().optional(),
-  position: z.number().min(1),
+  position: z.number().min(0),
   status: draftPickStatusEnum,
   seeded: z.boolean().default(false),
 });
@@ -330,6 +330,7 @@ export const tournamentParticipantSchema = z.object({
   position: z.number(),
   commitment_fee: z.number().or(z.string()).nullable(),
   seeded: z.boolean(),
+  drafted_by: z.string().nullish(),
   pickingAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

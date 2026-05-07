@@ -2,7 +2,7 @@ import { pointSchema } from "@/pages/Admin/PointConfig/api/schema";
 import { tournamentEventStatusEnum, tournamentsSchema, tournamentStatusEnum } from "@/pages/Admin/Tournaments/api/schema";
 import { z } from "zod";
 
-export const draftPickStatusSchema = z.enum(["AVAILABLE", "PICKING", "PICKED"]);
+export const draftPickStatusSchema = z.enum(["AVAILABLE", "PICKING", "PICKED", "REQUESTED","REJECTED","APPROVED"]);
 
 export const draftPickSchema = z.object({
   id: z.number(),
