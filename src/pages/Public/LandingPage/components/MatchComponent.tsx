@@ -73,19 +73,25 @@ export const UpcomingMatch = ({ className }: HTMLProps<HTMLDivElement>) => {
                   <Lucide icon='MapPin' className='w-6 h-4' /> <span className="text-ellipsis line-clamp-1">{item.court_field?.court?.name && `${item.court_field?.court?.name} - ${item.court_field?.name}`}</span>
                 </div>
                 <div className="flex bg-white rounded-full justify-between p-1 h-12 w-full">
-                  <NestedImage players={item.home_team?.players?.map((player) => ({
-                    media_url: player.media_url || '',
-                    name: player.name || '',
-                    uuid: player.uuid
-                  })) || []} />
+                  <NestedImage
+                    players={item.home_team?.players?.map((player) => ({
+                      media_url: player.media_url || '',
+                      name: player.name || '',
+                      uuid: player.uuid
+                    })) || []}
+                    useLinks={false}
+                  />
                   <div className='flex  text-emerald-800 items-center'>
                     <span className='text-2xl font-semibold'>VS</span>
                   </div>
-                  <NestedImage players={item.away_team?.players?.map((player) => ({
-                    media_url: player.media_url || '',
-                    name: player.name || '',
-                    uuid: player.uuid
-                  })) || []} />
+                  <NestedImage
+                    players={item.away_team?.players?.map((player) => ({
+                      media_url: player.media_url || '',
+                      name: player.name || '',
+                      uuid: player.uuid
+                    })) || []}
+                    useLinks={false}
+                  />
                 </div>
                 <div className='flex flex-row justify-between px-4 py-1 capitalize w-full text-xs'>
                   <div className="flex flex-col justify-start">

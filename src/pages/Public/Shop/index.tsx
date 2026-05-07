@@ -16,8 +16,8 @@ import Button from "@/components/Base/Button";
 import { LottieAnimation } from "@/components/LottieAnimation";
 import Cart from '@/assets/images/illustrations/gif/cart.json'
 import { useCart } from "@/utils/cart";
-import ReactVisibilitySensor from "react-visibility-sensor";
 import { FloatingCartButton } from "@/components/FloatingCartButton";
+import VisibilitySensorWrapper from "@/components/VisibilitySensorWrapper";
 
 export const PublicShop = () => {
   const navigate = useNavigate();
@@ -83,7 +83,7 @@ export const PublicShop = () => {
           </div>
         </FadeAnimation>
         <FadeAnimation className="col-span-12 md:col-span-3 flex flex-col space-y-2 mt-4" direction="down">
-          <ReactVisibilitySensor onChange={(isVisible: any) => {
+          <VisibilitySensorWrapper onChange={(isVisible: any) => {
             setIsShowFloatingCart(!isVisible);
           }}>
             <Link to={paths.shop.cart} className="col-span-12 flex items-center justify-between border-emerald-800 border rounded-lg pl-4">
@@ -108,7 +108,7 @@ export const PublicShop = () => {
                 </div>
               </Button>
             </Link>
-          </ReactVisibilitySensor>
+          </VisibilitySensorWrapper>
           <div className="col-span-12 flex flex-col space-y-2 text-emerald-800 ">
             <div className="text-lg flex justify-between items-center rounded-lg">
               <InputGroup className={`rounded-lg border border-emerald-800 border-opacity-20 overflow-hidden w-full ${searchBox.focus ? "!border-emerald-800 border-opacity-100" : ""} ${searchBox.hasValue ? "border-emerald-950 border-opacity-100" : ""}`}>
@@ -196,7 +196,7 @@ export const PublicShop = () => {
           </div>
         </FadeAnimation>
         <FloatingCartButton position="left" visible={isShowFloatingCart} />
-      </LayoutWrapper>
+      </LayoutWrapper >
 
     </>
   )

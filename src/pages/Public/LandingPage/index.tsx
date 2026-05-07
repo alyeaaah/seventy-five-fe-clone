@@ -6,10 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import { useState, lazy, Suspense } from 'react';
 import { UpcomingMatch } from './components/MatchComponent';
 import { LiveMatch } from './components/LiveMatchComponent';
-import ReactVisibilitySensor from 'react-visibility-sensor';
 import { PublicHeader } from './components/HeaderLandingPage';
 import { PWAInstallButton } from '@/components/PWAInstallButton';
 import { ScoreWebSocketListener } from '@/components/ScoreWebSocketListener';
+import VisibilitySensorWrapper from '@/components/VisibilitySensorWrapper';
+import { CarouselSchema, CarouselTypeEnum } from './api/schema';
 
 // Lazy load below-the-fold components to improve LCP
 const FeaturedPlayer = lazy(() => import('./components/FeaturedPlayerComponent'));
@@ -18,6 +19,7 @@ const TournamentHighlight = lazy(() => import('./components/TournamentHighlight'
 const Galleries = lazy(() => import('./components/GalleriesComponent'));
 const StandingsComponent = lazy(() => import('./components/StandingsComponent'));
 const MerchComponent = lazy(() => import('./components/MerchComponent'));
+
 const PartnersComponent = lazy(() => import('./components/PartnersComponent'));
 
 const { Content } = Layout;
@@ -27,6 +29,18 @@ export const LandingPage = () => {
   const [slideIsVisible, setSlideIsVisible] = useState<boolean>();
   const [animateMenu, setAnimateMenu] = useState(false);
 
+  const mainCarousel: CarouselSchema[] = [{
+    title: "Family Comes First!",
+    type: CarouselTypeEnum.TEXTFIGURE,
+    figure: <TennisPlay className='w-full h-full' />
+  }, {
+
+    title: "You only live once,",
+    subtitle: "But you get to serve twice!",
+    type: CarouselTypeEnum.TEXTFIGURE,
+    figure: <Illustration className='w-full h-full' />
+  }
+  ]
   return (
     <>
       {/* WebSocket listener for real-time score updates */}
@@ -39,11 +53,34 @@ export const LandingPage = () => {
         <div className="absolute bottom-[-32vh] left-[-120px] rotate-[14deg] w-[130vw] h-[55vh] bg-emerald-800 z-0"></div>
         <LayoutWrapper className="h-full">
           <div className='z-10 h-full'>
-            <Carousel arrows autoplay autoplaySpeed={8000} className='h-[calc(50vh-32px)]'>
-              <div className=' w-full h-[calc(50vh-32px)]'>
+            <Carousel arrows autoplay={false} autoplaySpeed={8000} className='h-[calc(50vh-32px)]'>
+              {mainCarousel.map((mc, i) => (
+                <div className=' w-full h-[calc(50vh-32px)]' key={i}>
+                  <div className='h-full grid grid-rows-2 justify-around sm:grid sm:grid-cols-2' style={{ minHeight: 'calc(50vh - 32px)' }}>
+                    <div className='sm:col-span-1 row-span-1 flex flex-col justify-center items-start sm:px-4 relative sm:aspect-video'>
+                      <div className='relative'>
+                        <h3 className="text-white font-bold md:text-6xl text-5xl relative z-[1]">{mc.title}</h3>
+                        <h3 className="text-emerald-800 font-bold md:text-6xl text-5xl absolute top-[2px] left-[2px] -right-[1px]">{mc.title}</h3>
+                      </div>
+                      {mc.subtitle &&
+                        <div className='relative'>
+                          <h3 className="text-white font-bold md:text-xl text-lg relative z-[1]">{mc.subtitle}</h3>
+                          <h3 className="text-emerald-800 font-bold md:text-xl text-lg absolute top-[2px] left-[1px] -right-[1px]">{mc.subtitle}</h3>
+                        </div>
+                      }
+                    </div>
+                    {mc.figure && <div className='sm:col-span-1 row-span-1'>
+                      <div className='w-full h-full flex justify-center items-center'>
+                        {mc.figure}
+                      </div>
+                    </div>}
+                  </div>
+                </div>
+              ))}
+              {/* <div className=' w-full h-[calc(50vh-32px)]'>
                 <div className='h-full grid grid-cols-12' style={{ minHeight: 'calc(50vh - 32px)' }}>
                   <div className='col-span-12 sm:col-span-6 flex justify-center items-center' style={{ aspectRatio: '16/9' }}>
-                    <h3 className="text-white font-bold md:text-6xl text-5xl shadow text-center px-4" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Family comes first!</h3>
+                    <h3 className="text-white font-bold md:text-6xl text-5xl text-center px-4">Family comes first!</h3>
                   </div>
                   <div className='col-span-12 sm:col-span-6 flex justify-center items-center' style={{ aspectRatio: '1/1' }}>
                     <div className='w-[90%] h-[90%] aspect-square'>
@@ -64,11 +101,11 @@ export const LandingPage = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </Carousel>
           </div>
         </LayoutWrapper>
-        <ReactVisibilitySensor onChange={(isVisible: any) => {
+        <VisibilitySensorWrapper onChange={(isVisible: any) => {
           if (!animateMenu) {
             setAnimateMenu(true);
           }
@@ -77,7 +114,7 @@ export const LandingPage = () => {
           }
         }}>
           <div className='h-1 bg-red-600' style={{ contain: 'layout' }}></div>
-        </ReactVisibilitySensor>
+        </VisibilitySensorWrapper>
       </div>
       {/* BEGIN: First Section */}
       <LayoutWrapper className='w-full max-w-full grid grid-cols-12 gap-2 sm:gap-8 overflow-hidden'>

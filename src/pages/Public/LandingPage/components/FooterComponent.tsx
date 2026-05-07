@@ -81,7 +81,11 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
               </li>
 
               <li className='pt-8 '>
-                <Link href="#" className="flex flex-row !text-white text-xs hover:!text-[#EBCE56] items-center">Version {clientEnv.VERSION}</Link>
+                <Link href="#" onClick={() => {
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('rlt', Date.now().toString());
+                  window.location.href = url.toString();
+                }} className="flex flex-row !text-white text-xs hover:!text-[#EBCE56] items-center">Version {clientEnv.VERSION}</Link>
               </li>
             </ul>
           </div>
