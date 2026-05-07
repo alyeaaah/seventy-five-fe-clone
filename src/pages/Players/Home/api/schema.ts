@@ -77,6 +77,7 @@ export const playersPartialSchema = playersSchema.extend({
   city: z.string().nullish(),
   address: z.string().nullish(),
   height: z.number().nullish(),
+  username: z.string().nullish(),
   phone: z.string(),
 })
 export const playerDetailSchema = z.object({
