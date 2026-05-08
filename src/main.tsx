@@ -18,6 +18,7 @@ import { clientEnv } from "@/env";
 import { useAppSelector } from "./stores/hooks";
 import { selectDarkMode } from "./stores/darkModeSlice";
 import { ScoreWebSocketListener } from "./components/ScoreWebSocketListener";
+import { AppVersionChecker } from "./components/AppVersionChecker";
 
 // Wrapper component untuk ConfigProvider yang reactive terhadap dark mode
 function AntdConfigProvider({ children }: { children: React.ReactNode }) {
@@ -38,7 +39,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <JotaiProvider store={jotaiStore}>
           <ToastProvider>
             <AntdConfigProvider>
-              <Router />
+              <AppVersionChecker>
+                <Router />
+              </AppVersionChecker>
             </AntdConfigProvider>
           </ToastProvider>
           <LoadingOverlay />
