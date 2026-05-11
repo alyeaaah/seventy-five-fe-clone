@@ -402,8 +402,8 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                 Ask to Join
               </Button>
             )}
-            <Button variant='outline-primary' className='h-8 mt-3' onClick={() => setShowParticipants(!showParticipants)}>{showParticipants ? 'See less' : 'Show Participants'}</Button>
-          </div>
+            {draftParticipants?.length > 0 ? <Button variant='outline-primary' className='h-8 mt-3' onClick={() => setShowParticipants(!showParticipants)}>{showParticipants ? 'See less' : 'Show Participants'}</Button>
+              : ""}</div>
           {event.rules && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg">
               <div className='flex flex-row gap-2 items-center mb-2'>
@@ -418,7 +418,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
             </div>
           )}
         </> : <>
-          {draftParticipants?.length && <div className="col-span-12 sm:hidden grid grid-cols-12 gap-2 mt-4 h-max">
+          {!!draftParticipants?.length && <div className="col-span-12 sm:hidden grid grid-cols-12 gap-2 mt-4 h-max">
             <div className="col-span-12 text-emerald-800 flex flex-row my-4">
               <IconLogoAlt className="h-10 w-20" />
               <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
