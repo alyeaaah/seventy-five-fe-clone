@@ -1,6 +1,6 @@
 import { makeEndpoint, parametersBuilder } from "@zodios/core";
 import { z } from "zod";
-import { tournamentMatchDetailSchema, tournamentsSchema, tournamentTeamsSchema, tournamentEventStatusEnum } from "@/pages/Admin/Tournaments/api/schema";
+import { tournamentMatchDetailSchema, tournamentsSchema, tournamentTeamsSchema, tournamentEventStatusEnum, tournamentParticipantSchema } from "@/pages/Admin/Tournaments/api/schema";
 import { matchesListSchema } from "@/pages/Admin/CustomMatch/api/schema";
 import { publicTournamentDetailSchema, groupResponseSchema, draftPickSchema, tournamentJoinStatusSchema, publicTournamentEventSchema, tournamentEventQuotaSchema } from "./schema";
 import { sponsorsSchema } from "@/pages/Admin/MasterData/Sponsors/api/schema";
@@ -159,6 +159,30 @@ const getTournamentDraftPicksApi = makeEndpoint({
   })
 });
 
+// Tournament Participant APIs
+const publicGetTournamentDraftParticipantsApi = makeEndpoint({
+  alias: "getPublicTournamentDraftParticipants",
+  method: "get",
+  path: `/tournament/:tournamentUuid/participants`,
+  parameters: parametersBuilder().addQueries({
+    tournamentEventUuid: z.string().optional(),
+    status: z.array(z.string()).optional(),
+    page: z.number().optional(),
+    limit: z.number().optional(),
+  }).build(),
+  response: z.object({
+    data: z.object({
+      participants: z.array(tournamentParticipantSchema),
+      pagination: z.object({
+        current: z.number(),
+        pageSize: z.number(),
+        total: z.number(),
+        totalPages: z.number(),
+      }),
+    }),
+  }),
+});
+
 const assignTournamentDraftPickApi = makeEndpoint({
   alias: "assignTournamentDraftPick",
   method: "post",
@@ -280,4 +304,5 @@ export const endpoints = {
   publicTournamentEventDetailApi,
   publicTournamentEventDetailAuthApi,
   publicTournamentEventQuotaApi,
+  publicGetTournamentDraftParticipantsApi
 };

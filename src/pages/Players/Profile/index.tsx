@@ -14,6 +14,7 @@ import { ModalBirthDate } from "./components/ModalBirthDate";
 import { ModalContact } from "./components/ModalContact";
 import { ModalAddressProfile } from "./components/ModalAddressProfile";
 import { ProfileForm } from "../Components/ProfileForm";
+import { ModalAvatar } from "./components/ModalAvatar";
 
 export const PlayerProfile = () => {
   const userData = useAtomValue(userAtom);
@@ -26,7 +27,8 @@ export const PlayerProfile = () => {
     edit: false,
     birthdate: false,
     contact: false,
-    address: false
+    address: false,
+    avatar: false
   });
   const getAge = (birthdate: string) => {
     const birth = moment(birthdate);
@@ -39,7 +41,7 @@ export const PlayerProfile = () => {
     queries: {
       page: 1,
       limit: 20
-    } 
+    }
   });
   return (
     <div className="w-full py-0 grid grid-cols-12 gap-4">
@@ -88,6 +90,16 @@ export const PlayerProfile = () => {
                       </Button>
                     </div>
                   </div>
+                  <div className="flex flex-row items-center lg:w-48 w-full bg-[#BE453D] px-4 py-2 rounded-xl text-white">
+                    <Lucide icon="User" className="h-6 w-6" />
+                    <div className="flex flex-col ml-2">
+                      <div className=" font-medium capitalize text-[#EBCE56]">Avatar</div>
+                      <div className="text-xs line-clamp-2">Edit your avatar to get featured</div>
+                    </div>
+                    <Button size="sm" className="ml-2" onClick={() => setModal({ ...modal, avatar: true })}>
+                      <Lucide icon="Pencil" className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-row justify-between items-center rounded-xl p-3 mt-2 bg-[#EBCE56] text-emerald-800">
@@ -98,7 +110,7 @@ export const PlayerProfile = () => {
                   <Lucide icon="Pencil" className="h-4 w-4 mr-2" />
                   Edit profile
                 </Button>
-                
+
               </div>
             </div>
           }
@@ -110,7 +122,7 @@ export const PlayerProfile = () => {
         title="Edit Birthdate"
         footer={null}
       >
-        <ModalBirthDate key={JSON.stringify(modal.birthdate)+data?.data?.dateOfBirth+ data?.data?.placeOfBirth} onClose={() => setModal({ ...modal, birthdate: false })} data={data?.data} />
+        <ModalBirthDate key={JSON.stringify(modal.birthdate) + data?.data?.dateOfBirth + data?.data?.placeOfBirth} onClose={() => setModal({ ...modal, birthdate: false })} data={data?.data} />
       </Modal>
       <Modal
         open={modal.contact}
@@ -118,7 +130,16 @@ export const PlayerProfile = () => {
         title="Edit Contact"
         footer={null}
       >
-        <ModalContact key={JSON.stringify(modal.contact)+data?.data?.phone+ data?.data?.email} onClose={() => setModal({ ...modal, contact: false })} data={data?.data} />
+        <ModalContact key={JSON.stringify(modal.contact) + data?.data?.phone + data?.data?.email} onClose={() => setModal({ ...modal, contact: false })} data={data?.data} />
+      </Modal>
+      <Modal
+        open={modal.avatar}
+        onCancel={() => setModal({ ...modal, avatar: false })}
+        title="Edit Avatar"
+        width={"900px"}
+        footer={null}
+      >
+        <ModalAvatar key={JSON.stringify(modal.avatar) + data?.data?.phone + data?.data?.email} onClose={() => setModal({ ...modal, avatar: false })} data={data?.data} />
       </Modal>
       <Modal
         open={modal.address}
@@ -126,11 +147,11 @@ export const PlayerProfile = () => {
         title="Edit Address"
         footer={null}
       >
-        <ModalAddressProfile key={JSON.stringify(modal.address)+data?.data?.address+ data?.data?.city} onClose={() => setModal({ ...modal, address: false })} data={data?.data} />
+        <ModalAddressProfile key={JSON.stringify(modal.address) + data?.data?.address + data?.data?.city} onClose={() => setModal({ ...modal, address: false })} data={data?.data} />
       </Modal>
 
       <Modal
-        classNames={{body: "rounded-xl bg-gray-50 border"}}
+        classNames={{ body: "rounded-xl bg-gray-50 border" }}
         title={
           <div className="flex flex-row items-center w-full !text-gray-800 border-b pb-3">
             {/* <IconLogoAlt className="w-16 h-10 mr-3" /> */}

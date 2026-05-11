@@ -12,7 +12,7 @@ import { OrderStatus } from "@/utils/faker";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { queryClient } from "@/utils/react-query";
 
-export const OnProcess = ({openDetail}: {openDetail?: (orderId: string) => void}) => {
+export const OnProcess = ({ openDetail }: { openDetail?: (orderId: string) => void }) => {
   const screens = useBreakpoint();
 
   const [pagination, setPagination] = useState({
@@ -99,7 +99,7 @@ export const OnProcess = ({openDetail}: {openDetail?: (orderId: string) => void}
       className: "text-right font-bold text-emerald-800",
       width: "20%",
       ellipsis: true,
-      render:(text) => `IDR ${Intl.NumberFormat("id-ID").format(text)}`
+      render: (text) => `IDR ${Intl.NumberFormat("id-ID").format(text)}`
     },
     {
       title: "",
@@ -157,11 +157,11 @@ export const OnProcess = ({openDetail}: {openDetail?: (orderId: string) => void}
       buttons: [
         {
           label: "Confirm Delivery",
-          onClick: async (note: string) => {
+          onClick: async (param) => {
             updateOrderStatus({
               status: OrderStatus.DELIVERED,
-              shipping_code: note,
-              note: note,
+              shipping_code: param?.noteText,
+              note: param?.noteText,
             }).then(() => {
               queryClient.invalidateQueries({
                 queryKey: MerchOrderApiHooks.getKeyByAlias("getMerchOrderList")
@@ -200,11 +200,11 @@ export const OnProcess = ({openDetail}: {openDetail?: (orderId: string) => void}
       buttons: [
         {
           label: "Cancel Order",
-          onClick: (noteText: string) => {
-          
+          onClick: (param) => {
+
             updateOrderStatus({
               status: OrderStatus.CANCELLED,
-              note: noteText,
+              note: param?.noteText,
             }).then(() => {
               queryClient.invalidateQueries({
                 queryKey: MerchOrderApiHooks.getKeyByAlias("getMerchOrderList")
@@ -226,68 +226,68 @@ export const OnProcess = ({openDetail}: {openDetail?: (orderId: string) => void}
     });
   }
   return (
-      <div className="grid grid-cols-12 gap-2">                
-          <div className="col-span-12 overflow-x-auto scrollbar-hidden">
-            <Table
-              dataSource={data?.data || []}
-              columns={tableColumnsAntd}
-              rowKey={(d) => d.uuid || ""}
-              rowClassName={`${styles.customTableRow} cursor-pointer`}
-              onRow={(record) => ({
-                onClick: () => {
-                  openDetail && openDetail(record.uuid);
-                },
-              })}
-              className={styles.customTableStyle}
-              pagination={{
-                total: data?.totalRecords || 0,
-                defaultCurrent: pagination.page,
-                defaultPageSize: pagination.limit,
-                onChange: (page, limit) => {
-                  setPagination({
-                    ...pagination,
-                    page,
-                    limit,
-                  });
-                }
-              }}
-              expandable={screens.xs ? {
-                expandedRowRender: (record) => (
-                  <div>
-                    <p>Created: {moment(record.createdAt).format("Y-MM-DD HH:mm")}</p>
-                    <div className="flex justify-end mt-2">
-                      <Button
-                        className="flex items-center mr-2"
-                        variant="outline-danger"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          actionButtonCancel(record.uuid);
-                        }}
-                      >
-                        <Lucide icon="Trash" className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        className="flex items-center"
-                        variant="primary"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          actionButtonDeliver(record.uuid);
-                        }}
-                      >
-                        <Lucide icon="Pencil" className="w-4 h-4 " />
-                      </Button>
-                    </div>
-                  </div>
-                ),
-                rowExpandable: (record) => !!record.uuid, // Only expand rows with an address
-              } : undefined}
-              showHeader
-            />
+    <div className="grid grid-cols-12 gap-2">
+      <div className="col-span-12 overflow-x-auto scrollbar-hidden">
+        <Table
+          dataSource={data?.data || []}
+          columns={tableColumnsAntd}
+          rowKey={(d) => d.uuid || ""}
+          rowClassName={`${styles.customTableRow} cursor-pointer`}
+          onRow={(record) => ({
+            onClick: () => {
+              openDetail && openDetail(record.uuid);
+            },
+          })}
+          className={styles.customTableStyle}
+          pagination={{
+            total: data?.totalRecords || 0,
+            defaultCurrent: pagination.page,
+            defaultPageSize: pagination.limit,
+            onChange: (page, limit) => {
+              setPagination({
+                ...pagination,
+                page,
+                limit,
+              });
+            }
+          }}
+          expandable={screens.xs ? {
+            expandedRowRender: (record) => (
+              <div>
+                <p>Created: {moment(record.createdAt).format("Y-MM-DD HH:mm")}</p>
+                <div className="flex justify-end mt-2">
+                  <Button
+                    className="flex items-center mr-2"
+                    variant="outline-danger"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      actionButtonCancel(record.uuid);
+                    }}
+                  >
+                    <Lucide icon="Trash" className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    className="flex items-center"
+                    variant="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      actionButtonDeliver(record.uuid);
+                    }}
+                  >
+                    <Lucide icon="Pencil" className="w-4 h-4 " />
+                  </Button>
+                </div>
+              </div>
+            ),
+            rowExpandable: (record) => !!record.uuid, // Only expand rows with an address
+          } : undefined}
+          showHeader
+        />
       </div>
-      
+
       <Confirmation
         key={modalAlert?.refId}
-        open={!!modalAlert?.open} 
+        open={!!modalAlert?.open}
         onClose={() => setModalAlert(undefined)}
         icon={modalAlert?.icon || "Info"}
         iconClassname={modalAlert?.iconClassname}
@@ -297,6 +297,6 @@ export const OnProcess = ({openDetail}: {openDetail?: (orderId: string) => void}
         refId={modalAlert?.refId}
         buttons={modalAlert?.buttons}
       />
-      </div>
+    </div>
   )
 }

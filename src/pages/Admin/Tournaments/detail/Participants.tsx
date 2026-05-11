@@ -256,7 +256,7 @@ export const TournamentDetailParticipants: React.FC<TournamentDetailParticipants
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col items-start justify-center gap-2 mt-1">
                       {team.players.map((player, index: number) => (
-                        <Link key={index} to={paths.administrator.players.edit({ player: player.player_uuid || "" }).$} className="flex items-center gap-2">
+                        <Link key={index} to={paths.administrator.players.detail({ player: player.player_uuid || "" }).$} className="flex items-center gap-2">
                           <Image
                             src={player.media_url || '/path/to/default-avatar.jpg'}
                             alt={player.name || 'Player'}

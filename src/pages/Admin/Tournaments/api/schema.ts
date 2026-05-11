@@ -3,7 +3,7 @@ import { z } from "zod";
 import { matchTeamSchema } from "../../MatchDetail/api/schema";
 import { publicTournamentDetailSchema } from "@/pages/Public/Tournament/api/schema";
 
-export const draftPickStatusEnum = z.enum(["AVAILABLE", "PICKING", "PICKED", "REQUESTED", "REJECTED", "APPROVED"]);
+export const draftPickStatusEnum = z.enum(["AVAILABLE", "PICKING", "PICKED", "REQUESTED", "REJECTED", "APPROVED","WAITLISTED"]);
 
 export const draftPickPayloadSchema = z.object({
   id:z.number().nullish(),
@@ -18,6 +18,7 @@ export const tournamentStatusEnum = z.enum(['DRAFT', 'POSTPONED','CANCELLED','EN
 
 export const tournamentsSchema = z.object({
   id: z.number().nullish(),
+  tournament_event_uuid: z.string().nullish(),
   uuid: z.string().nullish(),
   name: z.string()
     .min(2, "Tournament name must be at least 2 characters long"),
@@ -55,6 +56,12 @@ export const tournamentsSchema = z.object({
   published_at: z.string().nullish(),
   createdAt: z.string().datetime().nullish(),
   updatedAt: z.string().datetime().nullish(),
+
+  early_bird_price: z.number().or(z.string()).nullish(),
+  early_bird_start_date: z.string().datetime().nullish(),
+  early_bird_end_date: z.string().datetime().nullish(),
+  early_bird_limit: z.number().int().nullish(),
+  draft_picks: z.array(z.any()).nullish(),
 })
 const tournamentsSchemaRefine = tournamentsSchema.superRefine((data, ctx) => {
   if (data.type === "ROUND ROBIN" && (!data.total_group || data.total_group <= 0)) {
@@ -344,6 +351,8 @@ export const updateParticipantPayloadSchema = z.object({
   draft_pick_id: z.number(),
   player_uuid: z.string(),
   status: draftPickStatusEnum,
+  target_uuid: z.string().optional(),
+  notify_email: z.boolean().default(false)
 });
 
 export const removeParticipantPayloadSchema = z.object({

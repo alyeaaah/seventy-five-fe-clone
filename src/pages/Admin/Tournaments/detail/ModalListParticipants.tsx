@@ -10,6 +10,7 @@ import { Menu } from "@/components/Base/Headless";
 import { queryClient } from "@/utils/react-query";
 import { ColumnType } from "antd/es/table";
 import { TournamentParticipant } from "../api/schema";
+import { paths } from "@/router/paths";
 
 interface ModalListParticipantsProps {
   tournamentUuid: string;
@@ -97,16 +98,20 @@ export const ModalListParticipants: React.FC<ModalListParticipantsProps> = ({
     {
       title: "Players",
       key: "players",
+      className: "!px-0",
       render: (_, record) => (
         <div className="flex flex-col items-start justify-center gap-2">
           {record.player &&
-            <Link to={`/admin/players/${record.player.uuid}`} className="flex items-center gap-1">
+            <Link to={paths.administrator.players.detail({ player: record.player.uuid || "" }).$} className="flex items-center gap-2">
               <Image
                 src={record.player.media_url || '/path/to/default-avatar.jpg'}
                 alt={record.player.name || 'Player'}
                 className="w-6 h-6 rounded-full object-cover"
               />
-              <span className="text-sm">{record.player.name}</span>
+              <div className="flex flex-col items-start justify-center">
+                <span className="text-sm">{record.player.name}</span>
+                <span className="text-xs text-gray-600">IDR {Intl.NumberFormat('id-ID').format(Number(record.commitment_fee))}</span>
+              </div>
             </Link>
           }
         </div>
@@ -148,6 +153,7 @@ export const ModalListParticipants: React.FC<ModalListParticipantsProps> = ({
     },
     {
       title: "Action",
+      className: "!px-0",
       key: "status",
       render: (_, record) => (
         <div className="flex flex-row items-center gap-2">
@@ -189,22 +195,26 @@ export const ModalListParticipants: React.FC<ModalListParticipantsProps> = ({
       open={open}
       onCancel={onClose}
       width="90%"
+      classNames={{
+        content: "!px-3"
+      }}
       title={
-        <div className="flex items-center justify-between">
+        < div className="flex items-center justify-between px-2" >
           <span className="text-lg font-medium text-gray-900">
             {mode === "REQUESTED" ? "Requested" : "Rejected"} {isDraftPick ? "Players" : "Teams"} ({listedTeams.length})
           </span>
-        </div>
+        </div >
       }
-      footer={[
-        <Button
-          key="close-button"
-          variant="primary"
-          onClick={onClose}
-        >
-          Close
-        </Button>
-      ]}
+      footer={
+        [
+          <Button
+            key="close-button"
+            variant="primary"
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        ]}
     >
       <div className="mt-4">
         <Table
@@ -223,7 +233,8 @@ export const ModalListParticipants: React.FC<ModalListParticipantsProps> = ({
               `${range[0]}-${range[1]} of ${total} teams`
           }}
           loading={isLoading}
-          className="w-full"
+          className="w-full p-0"
+          rowClassName={"!px-0"}
           columns={tableCol}
           locale={{
             emptyText: listedTeams.length === 0 && !isLoading ? (
@@ -235,6 +246,6 @@ export const ModalListParticipants: React.FC<ModalListParticipantsProps> = ({
           }}
         />
       </div>
-    </Modal>
+    </Modal >
   );
 };

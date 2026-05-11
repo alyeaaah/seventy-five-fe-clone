@@ -31,6 +31,7 @@ const CourtsNew = lazy(() => import("@/pages/Admin/Courts/New").then(m => ({ def
 // Admin Players
 const Players = lazy(() => import("@/pages/Admin/Players"));
 const PlayerForm = lazy(() => import("@/pages/Admin/Players/Forms").then(m => ({ default: m.PlayerForm })));
+const PlayerDetail = lazy(() => import("@/pages/Admin/Players/Detail").then(m => ({ default: m.PlayerDetail })));
 
 // Admin Tournaments
 const Tournaments = lazy(() => import("@/pages/Admin/Tournaments"));
@@ -94,6 +95,7 @@ const PublicGalleriesDetail = lazy(() => import("@/pages/Public/Galleries/detail
 const PublicNews = lazy(() => import("@/pages/Public/Blog").then(m => ({ default: m.PublicNews })));
 const PublicNewsDetail = lazy(() => import("@/pages/Public/Blog/detail").then(m => ({ default: m.PublicNewsDetail })));
 const PublicTournament = lazy(() => import("@/pages/Public/Tournament").then(m => ({ default: m.PublicTournament })));
+const PublicTournamentParticipants = lazy(() => import("@/pages/Public/Tournament/participants").then(m => ({ default: m.PublicTournamentParticipants })));
 const PublicStandingPage = lazy(() => import("@/pages/Public/Tournament/StandingPage").then(m => ({ default: m.PublicStandingPage })));
 const PublicChallenger = lazy(() => import("@/pages/Public/Challenger").then(m => ({ default: m.PublicChallenger })));
 const PublicMatchDetail = lazy(() => import("@/pages/Public/Match").then(m => ({ default: m.PublicMatchDetail })));
@@ -164,6 +166,15 @@ function Router() {
                 <PublicMatchDetail />
               </LazyWrapper>
             )
+          },
+          {
+            index: true,
+            path: paths.tournament.participants.template,
+            element: (
+              <LazyWrapper>
+                <PublicTournamentParticipants />
+              </LazyWrapper>
+            ),
           },
           {
             index: true,
@@ -499,6 +510,14 @@ function Router() {
               element: (
                 <LazyWrapper>
                   <PlayerForm />
+                </LazyWrapper>
+              ),
+            },
+            {
+              path: paths.administrator.players.detail.template,
+              element: (
+                <LazyWrapper>
+                  <PlayerDetail />
                 </LazyWrapper>
               ),
             },

@@ -66,11 +66,11 @@ export const OrderDetail = ({ orderId }: Props) => {
       buttons: [
         {
           label: buttonLabel,
-          onClick: async (note: string) => {
+          onClick: async (param) => {
             updateOrderStatus({
               status: OrderStatus.DELIVERED,
-              shipping_code: note,
-              note: note,
+              shipping_code: param?.noteText,
+              note: param?.noteText,
             }).then(() => {
               queryClient.invalidateQueries({
                 queryKey: MerchOrderApiHooks.getKeyByAlias("getMerchOrderList")
@@ -109,11 +109,11 @@ export const OrderDetail = ({ orderId }: Props) => {
       buttons: [
         {
           label: "Cancel Order",
-          onClick: (noteText: string) => {
+          onClick: (param) => {
 
             updateOrderStatus({
               status: OrderStatus.CANCELLED,
-              note: noteText,
+              note: param?.noteText,
             }).then(() => {
               queryClient.invalidateQueries({
                 queryKey: MerchOrderApiHooks.getKeyByAlias("getMerchOrderList")

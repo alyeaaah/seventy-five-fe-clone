@@ -31,7 +31,7 @@ interface Props {
 
 export const PlayerForm = (props: Props) => {
   const navigate = useNavigate();
-  const queryParams = useRouteParams(paths.administrator.players.edit);
+  const queryParams = useRouteParams(paths.administrator.players.detail);
   const { player: playerUuid } = queryParams;
   const { showNotification } = useToast();
   const [uploading, setUploading] = useState<boolean>(false);

@@ -1,7 +1,8 @@
 import Button, { Variant } from "@/components/Base/Button";
-import { FormTextarea } from "@/components/Base/Form";
+import { FormLabel, FormTextarea } from "@/components/Base/Form";
 import { Dialog } from "@/components/Base/Headless";
 import Lucide, { icons } from "@/components/Base/Lucide";
+import Checkbox from "antd/es/checkbox/Checkbox";
 import { useState } from "react";
 
 export interface AlertProps {
@@ -16,7 +17,7 @@ export interface AlertProps {
   buttons?:
   {
     label: string;
-    onClick: (param?: any) => void;
+    onClick: (param?: { noteText?: string, checkBox?: boolean }) => void;
     variant: Variant;
     type?: "button" | "submit";
     autoFocus?: boolean;
@@ -31,10 +32,17 @@ export interface AlertProps {
     required?: boolean
   };
   [key: string]: any;
+  checkBox?: {
+    label: string;
+    value: boolean;
+    onChange: (value: boolean) => void;
+  };
 }
 
-const Confirmation = ({ open, onClose, title, description, buttons, size = "sm", dismissable = true, notes, icon, iconClassname, refId, content }: AlertProps) => {
+const Confirmation = ({ open, onClose, title, description, buttons, size = "sm", dismissable = true, notes, icon, iconClassname, refId, content, checkBox }: AlertProps) => {
   const [noteText, setNoteText] = useState(notes?.value || "");
+  const [checkBoxValue, setCheckBoxValue] = useState(checkBox?.value === true ? true : false);
+
   return (
     <Dialog
       className="z-[1000]"
@@ -69,6 +77,16 @@ const Confirmation = ({ open, onClose, title, description, buttons, size = "sm",
             />
           </div>
         )}
+        {checkBox && (
+          <div className="w-full flex flex-row gap-2 my-2 justify-center items-center">
+            <Checkbox
+              id={"modal-checkbox"}
+              checked={checkBoxValue}
+              onChange={(e) => setCheckBoxValue(e.target.checked)}
+            />
+            <FormLabel htmlFor={"modal-checkbox"} className="m-0">{checkBox.label}</FormLabel>
+          </div>
+        )}
         <div className="px-5 pb-8 flex flex-col justify-center space-y-2">
           {buttons?.map((button, index) => (
             <Button
@@ -77,7 +95,10 @@ const Confirmation = ({ open, onClose, title, description, buttons, size = "sm",
               type={button.type || "button"}
               disabled={notes?.required && !noteText && button.main === true}
               variant={button.variant}
-              onClick={() => button.onClick(noteText)}
+              onClick={() => button.onClick({
+                noteText: noteText,
+                checkBox: checkBoxValue
+              })}
               className="w-full"
             >
               {button.label}

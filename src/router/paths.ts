@@ -30,6 +30,9 @@ export const paths = {
       edit: route(`/admin/players/edit/:player`, {
         player: stringParser
       }, {}),
+      detail: route(`/admin/players/detail/:player`, {
+        player: stringParser
+      }, {}),
       index: "/admin/players", 
     },
     tournaments: {
@@ -184,6 +187,9 @@ export const paths = {
   },
   tournament: {
     index: route(`/tournament/&:uuid?`, {
+       uuid: stringParser
+    }, {}),
+    participants: route(`/tournament/participants/:uuid`, {
        uuid: stringParser
     }, {}),
     match: route(`/tournament/match/:matchUuid`, {

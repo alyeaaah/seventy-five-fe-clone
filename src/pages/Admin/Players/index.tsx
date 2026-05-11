@@ -10,7 +10,7 @@ import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { useToast } from "@/components/Toast/ToastContext";
 import Table, { ColumnsType } from "antd/es/table";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import styles from "./index.module.scss";
 import { PlayerList } from "./api/schema";
@@ -160,8 +160,9 @@ function Players() {
       dataIndex: "name",
       align: "left",
       width: "70%",
+      className: "cursor-pointer",
       render: (text, record) => (
-        <div className="flex items-center">
+        <Link className="flex items-center" to={paths.administrator.players.detail({ player: record.uuid || "" }).$}>
           <div className="flex flex-col mr-2">
             <Image
               src={imageResizer(record?.media_url || "", 50)}
@@ -173,7 +174,7 @@ function Players() {
             <span className="text-sm font-medium">{text}</span>
             <span className="text-xs text-gray-500">{record.username}</span>
           </div>
-        </div>
+        </Link>
       ),
     },
     {
@@ -345,7 +346,7 @@ function Players() {
                       className="flex items-center"
                       variant="primary"
                       onClick={() => {
-                        navigate(paths.administrator.players.edit({ player: record.uuid || "" }).$);
+                        navigate(paths.administrator.players.detail({ player: record.uuid || "" }).$);
                       }}
                     >
                       <Lucide icon="Pencil" className="w-4 h-4 " />

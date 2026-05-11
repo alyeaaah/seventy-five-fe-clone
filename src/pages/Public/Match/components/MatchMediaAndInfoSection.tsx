@@ -572,7 +572,7 @@ export const MatchMediaAndInfoSection = ({
                     to={paths.players.info({ uuid: player?.uuid || "" }).$}
                     className="col-span-12 border rounded-lg p-2 hover:scale-105 transition-all cursor-pointer"
                     onClick={() => {
-                      navigate(paths.administrator.players.edit({ player: player?.uuid || "" }).$);
+                      navigate(paths.administrator.players.detail({ player: player?.uuid || "" }).$);
                     }}
                   >
                     <div className="flex flex-row items-center">

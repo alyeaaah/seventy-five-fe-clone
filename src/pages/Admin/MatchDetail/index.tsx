@@ -484,11 +484,11 @@ export const MatchDetail = () => {
       buttons: [
         {
           label: "Retire",
-          onClick: (notes: string) => {
+          onClick: (params) => {
             setRetirement({
               matchUuid,
               team: pos,
-              notes,
+              notes: params?.noteText,
               player_uuid: `BOTH_${pos.toUpperCase()}`
             });
             setModalAlert(undefined);
@@ -498,13 +498,13 @@ export const MatchDetail = () => {
         },
         {
           label: "Retire with Injury",
-          onClick: (notes: string) => {
+          onClick: (params) => {
             setModalAlert((prev) => ({
               ...(prev as AlertProps),
               open: false,
             }));
             setTimeout(() => {
-              openModalRetirePlayer(team, matchUuid, pos, notes);
+              openModalRetirePlayer(team, matchUuid, pos, params?.noteText);
             }, 200);
           },
           variant: "danger" as Variant,
@@ -906,7 +906,7 @@ export const MatchDetail = () => {
                     <div
                       className="col-span-12 border rounded-lg p-2 hover:scale-105 transition-all cursor-pointer"
                       onClick={() => {
-                        navigate(paths.administrator.players.edit({ player: player?.uuid || "" }).$);
+                        navigate(paths.administrator.players.detail({ player: player?.uuid || "" }).$);
                       }}
                     >
                       <div className="flex flex-row items-center">
@@ -966,7 +966,7 @@ export const MatchDetail = () => {
                     <div
                       className="col-span-12 border rounded-lg p-2 hover:scale-105 transition-all cursor-pointer"
                       onClick={() => {
-                        navigate(paths.administrator.players.edit({ player: player?.uuid || "" }).$);
+                        navigate(paths.administrator.players.detail({ player: player?.uuid || "" }).$);
                       }}
                     >
                       <div className="flex flex-row items-center">

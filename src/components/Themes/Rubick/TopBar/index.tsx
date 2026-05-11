@@ -1,19 +1,16 @@
-import { useState, Fragment, Children } from "react";
+import { useState } from "react";
 import Lucide from "@/components/Base/Lucide";
 import Breadcrumb from "@/components/Base/Breadcrumb";
-import { FormInput } from "@/components/Base/Form";
-import { Menu, Popover } from "@/components/Base/Headless";
-import fakerData from "@/utils/faker";
-import _ from "lodash";
-import clsx from "clsx";
-import { Transition } from "@headlessui/react";
+import { Menu } from "@/components/Base/Headless";
 import { accessTokenAtom, userAtom } from "@/utils/store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { paths } from "@/router/paths";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 
 function Main() {
   const [searchDropdown, setSearchDropdown] = useState(false);
+  const breakpoint = useBreakpoint();
   const navigate = useNavigate()
   const location = useLocation();
   const subMenuOf = location.pathname.split("/").length > 3 ? location.pathname.split("/")[2].replace("-", " ") : "";
@@ -204,7 +201,7 @@ function Main() {
           <Menu.Button className="flex items-center justify-center w-10 h-10 border-2 border-emerald-800 hover:bg-[#EBCE86] overflow-hidden rounded-full shadow-lg image-fit zoom-in intro-x fl">
             <Lucide icon="User" className="w-5 h-5 !text-emerald-800 fill-emerald-800" />
           </Menu.Button>
-          <Menu.Items className="w-56 mt-px text-white bg-primary">
+          <Menu.Items className="w-56 mt-px text-white bg-primary" placement={!breakpoint.md ? 'bottom-start' : `bottom-end`}>
             <Menu.Header className="font-normal">
               <div className="font-medium">{userData?.name}</div>
               <div className="text-xs text-white/70 mt-0.5 dark:text-slate-500">
