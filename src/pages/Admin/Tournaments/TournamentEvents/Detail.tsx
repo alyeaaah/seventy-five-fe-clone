@@ -11,6 +11,7 @@ import { Menu } from "@/components/Base/Headless";
 import Tippy from "@/components/Base/Tippy";
 import { queryClient } from "@/utils/react-query";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
+import { Badge } from "antd";
 
 const TournamentEventDetail = () => {
   const navigate = useNavigate();
@@ -367,32 +368,44 @@ const TournamentEventDetail = () => {
                 {eventData?.data?.tournaments?.map((tournament) => (
                   <Button
                     variant="outline-primary"
-                    className="w-full justify-start"
+                    className="w-full justify-between flex"
                     key={tournament.uuid}
                     onClick={() => navigate(paths.administrator.tournaments.detail({ id: tournament?.uuid! }).$)}
                   >
-                    <Lucide icon="Pencil" className="w-4 h-4 mr-2" />
-                    {tournament.name} {tournament.counter?.requested ? `(${tournament.counter.requested})` : ""}
+                    <div className="flex flex-row">
+                      <Lucide icon="Pencil" className="w-4 h-4 mr-2" />
+                      {tournament.name}
+                    </div>
+                    <div className="flex flex-row">
+                      <div color="warning" className="ml-1 py-0.5 px-1 rounded-lg bg-red-600 text-white min-w-8">
+                        {tournament.counter?.requested ? `${tournament.counter.requested}` : "0"}
+                      </div>
+                      <div color="warning" className="ml-1 py-0.5 px-1 rounded-lg bg-emerald-600 text-white min-w-8">
+                        {tournament.counter?.approved ? `${tournament.counter.approved}` : "0"}
+                      </div>
+                    </div>
                   </Button>
                 ))}
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </div >
+      </div >
 
       {/* Confirmation Modal */}
-      {modalAlert && (
-        <Confirmation
-          open={modalAlert.open}
-          title={modalAlert.title}
-          description={modalAlert.description}
-          icon={modalAlert.icon}
-          variant={modalAlert.variant}
-          onConfirm={modalAlert.onConfirm}
-          onClose={modalAlert.onClose}
-        />
-      )}
+      {
+        modalAlert && (
+          <Confirmation
+            open={modalAlert.open}
+            title={modalAlert.title}
+            description={modalAlert.description}
+            icon={modalAlert.icon}
+            variant={modalAlert.variant}
+            onConfirm={modalAlert.onConfirm}
+            onClose={modalAlert.onClose}
+          />
+        )
+      }
     </>
   );
 };
