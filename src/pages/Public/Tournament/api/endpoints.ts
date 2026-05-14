@@ -163,7 +163,7 @@ const getTournamentDraftPicksApi = makeEndpoint({
 const publicGetTournamentDraftParticipantsApi = makeEndpoint({
   alias: "getPublicTournamentDraftParticipants",
   method: "get",
-  path: `/tournament/:tournamentUuid/participants`,
+  path: `/public/tournament/:tournamentUuid/participants`,
   parameters: parametersBuilder().addQueries({
     tournamentEventUuid: z.string().optional(),
     status: z.array(z.string()).optional(),

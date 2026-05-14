@@ -206,9 +206,9 @@ export const PublicTournament = () => {
                 </div>
               ))}
             </div>
-            <div className="col-span-12 text-emerald-800 grid grid-cols-12 gap-3">
+            <div className="col-span-12 text-emerald-800 grid grid-cols-10 gap-3">
               {draftParticipants?.filter((participant) => !filterParticipants || participant.tournament_uuid == filterParticipants).map((participant, index) => (
-                <Link to={paths.players.info({ uuid: participant.player_uuid || "" }).$} key={index} className="col-span-3 aspect-[3/4] relative overflow-hidden rounded-lg">
+                <Link to={paths.players.info({ uuid: participant.player_uuid || "" }).$} key={index} className="col-span-2 aspect-[3/4] relative overflow-hidden rounded-lg">
                   <div className="h-full w-full overflow-hidden relative z-0">
                     {participant.player?.media_url ? <Image
                       src={participant.player?.media_url}
@@ -216,7 +216,7 @@ export const PublicTournament = () => {
                       width={100}
                       height={100}
                       className="h-full w-full object-cover"
-                    /> : <div className="h-full w-full bg-gray-200 flex items-center justify-center flex-col">
+                    /> : <div className="h-full w-full bg-gray-200 flex items-center justify-center flex-col pb-12">
                       <IconLogo className="w-24 h-16 text-gray-400" />
                       <span className="text-sm text-gray-500 text-center flex flex-col gap-2 px-2">
                         No profile picture yet
@@ -225,10 +225,10 @@ export const PublicTournament = () => {
                     </div>}
                   </div>
                   <div className="absolute bg-[#ebce56]/50 backdrop-blur-sm rounded-t-xl p-2 bottom-0 min-h-12 w-full z-[1] flex flex-col">
-                    <span className="text-lg font-bold [text-shadow:_1px_1px_0px_#ebce56]">
-                      {participant.player?.name}
+                    <span className="text-lg font-semibold [text-shadow:_1px_1px_0px_#ebce56] line-clamp-2 capitalize">
+                      {participant.player?.name.toLowerCase()}
                     </span>
-                    <div className="flex flex-row items-center gap-1">
+                    <div className="flex flex-row items-center gap-1 line-clamp-1">
                       {(participant.player?.nickname && participant.player?.nickname !== participant.player?.name) ? <span className="text-xs capitalize">
                         ({participant.player?.nickname})
                       </span> : ""}

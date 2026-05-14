@@ -460,10 +460,10 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                     </div>}
                   </div>
                   <div className="absolute bg-[#ebce56]/50 backdrop-blur-sm rounded-t-xl p-2 bottom-0 min-h-12 w-full z-[1] flex flex-col">
-                    <span className="text-lg font-bold [text-shadow:_1px_1px_0px_#ebce56]">
-                      {participant.player?.name}
+                    <span className="text-lg font-bold [text-shadow:_1px_1px_0px_#ebce56] line-clamp-2 capitalize">
+                      {participant.player?.name.toLowerCase()}
                     </span>
-                    <div className="flex flex-row items-center gap-1">
+                    <div className="flex flex-row items-center gap-1 line-clamp-1">
                       {(participant.player?.nickname && participant.player?.nickname !== participant.player?.name) ? <span className="text-xs capitalize">
                         ({participant.player?.nickname})
                       </span> : ""}
