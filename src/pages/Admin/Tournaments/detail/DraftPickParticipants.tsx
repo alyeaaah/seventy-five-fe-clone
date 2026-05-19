@@ -258,9 +258,10 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   }
 
   // Handle team approval
-  const handleTeamApproval = async (id: number, status: 'approved' | 'rejected' | 'requested') => {
+  const handleTeamApproval = async (id: number, status: 'approved' | 'rejected' | 'requested', teams?: TournamentParticipant[]) => {
     try {
-      const team = [...requestedTeams, ...waitlistedTeams].find(d => d.id === id)
+      const team = [...requestedTeams, ...waitlistedTeams, ...(teams || [])].find(d => d.id === id)
+      console.log(team);
 
       setModalAlert({
         open: true,

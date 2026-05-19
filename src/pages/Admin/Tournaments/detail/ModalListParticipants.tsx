@@ -18,7 +18,7 @@ interface ModalListParticipantsProps {
   onClose: () => void;
   isDraftPick?: boolean;
   mode?: "REJECTED" | "REQUESTED"
-  action?: (id: number, status: 'approved' | 'rejected' | 'requested') => void;
+  action?: (id: number, status: 'approved' | 'rejected' | 'requested', teams?: TournamentParticipant[]) => void;
 }
 
 interface PaginationConfig {
@@ -159,7 +159,7 @@ export const ModalListParticipants: React.FC<ModalListParticipantsProps> = ({
         <div className="flex flex-row items-center gap-2">
           <Button
             key={"approved"}
-            onClick={() => action && action(record.id, "approved")}
+            onClick={() => action && action(record.id, "approved", [record])}
             size="sm"
             variant="primary"
           >
@@ -169,7 +169,7 @@ export const ModalListParticipants: React.FC<ModalListParticipantsProps> = ({
           {mode === "REQUESTED" ?
             <Button
               key={"confirmed"}
-              onClick={() => action && action(record.id, "rejected")}
+              onClick={() => action && action(record.id, "rejected", [record])}
               variant="outline-danger"
               size="sm"
             >
