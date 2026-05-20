@@ -364,7 +364,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
       render: (_, record: any) => (
         <div className="flex flex-col items-start justify-center gap-1">
           {record.player && (
-            <Link key={record.player.uuid} to={`/admin/players/${record.player.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
+            <Link key={record.player.uuid} to={paths.administrator.players.detail({ player: record.player.uuid || "" }).$} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
               <Image
                 src={record.player.media_url || '/path/to/default-avatar.jpg'}
                 alt={record.player.name || 'Player'}
@@ -373,7 +373,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
               <span className="text-xs truncate max-w-[150px]" title={record.player.name}>{record.player.name}</span>
             </Link>
           )}{record.partner && (
-            <Link key={record.partner.uuid} to={`/admin/players/${record.partner.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
+            <Link key={record.partner.uuid} to={paths.administrator.players.detail({ player: record.partner.uuid || "" }).$} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
               <Image
                 src={record.partner.media_url || '/path/to/default-avatar.jpg'}
                 alt={record.partner.name || 'Player'}
@@ -449,7 +449,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
       render: (_, record: any) => (
         <div className="flex flex-col items-start justify-center gap-1">
           {record.player && (
-            <Link key={record.player.uuid} to={`/admin/players/${record.player.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
+            <Link key={record.player.uuid} to={paths.administrator.players.detail({ player: record.player.uuid || "" }).$} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
               <Image
                 src={record.player.media_url || '/path/to/default-avatar.jpg'}
                 alt={record.player.name || 'Player'}
@@ -458,7 +458,7 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
               <span className="text-xs truncate max-w-[150px]" title={record.player.name}>{record.player.name}</span>
             </Link>
           )}{record.partner && (
-            <Link key={record.partner.uuid} to={`/admin/players/${record.partner.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
+            <Link key={record.partner.uuid} to={paths.administrator.players.detail({ player: record.partner.uuid || "" }).$} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
               <Image
                 src={record.partner.media_url || '/path/to/default-avatar.jpg'}
                 alt={record.partner.name || 'Player'}

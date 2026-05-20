@@ -360,7 +360,7 @@ export const TournamentDetailParticipants: React.FC<TournamentDetailParticipants
                 render: (_, record: any) => (
                   <div className="flex flex-col items-start justify-center gap-1">
                     {record.players.map((player: any, index: number) => (
-                      <Link key={index} to={`/admin/players/${player.uuid}`} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
+                      <Link key={index} to={paths.administrator.players.detail({ player: player.uuid || "" }).$} className="flex items-center gap-1 hover:bg-gray-50 p-1 rounded">
                         <Image
                           src={player.media_url || '/path/to/default-avatar.jpg'}
                           alt={player.name || 'Player'}
