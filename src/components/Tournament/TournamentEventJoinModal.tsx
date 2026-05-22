@@ -40,6 +40,9 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
     params: {
       uuid: user?.uuid as string
     }
+  }, {
+    enabled: !!user?.uuid,
+    retry: false
   });
   const { data: tournamentEventQuota } = PublicTournamentApiHooks.useGetPublicTournamentEventQuota({
     params: {
