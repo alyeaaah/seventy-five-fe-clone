@@ -376,7 +376,8 @@ const TournamentEventDetail = () => {
                       <Lucide icon="Pencil" className="w-4 h-4 mr-2" />
                       {tournament.name}
                     </div>
-                    <div className="flex flex-row">
+                    <div className="flex flex-row items-center">
+                      <span className="text-xs">{(tournament.counter?.requested || 0) + (tournament.counter?.approved || 0)}/{tournament.max_player}</span>
                       <div color="warning" className="ml-1 py-0.5 px-1 rounded-lg bg-red-600 text-white min-w-8">
                         {tournament.counter?.requested ? `${tournament.counter.requested}` : "0"}
                       </div>
