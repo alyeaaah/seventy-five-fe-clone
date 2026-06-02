@@ -107,6 +107,7 @@ const PublicShopDetail = lazy(() => import("@/pages/Public/Shop/detail").then(m 
 const PublicShopCart = lazy(() => import("@/pages/Public/Shop/Cart").then(m => ({ default: m.PublicShopCart })));
 const PublicShopCheckout = lazy(() => import("@/pages/Public/Shop/Cart/checkout").then(m => ({ default: m.PublicShopCheckout })));
 const PublicWallOfFame = lazy(() => import("@/pages/Public/WallOfFame").then(m => ({ default: m.PublicWallOfFame })));
+const Partnership = lazy(() => import("@/pages/Public/Partnership").then(m => ({ default: m.Partnership })));
 
 const PublicLayout = lazy(() => import("./PublicLayout").then(m => ({ default: m.PublicLayout })));
 
@@ -294,6 +295,22 @@ function Router() {
             element: (
               <LazyWrapper>
                 <PublicWallOfFame />
+              </LazyWrapper>
+            ),
+          },
+          {
+            path: paths.partnership.about,
+            element: (
+              <LazyWrapper>
+                <Partnership />
+              </LazyWrapper>
+            ),
+          },
+          {
+            path: paths.partnership.opportunities,
+            element: (
+              <LazyWrapper>
+                <Partnership />
               </LazyWrapper>
             ),
           },

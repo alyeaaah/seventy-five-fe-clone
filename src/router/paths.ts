@@ -207,8 +207,9 @@ export const paths = {
     match: route(`/challenger/match/:matchUuid`, {
       matchUuid: stringParser
     }, {}),
-    scoreboard: route(`/challenger/match/:matchUuid/scoreboard`, {
-      matchUuid: stringParser
+    scoreboard: route(`/challenger/match/:matchUuid/scoreboard/&:variant?`, {
+      matchUuid: stringParser,
+      variant: stringParser
     }, {}),
   },
   merchandise: {
@@ -249,6 +250,10 @@ export const paths = {
     detail: route(`/wall-of-fame/detail/:uuid`, {
       uuid: stringParser
     }, {}),
+  },
+  partnership: {
+    about: "/partnership/about",
+    opportunities: "/partnership/opportunities",
   },
   shop: {
     index: "/shop",

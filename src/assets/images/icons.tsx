@@ -12,6 +12,7 @@ import IconPoint_ from '@/assets/images/icons/point.svg';
 import IconBracket_ from '@/assets/images/icons/bracket.svg';
 import IconLogo_ from '@/assets/images/logo.svg';
 import IconLogoAlt_ from '@/assets/images/logo-alt.svg';
+import IconMascott_ from '@/assets/images/icons/mascott.svg';
 import IconPlayer_ from '@/assets/images/icons/player.svg';
 import IconXTwitter_ from '@/assets/images/icons/x-twitter.svg';
 import IconTiktok_ from '@/assets/images/icons/tiktok.svg';
@@ -38,10 +39,12 @@ import IconQris_ from "@/assets/images/icons/qris.svg";
 import IconBca_ from "@/assets/images/icons/bca.svg";
 
 
+
 export const IconPoints = IconPoint_ as unknown as Icon;
 export const IconBracket = IconBracket_ as unknown as Icon;
 export const IconLogo = IconLogo_ as unknown as Icon;
 export const IconLogoAlt = IconLogoAlt_ as unknown as Icon;
+export const IconMascott = IconMascott_ as unknown as Icon;
 export const IconPlayer = IconPlayer_ as unknown as Icon;
 export const IconXTwitter = IconXTwitter_ as unknown as Icon;
 export const IconTiktok = IconTiktok_ as unknown as Icon;

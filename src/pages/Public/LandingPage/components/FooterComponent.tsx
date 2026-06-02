@@ -5,9 +5,8 @@ import LayoutWrapper from "@/components/LayoutWrapper";
 import { clientEnv } from "@/env";
 import { paths } from "@/router/paths";
 import { Footer } from "antd/es/layout/layout";
-import Link from "antd/es/typography/Link";
 import { HTMLProps } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
   const navigate = useNavigate();
@@ -35,7 +34,23 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
             </div>
           </div>
         </div>
-        <div className="col-span-12 sm:col-span-6 lg:col-span-4 relative">
+        <div className="col-span-12 sm:col-span-6 lg:col-span-3 relative">
+          <div className="flex flex-row items-center justify-start text-[#EBCE56] font-medium pb-1">
+            Partnerships
+          </div>
+          <div className='w-4 h-0.5 bg-[#EBCE56]'></div>
+          <div className="flex flex-col items-start justify-start text-white font-medium pt-3">
+            <ul>
+              <li className='py-1'>
+                <Link to={paths.partnership.about}>About Us</Link>
+              </li>
+              <li className='py-1'>
+                <Link to={paths.partnership.opportunities}>Partnership Opportunities</Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="col-span-12 sm:col-span-6 lg:col-span-2 relative">
           <div className="flex flex-row items-center justify-start text-[#EBCE56] font-medium pb-1">
             Sitemaps
           </div>
@@ -60,7 +75,7 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
             </ul>
           </div>
         </div>
-        <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+        <div className="col-span-12 sm:col-span-6 lg:col-span-2">
           <div className="flex flex-row items-center justify-start text-[#EBCE56] font-medium pb-1">
             Social Media
           </div>
@@ -68,20 +83,20 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
           <div className="flex flex-col items-start justify-between !text-white font-medium pt-3">
             <ul>
               <li className='py-1 '>
-                <Link href="https://www.instagram.com/75TennisClub/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Instagram' className='w-5' />&nbsp;Instagram</Link>
+                <Link to="https://www.instagram.com/75TennisClub/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Instagram' className='w-5' />&nbsp;Instagram</Link>
               </li>
               <li className='py-1 '>
-                <Link href="https://www.youtube.com/@75TennisClub" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Youtube' className='w-5' />&nbsp;Youtube</Link>
+                <Link to="https://www.youtube.com/@75TennisClub" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><Lucide icon='Youtube' className='w-5' />&nbsp;Youtube</Link>
               </li>
               <li className='py-1 '>
-                <Link href="https://www.tiktok.com/@75tennisclub" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconTiktok className='w-5' />&nbsp;Tiktok</Link>
+                <Link to="https://www.tiktok.com/@75tennisclub" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconTiktok className='w-5' />&nbsp;Tiktok</Link>
               </li>
               <li className='py-1 '>
-                <Link href="https://www.instagram.com/75tennisclub/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconXTwitter className='w-5' />&nbsp;Twitter / X</Link>
+                <Link to="https://www.instagram.com/75tennisclub/" className="flex flex-row !text-white hover:!text-[#EBCE56] items-center"><IconXTwitter className='w-5' />&nbsp;Twitter / X</Link>
               </li>
 
               <li className='pt-8 '>
-                <Link href="#" onClick={() => {
+                <Link to="#" onClick={() => {
                   const url = new URL(window.location.href);
                   url.searchParams.set('rlt', Date.now().toString());
                   window.location.href = url.toString();

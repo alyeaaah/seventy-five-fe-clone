@@ -90,6 +90,19 @@ const EditTournamentEvent = () => {
       },
     }
   );
+  useEffect(() => {
+    if (eventData?.data) {
+      const data = eventData.data;
+      setValue("name", data.name || "");
+      setValue("description", data.description || "");
+      setValue("rules", data.rules || "");
+      setValue("commitment_fee", data.commitment_fee || 0);
+      setValue("status", data.status || "DRAFT");
+      setValue("media_url", data.media_url || "");
+      setValue("published_at", data.published_at || undefined);
+    }
+    setIsLoading(false);
+  }, [eventData]);
 
   const { mutate: updateTournamentEvent } = TournamentsApiHooks.useUpdateTournamentEvent(
     {
@@ -207,12 +220,22 @@ const EditTournamentEvent = () => {
                 name="description"
                 control={control}
                 render={({ field }) => (
-                  <FormTextarea
-                    {...field}
-                    id="description"
-                    rows={4}
-                    placeholder="Enter tournament event description"
-                    className={errors.description ? "border-danger" : ""}
+                  <ReactQuill
+                    value={decodeURIComponent(field.value || "")}
+                    onChange={v => field.onChange(encodeURIComponent(v))}
+                    theme="snow"
+                    className="w-full min-h-36"
+                    modules={{
+                      toolbar: [
+                        [
+                          { 'size': ['small', false, 'large', 'huge'] },
+                          'bold', 'italic', 'underline', 'link',
+                          { 'color': [] },
+                          { 'background': [] },
+                          { 'align': [] },
+                          { 'list': 'ordered' }, { 'list': 'bullet' }],
+                      ]
+                    }}
                   />
                 )}
               />
@@ -228,12 +251,22 @@ const EditTournamentEvent = () => {
                 name="rules"
                 control={control}
                 render={({ field }) => (
-                  <FormTextarea
-                    {...field}
-                    id="rules"
-                    rows={6}
-                    placeholder="Enter tournament event rules"
-                    className={errors.rules ? "border-danger" : ""}
+                  <ReactQuill
+                    value={decodeURIComponent(field.value || "")}
+                    onChange={v => field.onChange(encodeURIComponent(v))}
+                    theme="snow"
+                    className="w-full min-h-36"
+                    modules={{
+                      toolbar: [
+                        [
+                          { 'size': ['small', false, 'large', 'huge'] },
+                          'bold', 'italic', 'underline', 'link',
+                          { 'color': [] },
+                          { 'background': [] },
+                          { 'align': [] },
+                          { 'list': 'ordered' }, { 'list': 'bullet' }],
+                      ]
+                    }}
                   />
                 )}
               />
@@ -241,39 +274,6 @@ const EditTournamentEvent = () => {
                 <p className="text-danger text-sm mt-1">{errors.rules.message}</p>
               )}
             </div>
-          </div>
-          <div className="col-span-4 gap-2 flex flex-col">
-            {/* Event Image */}
-            <div className="">
-              <FormLabel htmlFor="event-image">Event Image</FormLabel>
-              <Controller
-                name="media_url"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <UploadDropzone
-                      uploadType="image"
-                      name="media_url"
-                      index={0}
-                      onChange={uploadHandler}
-                      fileList={field.value ? [field.value as any] : []}
-                      onRemove={() => {
-                        setValue("media_url" as any, "", {
-                          shouldValidate: true,
-                        });
-                      }}
-                      loading={uploading}
-                    />
-                    {!!fieldState.error && (
-                      <FormHelp className="text-danger">
-                        {fieldState.error.message || "Image upload failed"}
-                      </FormHelp>
-                    )}
-                  </>
-                )}
-              />
-            </div>
-
           </div>
           <div className="col-span-4 gap-2 flex flex-col">
             {/* Event Image */}
@@ -339,17 +339,19 @@ const EditTournamentEvent = () => {
                 name="status"
                 control={control}
                 render={({ field }) => (
-                  <FormSelect
-                    {...field}
-                    id="status"
-                    className={errors.status ? "border-danger" : ""}
-                  >
-                    <option value="DRAFT">Draft</option>
-                    <option value="POSTPONED">Postponed</option>
-                    <option value="ONGOING">Ongoing</option>
-                    <option value="ENDED">Ended</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </FormSelect>
+                  <>
+                    <FormSelect
+                      {...field}
+                      id="status"
+                      className={errors.status ? "border-danger" : ""}
+                    >
+                      <option value="DRAFT" key={'draft'}>Draft</option>
+                      <option value="POSTPONED" key={'postponed'}>Postponed</option>
+                      <option value="ONGOING" key={'ongoing'}>Ongoing</option>
+                      <option value="ENDED" key={'ended'}>Ended</option>
+                      <option value="CANCELLED" key={'cancelled'}>Cancelled</option>
+                    </FormSelect>
+                  </>
                 )}
               />
               {errors.status && (

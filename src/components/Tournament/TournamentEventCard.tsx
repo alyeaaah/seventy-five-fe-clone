@@ -94,6 +94,15 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
   const endDate = tournamentEvent?.data?.tournaments?.length ? tournamentEvent?.data?.tournaments?.sort((a, b) => new Date(b.end_date || '').getTime() - new Date(a.end_date || '').getTime())?.[0]?.end_date : undefined;
   const commitmentFee = tournamentEvent?.data?.commitment_fee;
 
+  const { data: tournamentEventQuota } = PublicTournamentApiHooks.useGetPublicTournamentEventQuota({
+    params: {
+      uuid: tournamentEventUuid || ''
+    }
+  }, {
+    enabled: !!tournamentEventUuid,
+    retry: false
+  })
+
   const { data: tournamentDraftParticipantsData } = PublicTournamentApiHooks.useGetPublicTournamentDraftParticipants({
     params: {
       tournamentUuid: tournamentEvent?.data?.tournaments?.[0]?.uuid || ''
@@ -259,7 +268,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                   </span>
 
                   <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-4">
-                    {event.commitment_fee > 0 ? 'Early Bird' : 'Normal Price'}
+                    {tournamentEventQuota?.data?.some(t => t.remaining_quota_early_bird > 0) ? 'Early Bird' : 'Normal Price'}
                   </span>
                 </div>
               </div>
