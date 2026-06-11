@@ -58,7 +58,7 @@ export const playersSchema = z.object({
   }),
   isVerified: z.boolean().default(false),
   height: z.number().nullish(),
-  turnDate: z.string().date().nullish(),
+  turnDate: z.string().nullish(),
   skills: z.object({
     forehand: z.number().default(0),
     backhand: z.number().default(0),

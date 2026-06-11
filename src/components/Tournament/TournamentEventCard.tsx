@@ -250,183 +250,181 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
           {event.name}
           <div className="w-8 bottom-0 absolute border-b-4 border-b-emerald-800"></div>
         </h2>
-        {!showParticipants ? <>
-          <div
+        {<>
+          {!showParticipants ? <><div
             className="text-sm font-light text-gray-500 py-4"
             dangerouslySetInnerHTML={{ __html: decodeURIComponent(event.description || "") }}
           />
+            <div className="mt-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Lucide icon="CircleDollarSign" className="h-4 w-4 min-w-4 text-emerald-600" />
+                  <div className='flex flex-col'>
+                    <span className="text-gray-600 text-xs block">Commitment Fee</span>
+                    <span className="text-emerald-600 font-semibold">
+                      {event.commitment_fee > 0 ? `Rp ${event.commitment_fee.toLocaleString()}` : 'Free'}
+                    </span>
 
-
-          <div className="mt-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <Lucide icon="CircleDollarSign" className="h-4 w-4 min-w-4 text-emerald-600" />
-                <div className='flex flex-col'>
-                  <span className="text-gray-600 text-xs block">Commitment Fee</span>
-                  <span className="text-emerald-600 font-semibold">
-                    {event.commitment_fee > 0 ? `Rp ${event.commitment_fee.toLocaleString()}` : 'Free'}
-                  </span>
-
-                  <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-4">
-                    {tournamentEventQuota?.data?.some(t => t.remaining_quota_early_bird > 0) ? 'Early Bird' : 'Normal Price'}
-                  </span>
+                    <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-4">
+                      {tournamentEventQuota?.data?.some(t => t.remaining_quota_early_bird > 0) ? 'Early Bird' : 'Normal Price'}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <Lucide icon="MapPin" className="h-4 w-4 min-w-4 text-emerald-600" />
-                <div className='flex flex-col'>
-                  <span className="text-gray-600 text-xs block">Location</span>
-                  <span className="text-emerald-600 font-semibold">
-                    {event.tournaments?.[0]?.court || 'TBD'}
-                  </span>
-                  <span className="text-gray-400 text-xs font-medium line-clamp-1">
-                    {event.tournaments?.[0]?.court_info?.address}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <Lucide icon="MapPin" className="h-4 w-4 min-w-4 text-emerald-600" />
+                  <div className='flex flex-col'>
+                    <span className="text-gray-600 text-xs block">Location</span>
+                    <span className="text-emerald-600 font-semibold">
+                      {event.tournaments?.[0]?.court || 'TBD'}
+                    </span>
+                    <span className="text-gray-400 text-xs font-medium line-clamp-1">
+                      {event.tournaments?.[0]?.court_info?.address}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <Lucide icon="Calendar" className="h-4 w-4 min-w-4 text-emerald-600" />
-                <div className='flex flex-col'>
-                  <span className="text-gray-600 text-xs block">Event Date</span>
-                  <span className="text-emerald-600 font-semibold">
+                <div className="flex items-center gap-2">
+                  <Lucide icon="Calendar" className="h-4 w-4 min-w-4 text-emerald-600" />
+                  <div className='flex flex-col'>
+                    <span className="text-gray-600 text-xs block">Event Date</span>
+                    <span className="text-emerald-600 font-semibold">
 
-                    {moment(startDate).format('DD MMM YYYY') === moment(endDate).format('DD MMM YYYY') ?
-                      <span className="font-semibold text-sm">{moment(startDate).format('DD MMM YYYY')}</span> :
-                      (moment(startDate).format('MMM YYYY') === moment(endDate).format('MMM YYYY')
-                        ? <span className="font-semibold text-sm">{moment(startDate).format('DD')} - {moment(endDate).format('DD MMM YYYY')}</span>
-                        : <span className="font-semibold text-sm">{moment(startDate).format('DD MMM')} - {moment(endDate).format('DD MMM YYYY')}</span>
-                      )
-                    }
-                  </span>
-                  <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-4">
-                    {/* {moment(startDate).format('HH:mm')} - {moment(endDate).format('HH:mm')} GMT +7 */}
-                  </span>
+                      {moment(startDate).format('DD MMM YYYY') === moment(endDate).format('DD MMM YYYY') ?
+                        <span className="font-semibold text-sm">{moment(startDate).format('DD MMM YYYY')}</span> :
+                        (moment(startDate).format('MMM YYYY') === moment(endDate).format('MMM YYYY')
+                          ? <span className="font-semibold text-sm">{moment(startDate).format('DD')} - {moment(endDate).format('DD MMM YYYY')}</span>
+                          : <span className="font-semibold text-sm">{moment(startDate).format('DD MMM')} - {moment(endDate).format('DD MMM YYYY')}</span>
+                        )
+                      }
+                    </span>
+                    <span className="text-gray-400 text-xs font-medium line-clamp-2 min-h-4">
+                      {/* {moment(startDate).format('HH:mm')} - {moment(endDate).format('HH:mm')} GMT +7 */}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex-row gap-3 flex sm:hidden items-center">
+            <div className="flex-row gap-3 flex sm:hidden items-center">
 
-            {userIsLogin && (
-              <>
-                {joinStatus === "CONFIRMED" && (
-                  <Button
-                    variant="primary"
-                    color="primary"
-                    className="font-medium text-xs shadow-none uppercase mt-3"
-                  >
-                    Confirmed to join
-                  </Button>
-                )}
-                {joinStatus === "REJECTED" && (
-                  <Button
-                    variant="danger"
-                    color="danger"
-                    className="font-medium text-xs shadow-none uppercase mt-3"
-                  >
-                    Rejected
-                  </Button>
-                )}
-                {joinStatus === "REQUESTED" && (
-                  <Button
-                    variant="primary"
-                    color="primary"
-                    className="font-medium text-xs shadow-none uppercase mt-3"
-                    onClick={() => {
-                      setModalAlert({
-                        title: "Please Wait",
-                        message: "",
-                        description: "Your request has been submitted and is awaiting review by our tournament officials.",
-                        icon: "Clock",
-                        open: true,
-                        onClose: () => {
-                          setModalAlert(undefined)
-                        }
-                      });
-                    }}
-                  >
-                    JOINED
-                  </Button>
-                )}
-                {joinStatus === "APPROVED" && (
-                  <Button
-                    variant="primary"
-                    color="primary"
-                    className="font-medium text-xs shadow-none uppercase mt-3"
-                  >
-                    {/* Pay IDR {new Intl.NumberFormat('id-ID', {}).format(commitmentFee || 0)} */}
-                    You have approved! check your email inbox!
-                  </Button>
-                )}
-                {(!joinStatus && new Date(startDate || "") > new Date()) && (
-                  <Button
-                    variant="primary"
-                    color="primary"
-                    disabled={isJoining}
-                    className="font-medium text-xs shadow-none uppercase mt-3"
-                    onClick={handleJoinTournament}
-                  >
-                    Request to Join
-                  </Button>
-                )}
-              </>
-            )}
-            {(!joinStatus && !user && endDate && new Date(endDate) > new Date()) && (
-              <Button
-                variant="primary"
-                color="primary"
-                disabled={isJoining}
-                className="font-medium text-xs shadow-none uppercase mt-2 w-full"
-                onClick={() => {
-                  setModalAlert({
-                    description: "You need to create an account to join this tournament. Register now or sign in to your existing account.",
-                    open: true,
-                    onClose: () => setModalAlert(undefined),
-                    buttons: [
-                      {
-                        label: "Create Account",
-                        onClick: () => {
-                          const currentPath = window.location.pathname + window.location.search;
-                          navigate(paths.register({ redirect: `${(currentPath)}` }).$);
+              {userIsLogin && (
+                <>
+                  {joinStatus === "CONFIRMED" && (
+                    <Button
+                      variant="primary"
+                      color="primary"
+                      className="font-medium text-xs shadow-none uppercase mt-3"
+                    >
+                      Confirmed to join
+                    </Button>
+                  )}
+                  {joinStatus === "REJECTED" && (
+                    <Button
+                      variant="danger"
+                      color="danger"
+                      className="font-medium text-xs shadow-none uppercase mt-3"
+                    >
+                      Rejected
+                    </Button>
+                  )}
+                  {joinStatus === "REQUESTED" && (
+                    <Button
+                      variant="primary"
+                      color="primary"
+                      className="font-medium text-xs shadow-none uppercase mt-3"
+                      onClick={() => {
+                        setModalAlert({
+                          title: "Please Wait",
+                          message: "",
+                          description: "Your request has been submitted and is awaiting review by our tournament officials.",
+                          icon: "Clock",
+                          open: true,
+                          onClose: () => {
+                            setModalAlert(undefined)
+                          }
+                        });
+                      }}
+                    >
+                      JOINED
+                    </Button>
+                  )}
+                  {joinStatus === "APPROVED" && (
+                    <Button
+                      variant="primary"
+                      color="primary"
+                      className="font-medium text-xs shadow-none uppercase mt-3"
+                    >
+                      {/* Pay IDR {new Intl.NumberFormat('id-ID', {}).format(commitmentFee || 0)} */}
+                      You have approved! check your email inbox!
+                    </Button>
+                  )}
+                  {(!joinStatus && new Date(startDate || "") > new Date()) && (
+                    <Button
+                      variant="primary"
+                      color="primary"
+                      disabled={isJoining}
+                      className="font-medium text-xs shadow-none uppercase mt-3"
+                      onClick={handleJoinTournament}
+                    >
+                      Request to Join
+                    </Button>
+                  )}
+                </>
+              )}
+              {(!joinStatus && !user && endDate && new Date(endDate) > new Date()) && (
+                <Button
+                  variant="primary"
+                  color="primary"
+                  disabled={isJoining}
+                  className="font-medium text-xs shadow-none uppercase mt-2 w-full"
+                  onClick={() => {
+                    setModalAlert({
+                      description: "You need to create an account to join this tournament. Register now or sign in to your existing account.",
+                      open: true,
+                      onClose: () => setModalAlert(undefined),
+                      buttons: [
+                        {
+                          label: "Create Account",
+                          onClick: () => {
+                            const currentPath = window.location.pathname + window.location.search;
+                            navigate(paths.register({ redirect: `${(currentPath)}` }).$);
+                          },
+                          variant: "primary",
                         },
-                        variant: "primary",
-                      },
-                      {
-                        label: "Sign In",
-                        onClick: () => {
-                          const currentPath = window.location.pathname;
-                          navigate(paths.login({ redirect: `${(currentPath)}` }).$);
+                        {
+                          label: "Sign In",
+                          onClick: () => {
+                            const currentPath = window.location.pathname;
+                            navigate(paths.login({ redirect: `${(currentPath)}` }).$);
+                          },
+                          variant: "secondary",
                         },
-                        variant: "secondary",
-                      },
-                    ],
-                    icon: "Info",
-                    title: "Join Tournament",
-                  })
-                }}
-              >
-                Ask to Join
-              </Button>
-            )}
-            {draftParticipants?.length > 0 ? <Button variant='outline-primary' className='h-8 mt-3' onClick={() => setShowParticipants(!showParticipants)}>{showParticipants ? 'See less' : 'Show Participants'}</Button>
-              : ""}</div>
-          {event.rules && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <div className='flex flex-row gap-2 items-center mb-2'>
-                <h4 className="text-sm font-semibold text-gray-700">Tournament Rules</h4>
+                      ],
+                      icon: "Info",
+                      title: "Join Tournament",
+                    })
+                  }}
+                >
+                  Ask to Join
+                </Button>
+              )}
+              {draftParticipants?.length > 0 ? <Button variant='outline-primary' className='h-8 mt-3' onClick={() => setShowParticipants(!showParticipants)}>{showParticipants ? 'See less' : 'Show Participants'}</Button>
+                : ""}</div>
+            {event.rules && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div className='flex flex-row gap-2 items-center mb-2'>
+                  <h4 className="text-sm font-semibold text-gray-700">Tournament Rules</h4>
+                </div>
+                <div
+                  className={`text-sm text-gray-600 overflow-hidden ${showRules ? 'h-auto' : 'h-40'}`}
+                  dangerouslySetInnerHTML={{ __html: decodeURIComponent(event.rules || "") }}
+                />
+                <Button variant='outline-primary' className='h-8 mt-2' onClick={() => setShowRules(!showRules)}>{showRules ? 'See less' : 'Show More'}</Button>
+
               </div>
-              <div
-                className={`text-sm text-gray-600 overflow-hidden ${showRules ? 'h-auto' : 'h-40'}`}
-                dangerouslySetInnerHTML={{ __html: decodeURIComponent(event.rules || "") }}
-              />
-              <Button variant='outline-primary' className='h-8 mt-2' onClick={() => setShowRules(!showRules)}>{showRules ? 'See less' : 'Show More'}</Button>
-
-            </div>
-          )}
-        </> : <>
+            )}
+          </> : <>  </>}
           {!!draftParticipants?.length && <div className="col-span-12 sm:hidden grid grid-cols-12 gap-2 mt-4 h-max">
             <div className="col-span-12 text-emerald-800 flex flex-row my-4">
               <IconLogoAlt className="h-10 w-20" />

@@ -27,6 +27,7 @@ import Button from "@/components/Base/Button";
 import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { LandingPageApiHooks } from "@/pages/Public/LandingPage/api";
 import { PublicPlayerApiHooks } from "@/pages/Public/Player/api";
+import Tippy from "@/components/Base/Tippy";
 
 interface ProfileFormProps {
   open: boolean;
@@ -158,9 +159,9 @@ export const ProfileForm = ({ open, onClose }: ProfileFormProps) => {
 
     try {
       // Compress image before upload
-      const compressedFile = await compressImage(info.file as RcFile);
+      // const compressedFile = await compressImage(info.file as RcFile);
 
-      await actionUploadImage({ image: compressedFile }, {
+      await actionUploadImage({ image: info.file as RcFile }, {
         onError: (error) => {
           setUploading(false);
           showNotification({
@@ -967,7 +968,11 @@ export const ProfileForm = ({ open, onClose }: ProfileFormProps) => {
                       />
                     </div>
                     <div className="col-span-12">
-                      <FormLabel>Turn Date</FormLabel>
+                      <FormLabel >
+                        <Tippy content={"A date that you started to play tennis"}>
+                          <span className="flex flex-row items-center gap-2">Turn Date<Lucide className="w-4 h-4" icon="MessageCircleQuestion" /></span>
+                        </Tippy>
+                      </FormLabel>
                       <Controller
                         name="turnDate"
                         control={control}
