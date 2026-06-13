@@ -61,6 +61,6 @@ export const clientEnv = baseSchema.merge(firebaseSchema).parse({
   FIREBASE_MESSAGING_SENDER_ID: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_SCORE_COLLECTION: import.meta.env.VITE_FIREBASE_SCORE_COLLECTION,
   FIREBASE_FIRESTORE_SECRET_KEY: import.meta.env.VITE_FIREBASE_FIRESTORE_SECRET_KEY,
-  VERSION: "1.0.22",
+  VERSION: "1.0.23",
   PROFILE_UPDATE: import.meta.env.VITE_PROFILE_UPDATE ? parseInt(import.meta.env.VITE_PROFILE_UPDATE) : 0,
 });
