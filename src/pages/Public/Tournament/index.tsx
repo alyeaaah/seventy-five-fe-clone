@@ -83,11 +83,11 @@ export const PublicTournament = () => {
   const { data: tournamentSponsors } = PublicTournamentApiHooks.useGetTournamentDetailSponsors(
     {
       params: {
-        tournament_uuid: uuid || tournamentData?.data?.[0]?.uuid || ''
+        tournament_uuid: uuid || tournamentData?.data?.[0]?.uuid || tournamentEvent?.tournaments?.[0]?.uuid || ''
       }
     },
     {
-      enabled: !!tournamentData?.data?.[0]?.uuid,
+      enabled: !!(uuid || tournamentData?.data?.[0]?.uuid || tournamentEvent?.tournaments?.[0]?.uuid || ''),
       retry: false
     }
   );
@@ -282,7 +282,7 @@ export const PublicTournament = () => {
 
           <TournamentDetailParticipants tournamentUuid={uuid || tournamentData?.data?.[0]?.uuid || ''} />
         </FadeAnimation>)}
-        {detailTournament?.data && (
+        {(
           <FadeAnimation className="col-span-12 ">
             <div className="col-span-12 text-emerald-800 flex flex-row my-4">
               <IconLogoAlt className="h-10 w-20" />
