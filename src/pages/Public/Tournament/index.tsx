@@ -1,6 +1,6 @@
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { PublicTournamentApiHooks } from "./api";
-import { imageResizerDimension } from "@/utils/helper";
+import { imageResizer, imageResizerDimension } from "@/utils/helper";
 import { Link, useNavigate } from "react-router-dom";
 import { PublicBlogApiHooks } from "../Blog/api";
 import Lucide from "@/components/Base/Lucide";
@@ -211,7 +211,7 @@ export const PublicTournament = () => {
                 <Link to={paths.players.info({ uuid: participant.player_uuid || "" }).$} key={index} className="col-span-2 aspect-[3/4] relative overflow-hidden rounded-lg">
                   <div className="h-full w-full overflow-hidden relative z-0">
                     {participant.player?.media_url ? <Image
-                      src={participant.player?.media_url}
+                      src={imageResizer(participant.player?.media_url, 200)}
                       alt={participant.player?.name || ""}
                       width={100}
                       height={100}

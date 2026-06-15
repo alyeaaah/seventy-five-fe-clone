@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Lucide from '../Base/Lucide';
 import moment from 'moment';
-import { imageResizerDimension } from '../../utils/helper';
+import { imageResizer, imageResizerDimension } from '../../utils/helper';
 import { Link, useNavigate } from 'react-router-dom';
 import { paths } from '../../router/paths';
 import { PublicTournamentApiHooks } from '../../pages/Public/Tournament/api';
@@ -453,7 +453,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                 <Link to={paths.players.info({ uuid: participant.player_uuid || "" }).$} key={index} className="col-span-6 aspect-[3/4] relative overflow-hidden rounded-lg">
                   <div className="h-full w-full overflow-hidden relative z-0">
                     {participant.player?.media_url ? <Image
-                      src={participant.player?.media_url}
+                      src={imageResizer(participant.player?.media_url, 200)}
                       alt={participant.player?.name || ""}
                       width={100}
                       height={100}
