@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { clientEnv } from '../env';
+import { useLocation } from 'react-router-dom';
 
 interface VersionCheckerProps {
   children?: React.ReactNode;
@@ -10,10 +11,11 @@ export const AppVersionChecker: React.FC<VersionCheckerProps> = ({ children }) =
   const [storedVersion, setStoredVersion] = useState<string>('');
   const [versionMismatch, setVersionMismatch] = useState<boolean>(false);
   const [isChecking, setIsChecking] = useState<boolean>(true);
+  const location = useLocation();
 
   useEffect(() => {
     checkVersion();
-  }, []);
+  }, [location.pathname]);
 
   const checkVersion = async () => {
     try {
