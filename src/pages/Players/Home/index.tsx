@@ -21,10 +21,18 @@ import { PublicBlogApiHooks } from "@/pages/Public/Blog/api";
 import { useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import { ModalCompleteProfile } from "../Components/ModalCompleteProfile";
+import Button from "@/components/Base/Button";
+import { useState } from "react";
+import { ProfileForm } from "../Components/ProfileForm";
+import Modal from "antd/es/modal/Modal";
 
 export const PlayerHome = () => {
   const navigate = useNavigate();
   const userData = useAtomValue(userAtom);
+  const [modal, setModal] = useState({
+    edit: false,
+  });
+
   const { data } = PlayerHomeApiHooks.useGetPlayersDetail({
     params: {
       uuid: userData?.uuid as string
@@ -66,7 +74,7 @@ export const PlayerHome = () => {
       <div className="col-span-12 rounded-2xl grid grid-cols-12 gap-4 sm:p-4 p-1">
         <div className="sm:col-span-8 col-span-12 flex flex-row items-center">
           <div className="rounded-full mr-4 w-20 h-20 aspect-square p-1 border overflow-hidden flex items-center justify-center">
-            <img src={data?.data.media_url || data?.data.avatar_url || defaultAvatar[data?.data?.gender as "m" | "f"]} className="rounded-full aspect-square" />
+            <img src={data?.data.media_url || data?.data.avatar_url || defaultAvatar[data?.data?.gender as "m" | "f"]} className="rounded-full aspect-square !object-cover" />
           </div>
           <div className="flex flex-col justify-center hover:animate-pulse">
             <div className="font-bold text-2xl text-primary">Welcome, {data?.data?.name}!</div>
@@ -99,6 +107,22 @@ export const PlayerHome = () => {
               <div className="w-max">{data?.data?.socialMediaIg ? "@" + data?.data?.socialMediaIg : "-"}</div>
             </div>}
         </div>
+      </div>
+      <div className="col-span-12 bg-emerald-800 rounded-lg p-4 text-white flex justify-between items-center gap-1">
+        <div className="flex flex-row items-center gap-1">
+          <Lucide icon="Info" />
+          <span>Please complete your profile before accessing this page</span>
+        </div>
+        <Button
+          variant="outline-primary"
+          className="btn btn-primary btn-sm rounded-lg text-white !border-white"
+          size="sm"
+          onClick={() => {
+            setModal({ ...modal, edit: true })
+          }}
+        >
+          Complete Profile
+        </Button>
       </div>
       <div className="col-span-12 sm:col-span-4 lg:col-span-3 xl:col-span-3 2xl:col-span-2 grid grid-cols-12 h-fit max-w-full gap-y-4">
         <OverallRating
@@ -205,6 +229,27 @@ export const PlayerHome = () => {
           ))}
         </div>
       </div>
+
+      <Modal
+        classNames={{ body: "rounded-xl bg-gray-50 border" }}
+        title={
+          <div className="flex flex-row items-center w-full !text-gray-800 border-b pb-3">
+            {/* <IconLogoAlt className="w-16 h-10 mr-3" /> */}
+            <div className="flex flex-col items-start justify-center">
+              <div className=" text-lg">Edit Profile</div>
+              <p className="text-xs font-normal text-gray-500">Edit your profile information here</p>
+            </div>
+          </div>
+        }
+        open={modal.edit}
+        closeIcon={false}
+        width={"80%"}
+        height={"100%"}
+        onCancel={() => setModal({ ...modal, edit: false })}
+        footer={null}
+      >
+        <ProfileForm open={modal.edit} onClose={() => setModal({ ...modal, edit: false })} />
+      </Modal>
       {/* <div className="col-span-12 p-4"> */}
       <PartnersComponent className='col-span-12 grid grid-cols-12 gap-6 w-full my-6' />
       {/* </div> */}

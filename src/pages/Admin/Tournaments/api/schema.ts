@@ -278,6 +278,7 @@ export const tournamentEventSchema = z.object({
   commitment_fee: z.number().min(0).optional().default(0),
   status: tournamentEventStatusEnum.default("DRAFT"),
   published_at: z.string().datetime().nullable(),
+  registration_closed: z.string().datetime().nullable().optional(),
   created_by: z.string().nullable(),
   updated_by: z.string().nullable(),
   created_at: z.string().datetime(),
@@ -298,6 +299,7 @@ export const tournamentEventCreatePayloadSchema = z.object({
   status: tournamentEventStatusEnum.optional().default("DRAFT"),
   published_at: z.string().datetime().optional(),
   media_url: z.string().optional(),
+  registration_closed: z.string().datetime().nullable().optional(),
 });
 
 export const tournamentEventUpdatePayloadSchema = z.object({
@@ -308,6 +310,7 @@ export const tournamentEventUpdatePayloadSchema = z.object({
   status: tournamentEventStatusEnum.optional(),
   published_at: z.string().datetime().nullish(),
   media_url: z.string().optional(),
+  registration_closed: z.string().datetime().nullable().optional(),
 });
 
 export const tournamentEventAssignmentPayloadSchema = z.object({

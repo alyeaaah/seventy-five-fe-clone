@@ -20,6 +20,44 @@ import UploadDropzone from '../UploadDropzone';
 import { adminApiHooks } from '@/pages/Login/api';
 import { compressImage } from '@/utils/image-compression';
 
+const CountdownRenderer = ({ targetDate }: { targetDate: string }) => {
+  const [timeLeft, setTimeLeft] = useState<string>('');
+
+  React.useEffect(() => {
+    const calculateTimeLeft = () => {
+      const duration = moment.duration(moment(targetDate).diff(moment()));
+      if (duration.asMilliseconds() <= 0) {
+        setTimeLeft('Closed');
+        return false;
+      } else {
+        const hours = Math.floor(duration.asHours());
+        const minutes = duration.minutes();
+        const seconds = duration.seconds();
+        setTimeLeft(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+        return true;
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(() => {
+      if (!calculateTimeLeft()) {
+        clearInterval(timer);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  if (!timeLeft) return null;
+
+  return (
+    <span className="ml-2 text-xs font-mono bg-red-100 text-red-600 px-2 py-0.5 rounded border border-red-200">
+      Closes in {timeLeft}
+    </span>
+  );
+};
+
+
 interface TournamentEventJoinModalProps {
   show: boolean;
   tournamentEventUuid: string;
@@ -319,6 +357,7 @@ const TournamentEventJoinModal: React.FC<TournamentEventJoinModalProps> = ({
   const tournamentEventData = tournamentEvent?.data;
   const selectedTournamentData = tournamentEventData?.tournaments?.find(t => t.uuid == selectedTournament);
   const selectedPrice = !!getTournamentQuota(selectedTournamentData?.uuid || '')?.remaining_quota_early_bird && selectedTournamentData?.early_bird_price ? Number(selectedTournamentData?.early_bird_price) : Number(selectedTournamentData?.commitment_fee || 0);
+  const registClosed = moment(tournamentEventData?.registration_closed).isBefore(moment())
   const canNotContinue = selectedPrice === selectedTournamentData?.early_bird_price && (selectedTournament && !!getTournamentQuota(selectedTournament) && (getTournamentQuota(selectedTournament)?.remaining_quota_early_bird || 0) <= 0);
 
   return (
@@ -408,11 +447,16 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
                         'No tournaments scheduled'
                       )}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      &nbsp;
-                      {/* {moment(startDate).format('HH:mm')} - {moment(endDate).format('HH:mm')} GMT +7 */}
-                    </p>
 
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Lucide icon="CalendarClock" className="h-5 w-5 text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Registration Closed</p>
+                    <p className="text-sm text-gray-600">
+                      {moment(tournamentEventData?.registration_closed).format('DD MMM YYYY HH:mm')}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -591,7 +635,7 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
             )
           }
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="flex gap-3 border-t border-gray-200 items-end">
             <Button
               variant="outline-primary"
               onClick={handleCancelTournament}
@@ -600,42 +644,52 @@ Kenapa memakai sistem draft pick? Supaya semua Tim lebih balance dan lebih fair.
               Cancel
             </Button>
 
-            {userIsLogin ? (
-              // <Button
-              //   variant="primary"
-              //   onClick={handleJoinTournament}
-              //   disabled={isJoining || tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED' || t.join_status === 'APPROVED')}
-              //   className="flex-1"
-              // >
-              //   {isJoining ? 'Joining...' :
-              //     tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED') ? 'Already Joined' :
-              //       tournamentEventData.tournaments?.some(t => t.join_status === 'APPROVED') ? 'Approved' :
-              //         'Request to Join'}
-              // </Button>
-
-              <Button
-                variant="primary"
-                onClick={handleContinueTournament}
-                disabled={canNotContinue || (selectedTournament && !getTournamentQuota(selectedTournament)?.remaining_quota) || (step == 2 && !paymentReceipt) || !isAgreed || !selectedTournament || isJoining || tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED' || t.join_status === 'APPROVED')}
-                className="flex-1"
-              >
-                {isJoining ? 'Joining...' :
-                  tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED') ? 'Already Joined' :
-                    tournamentEventData.tournaments?.some(t => t.join_status === 'APPROVED') ? 'Approved' :
-                      (step == 2 ? "Submit Registration" : 'Continue')}
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                onClick={() => {
-                  // Handle redirect to login
-                  window.location.href = '/login';
-                }}
-                className="flex-1"
-              >
-                Login to Join
-              </Button>
-            )}
+            <div className='flex-1 flex flex-col items-center'>
+              {tournamentEventData.registration_closed && moment(tournamentEventData.registration_closed).isSame(moment(), 'day') && moment(tournamentEventData.registration_closed).isAfter(moment()) && (
+                <div className='w-fit mt-1'>
+                  <CountdownRenderer targetDate={tournamentEventData.registration_closed} />
+                </div>
+              )}
+              {userIsLogin ? (
+                // <Button
+                //   variant="primary"
+                //   onClick={handleJoinTournament}
+                //   disabled={isJoining || tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED' || t.join_status === 'APPROVED')}
+                //   className="flex-1"
+                // >
+                //   {isJoining ? 'Joining...' :
+                //     tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED') ? 'Already Joined' :
+                //       tournamentEventData.tournaments?.some(t => t.join_status === 'APPROVED') ? 'Approved' :
+                //         'Request to Join'}
+                // </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleContinueTournament}
+                  disabled={registClosed || canNotContinue || (selectedTournament && !getTournamentQuota(selectedTournament)?.remaining_quota) || (step == 2 && !paymentReceipt) || !isAgreed || !selectedTournament || isJoining || tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED' || t.join_status === 'APPROVED')}
+                  className="flex-1 w-full mt-1"
+                >
+                  {registClosed ? "Registration Closed" : (
+                    <>
+                      {isJoining ? 'Joining...' :
+                        tournamentEventData.tournaments?.some(t => t.join_status === 'CONFIRMED') ? 'Already Joined' :
+                          tournamentEventData.tournaments?.some(t => t.join_status === 'APPROVED') ? 'Approved' :
+                            (step == 2 ? "Submit Registration" : 'Continue')}
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    // Handle redirect to login
+                    window.location.href = '/login';
+                  }}
+                  className="flex-1 w-full mt-1"
+                >
+                  Login to Join
+                </Button>
+              )}
+            </div>
           </div>
         </div >
       ) : (

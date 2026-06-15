@@ -201,6 +201,7 @@ export const publicTournamentEventSchema = z.object({
   status: tournamentEventStatusEnum,
   published_at: z.string().datetime().nullable(),
   media_url: z.string().nullable(),
+  registration_closed: z.string().datetime().nullable().optional(),
   created_by: z.string().nullable(),
   updated_by: z.string().nullable(),
   created_at: z.string().datetime(),

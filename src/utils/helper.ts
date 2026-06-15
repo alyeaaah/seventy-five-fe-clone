@@ -8,35 +8,46 @@ import { parseColor } from "tailwindcss/lib/util/color";
 
 dayjs.extend(duration);
 
-export const profileChecker = ({ uuid, name, skills, height, media_url }: { uuid?: string | undefined | null, name?: string | undefined | null, skills?: PlayerSkillsPayload | undefined | null, height?: number | undefined | null, media_url?: string | undefined | null }): "UPDATE" | "COMPLETE" | "INCOMPLETE" => {
-  if (clientEnv.PROFILE_UPDATE == 2) {
-    if (!media_url) {
-      return "INCOMPLETE";
+export const profileChecker = ({
+  uuid, name, skills, height, media_url, env }: {
+  uuid?: string | undefined | null,
+  name?: string | undefined | null,
+  skills?: PlayerSkillsPayload | undefined | null,
+  height?: number | undefined | null,
+  media_url?: string | undefined | null,
+  env?: boolean
+  }): "UPDATE" | "COMPLETE" | "INCOMPLETE" => {
+  if (!env) {
+    if (clientEnv.PROFILE_UPDATE == 2) {
+      if (!media_url) {
+        return "INCOMPLETE";
+      } else {
+        return "COMPLETE";
+      }
+    } else if (clientEnv.PROFILE_UPDATE < 2) { 
+      if (!media_url) {
+        return "UPDATE";
+      } else {
+        return "COMPLETE";
+      }
     } else {
-      return "COMPLETE";
+        return "COMPLETE";
     }
-  } else if (clientEnv.PROFILE_UPDATE != 2) { 
-    if (!media_url) {
+  }
+  else {
+    if (!uuid) return "INCOMPLETE";
+    const isNameComplete = name ? name.length > 2 : false;
+    const isSkillsComplete = skills ? Object.values(skills).every((value) => value > 0) : false;
+    const isHeightComplete = height ? height > 100 : false;
+    
+    if (isNameComplete && isSkillsComplete && isHeightComplete) {
+      return "COMPLETE";
+    } else if (!isSkillsComplete && !isHeightComplete) {
       return "UPDATE";
     } else {
-      return "COMPLETE";
+      return "INCOMPLETE";
     }
-  } else {
-      return "COMPLETE";
-    
   }
-  // if (!uuid) return "INCOMPLETE";
-  // const isNameComplete = name ? name.length > 2 : false;
-  // const isSkillsComplete = skills ? Object.values(skills).every((value) => value > 0) : false;
-  // const isHeightComplete = height ? height > 100 : false;
-  
-  // if (isNameComplete && isSkillsComplete && isHeightComplete) {
-  //   return "COMPLETE";
-  // } else if (!isSkillsComplete && !isHeightComplete) {
-  //   return "UPDATE";
-  // } else {
-  //   return "INCOMPLETE";
-  // }
 }
   
 export const getZodiac = (dateInput: Date | string): { sign: string; symbol: string } => {
