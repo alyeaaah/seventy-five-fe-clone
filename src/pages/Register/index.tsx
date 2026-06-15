@@ -19,6 +19,7 @@ import Confirmation, { AlertProps } from "@/components/Modal/Confirmation";
 import { useRouteParams } from "typesafe-routes/react-router";
 import { adminApiHooks } from "@/pages/Login/api";
 import { compressImage } from "@/utils/image-compression";
+import { clientEnv } from "@/env";
 
 export const Register = () => {
   const [uploading, setUploading] = useState(false);
@@ -72,7 +73,7 @@ export const Register = () => {
     dismissable: true,
   });
   const methods = useForm({
-    mode: "onChange",
+    mode: "all",
     defaultValues: {
       name: "",
       email: "",
@@ -87,9 +88,10 @@ export const Register = () => {
       placeOfBirth: "",
       gender: "",
     },
+    reValidateMode: "onChange",
     resolver: zodResolver(registerSchema),
   });
-  const { control, formState, handleSubmit, setValue, watch, getValues } = methods;
+  const { control, formState, handleSubmit, setValue, watch } = methods;
   const { mutate: actionRegisterPlayer } = RegisterApiHooks.useRegister({},
     {
       retry: 0,
@@ -210,7 +212,7 @@ export const Register = () => {
     }
   );
   const onSubmit: SubmitHandler<any> = (data: RegisterPayload) => {
-    actionRegisterPlayer(data);
+    actionRegisterPlayer({ ...data, dateOfBirth: moment(data.dateOfBirth).format("DD MMMM YYYY") });
   };
   return (
     <>
@@ -481,34 +483,18 @@ export const Register = () => {
                           control={control}
                           render={({ field, fieldState }) =>
                             <>
-                              <Litepicker
-                                value={field.value}
-                                onChange={(e) => {
-                                  field.onChange(moment(e.target.value).format('DD MMMM YYYY'));
-                                }}
-                                onEnded={(e) => {
-                                  console.log('onEnded', e);
+                              <FormInput
 
-                                  // field.onChange(moment(e.target.value).format('DD-MM-YYYY'));
-                                }}
-                                defaultValue={moment().subtract(20, 'years').toISOString()}
-                                options={{
-                                  autoApply: false,
-                                  // minDate: moment().subtract(90, 'years').toDate(),
-                                  maxDate: moment().subtract(15, 'years').toDate(),
-                                  mobileFriendly: true,
-                                  showWeekNumbers: false,
-                                  firstDay: 1,
-                                  format: 'DD MMMM YYYY',
-                                  dropdowns: {
-                                    minYear: 1940,
-                                    maxYear: null,
-                                    months: true,
-                                    years: true,
-                                  },
-                                }}
-                                className=" mx-auto"
-                              />
+                                name="dateOfBirth"
+                                value={field.value}
+                                className={clsx({
+                                  "border-danger": !!fieldState.error,
+                                })}
+                                onChange={field.onChange}
+                                placeholder="Date of Birth (DD/MM/YYYY)"
+                                type="date"
+                              >
+                              </FormInput>
                               {!!fieldState.error && (
                                 <FormHelp className={"text-danger"}>
                                   {fieldState.error.message || "Form is not valid"}
@@ -637,7 +623,7 @@ export const Register = () => {
                         variant="primary"
                         type="button"
                         key={`${agreement}_${formState.isSubmitting}_${formState.isValid}`}
-                        className="w-full px-4 py-3 align-top xl:w-32 xl:mr-3"
+                        className="w-full px-4 py-3 mt-3 align-top xl:w-32 xl:mr-3"
                         // onClick={handleSubmit(onSubmit)}
                         onClick={() => {
                           setModalAlert({
@@ -671,6 +657,9 @@ export const Register = () => {
                       >
                         Register
                       </Button>
+                    </div>
+                    <div className="my-1 font-medium text-xs w-full justify-center xl:mt-8 xl:text-left flex gap-4">
+                      v{clientEnv.VERSION}
                     </div>
                   </div>
                 </div>
