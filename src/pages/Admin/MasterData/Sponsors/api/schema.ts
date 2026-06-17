@@ -1,3 +1,4 @@
+import { SponsorType } from "@/utils/faker";
 import { z } from "zod";
 
 export const sponsorsSchema = z.object({
@@ -7,6 +8,7 @@ export const sponsorsSchema = z.object({
   slot: z.string().nullish(),
   description: z.string(),
   type: z.enum(["global", "blog", "match", "tournament"]),
+  sponsorType: z.enum(["PLATINUM", "GOLD", "SILVER", "BRONZE", "OFFICIAL" ]).nullish(),
   media_url: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

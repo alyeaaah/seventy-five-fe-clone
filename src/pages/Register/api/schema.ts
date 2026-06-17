@@ -2,7 +2,13 @@ import { playersSchema } from "@/pages/Admin/Players/api/schema";
 import { z } from "zod";
 export const registerSchema = z.object({
   name: z.string({required_error: "Player name is required"}),
-  username: z.string({required_error: "Username is required"}),
+  username: z.string({required_error: "Username is required"})
+  .min(3, { message: 'Username must be at least 3 characters long' })
+  .max(30, { message: 'Username cannot exceed 20 characters' })
+  .regex(/^[a-zA-Z0-9_.]+$/, {
+    message: 'Username can only contain letters, numbers, underscores and dots',
+  })
+  .trim(),
   email: z.string({required_error: "Email is required"}).email("Invalid email"),
   phone: z.string({required_error: "Phone is required" })
     .min(8, "Phone must be at least 8 characters long")
@@ -24,7 +30,7 @@ export const registerSchema = z.object({
   }),
 }).extend({
   password: z.string()
-    .min(8, { message: "Password must be at least 8 characters long" })
+    .min(1, { message: "Password must be at least 8 characters long" })
     .max(32, { message: "Password must not exceed 32 characters" })
     .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
     .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })

@@ -10,6 +10,7 @@ import { SsrProvider } from "../SSR/SsrProvider";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import { paths } from "@/router/paths";
+import { imageResizer } from "@/utils/helper";
 const { Title, Text } = Typography;
 
 interface LatestNewsProps extends HTMLProps<HTMLDivElement> {
@@ -59,7 +60,7 @@ export const LatestNews = ({ className, dehydratedState }: LatestNewsProps) => {
           {data?.data?.map((item, idx) => (
             <Link key={idx} className='col-span-12 sm:col-span-6 2xl:col-span-4 flex flex-col mt-2' to={paths.news.detail({ uuid: item.uuid || "" }).$}>
               <Image
-                src={item.galleries?.length ? item.galleries[0].link : undefined}
+                src={item.galleries?.length ? imageResizer(item.galleries[0].link, 300) : undefined}
                 className='w-full aspect-video object-cover rounded-xl'
               />
               <div className=' tracking-tight py-1 text-emerald-800 px-2 font-semibold capitalize text-ellipsis line-clamp-2'>

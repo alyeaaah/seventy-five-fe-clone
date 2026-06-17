@@ -88,7 +88,18 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
         retry: false
       }
     );
-
+  const tournamentEventData = tournamentEvent?.data || null;
+  const { data: tournamentSponsors } = PublicTournamentApiHooks.useGetTournamentDetailSponsors(
+    {
+      params: {
+        tournament_uuid: tournamentEventData?.uuid || tournamentEventUuid || ''
+      }
+    },
+    {
+      enabled: !!(tournamentEventData?.tournaments?.[0]?.uuid || tournamentEventUuid || ''),
+      retry: false
+    }
+  );
   const joinStatus = tournamentEvent?.data?.tournaments?.find(t => t.join_status)?.join_status;
   const startDate = tournamentEvent?.data?.tournaments?.length ? tournamentEvent?.data?.tournaments?.sort((a, b) => new Date(a.start_date || '').getTime() - new Date(b.start_date || '').getTime())?.[0]?.start_date : undefined;
   const endDate = tournamentEvent?.data?.tournaments?.length ? tournamentEvent?.data?.tournaments?.sort((a, b) => new Date(b.end_date || '').getTime() - new Date(a.end_date || '').getTime())?.[0]?.end_date : undefined;
@@ -221,12 +232,12 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
             }}
           />
         )}
-
         {!event.media_url && (
           <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl items-center justify-center hidden sm:visible">
             <Lucide icon="Calendar" className="h-16 w-16 text-emerald-400" />
           </div>
         )}
+
         <div className="flex items-center gap-2 mb-3">
           <span className={`px-3 py-1 ${showParticipants ? 'bg-gray-200 text-gray-800' : 'bg-gradient-to-r from-emerald-600 to-emerald-800 text-white'} text-xs font-semibold rounded-full uppercase`} onClick={() => setShowParticipants(false)}>
             Tournament Event
@@ -411,6 +422,26 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
               )}
               {draftParticipants?.length > 0 ? <Button variant='outline-primary' className='h-8 mt-3' onClick={() => setShowParticipants(!showParticipants)}>{showParticipants ? 'See less' : 'Show Participants'}</Button>
                 : ""}</div>
+
+            {!!tournamentSponsors?.data?.filter(d => d.sponsorType === "GOLD")?.length ?
+              <div className={`mt-4 flex flex-col items-center borderborder-emerald-800 rounded-lg px-4 py-1 
+              ${tournamentSponsors?.data?.filter(d => d.sponsorType === "GOLD")?.length === 1 && 'sm:px-10 !flex-row justify-around'}
+              ${tournamentSponsors?.data?.filter(d => d.sponsorType === "GOLD")?.length === 2 && 'sm:px-10 sm:!flex-row justify-around'}
+              `}>
+                <div className='relative w-fit'>
+                  <h4 className="text-sm font-semibold text-gray-700 !font-marker text-lg !text-[#ebce56] whitespace-nowrap">PRESENTED BY</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 !font-marker text-lg !text-emerald-800  absolute top-[2px] left-[2px] whitespace-nowrap">PRESENTED BY</h4>
+                </div>
+                <div className='flex flex-row items-center justify-center max-w-full w-auto h-auto gap-2'>
+                  {tournamentSponsors?.data?.filter(d => d.sponsorType === "GOLD").map((item) => (
+                    <div className='w-full max-h-20 !aspect-[16/9] h-fit rounded-lg overflow-hidden flex justify-center items-center' key={item.media_url}>
+                      <Image src={item.media_url} className='object-contain' />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              : ""
+            }
             {event.rules && (
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <div className='flex flex-row gap-2 items-center mb-2'>
