@@ -1,16 +1,23 @@
 /**
  * Compresses an image file to reduce size while maintaining quality
+ * Preserves PNG transparency and format.
  * @param file - The image file to compress
  * @returns Promise<File> - The compressed image file
  */
 export const compressImage = (file: File): Promise<File> => {
   return new Promise((resolve) => {
+    // Keep track of the original file type (e.g., 'image/png' or 'image/jpeg')
+    const fileType = file.type;
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
 
     img.onload = () => {
-      // Check if compression is needed
+      // Clean up the object URL to avoid memory leaks
+      URL.revokeObjectURL(img.src);
+
+      // Check if compression/resizing is needed
       const needsCompression =
         file.size > 1.2 * 1024 * 1024 || // > 1.2MB
         img.width > 2000 ||
@@ -40,23 +47,37 @@ export const compressImage = (file: File): Promise<File> => {
       canvas.width = width;
       canvas.height = height;
 
-      // Draw and compress
-      ctx?.drawImage(img, 0, 0, width, height);
+      if (ctx) {
+        // Clear canvas to guarantee alpha channel/transparency is preserved
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+      }
 
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const compressedFile = new File([blob], file.name, {
-            type: 'image/jpeg',
-            lastModified: Date.now()
-          });
-          resolve(compressedFile);
-        } else {
-          resolve(file);
-        }
-      }, 'image/jpeg', 0.8); // 80% quality
+      // If it's a JPEG, use 0.8 quality. If it's a PNG, quality parameter is ignored by browsers.
+      const quality = fileType === 'image/jpeg' ? 0.8 : undefined;
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: fileType,
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        },
+        fileType,
+        quality
+      );
     };
 
-    img.onerror = () => resolve(file);
+    img.onerror = () => {
+      URL.revokeObjectURL(img.src);
+      resolve(file);
+    };
+    
     img.src = URL.createObjectURL(file);
   });
 };
