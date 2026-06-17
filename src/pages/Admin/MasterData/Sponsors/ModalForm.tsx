@@ -18,6 +18,7 @@ import UploadDropzone from "@/components/UploadDropzone";
 import { RcFile } from "antd/es/upload";
 import { sponsorTypeValue } from "@/utils/faker";
 import { useDebounce } from "ahooks";
+import { compressImage } from "@/utils/image-compression";
 interface Props {
   isModalOpen: boolean;
   setIsModalOpen: (value: boolean) => void;
@@ -39,7 +40,7 @@ export const ModalForm = (props: Props) => {
       }
     },
   );
-  
+
   const methods = useForm({
     mode: "onChange",
     defaultValues: {
@@ -72,7 +73,10 @@ export const ModalForm = (props: Props) => {
 
   const uploadHandler: UploadProps["onChange"] = async (info) => {
     setUploading(true);
-    await actionUploadImage({ image: info.file as RcFile }, {
+
+    // Compress image before upload
+    const compressedFile = await compressImage(info.file as RcFile);
+    await actionUploadImage({ image: compressedFile }, {
       onError: (error) => {
         setUploading(false);
         showNotification({
@@ -142,7 +146,7 @@ export const ModalForm = (props: Props) => {
       });
     }
   }
-  
+
   return (
     <Dialog
       open={isModalOpen}
