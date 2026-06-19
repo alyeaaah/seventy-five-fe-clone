@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/components/Toast/ToastContext";
 import Button from "@/components/Base/Button";
+import { useDebounce } from "ahooks";
 
 interface ModalAddPlayerProps {
   tournamentUuid: string;
@@ -59,7 +60,7 @@ export const ModalAddPlayer: React.FC<ModalAddPlayerProps> = ({
   // Get players data for autocomplete
   const { data: playerData1 } = PlayerHomeApiHooks.useGetPlayersDropdown({
     queries: {
-      keyword: player1Keyword,
+      keyword: useDebounce(player1Keyword, { wait: 500 }),
       tournamentUuid: tournamentUuid
     }
   });
@@ -154,7 +155,7 @@ export const ModalAddPlayer: React.FC<ModalAddPlayerProps> = ({
                         label: (
                           <div className={`flex flex-row justify-between ${isDisabled ? 'opacity-50' : ''}`}>
                             <div className="flex items-center flex-row">
-                              <Image src={player.media_url || ""} alt={player.name} className="w-6 h-6 rounded-full mr-2" />
+                              <Image src={player.media_url || ""} alt={player.name} className="w-6 h-6 object-cover rounded-full mr-2" />
                               <span className="flex flex-col">
                                 <span className="mb-0">
                                   {player.name}

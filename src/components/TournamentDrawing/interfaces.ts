@@ -5,6 +5,7 @@ export interface IPlayer {
   uuid: string;
   name?: string;
   alias?: string;
+  email?: string;
   nickname?: string | null;
   media_url?: string;
   level?: string | null;

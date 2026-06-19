@@ -44,6 +44,7 @@ module.exports = {
         roboto: ["Roboto"],
         poppins: ["Poppins", "sans-serif"],
         marker: ['"Permanent Marker"', "cursive"],
+        bebas: ["Bebas Neue", "cursive"],
       },
       container: {
         center: true,

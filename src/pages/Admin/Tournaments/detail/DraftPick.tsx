@@ -13,6 +13,8 @@ import { useToast } from "@/components/Toast/ToastContext";
 import { IPlayerDraft, PlayerDraftStatus, TournamentDraftPickComponent } from "@/components/TournamentDraftPick";
 import { DraftPick } from "@/pages/Public/Tournament/api/schema";
 import Tippy from "@/components/Base/Tippy";
+import { imageResizer } from "@/utils/helper";
+import { IModalPickPlayerProps, ModalPickPlayer } from "./ModalPickPlayer";
 
 interface TournamentDraftPickProps {
   tournamentUuid: string;
@@ -27,6 +29,11 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
   const [draftPickPlayers, setDraftPickPlayers] = useState<IPlayerDraft[]>([]);
   const [draftPickSession, setDraftPickSession] = useState<boolean>(false);
   const [toggleBlur, setToggleBlur] = useState<boolean>(false);
+  const [multipleToggle, setMultipleToggle] = useState<{ enable: boolean, players: string[] }>({
+    enable: false,
+    players: []
+  })
+  const [modalPickPlayer, setModalPickPlayer] = useState<IModalPickPlayerProps | undefined>(undefined);
 
 
   // Get confirmed teams
@@ -183,12 +190,13 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
       position: dd.position,
       status: dd.status as PlayerDraftStatus,
       uuid: dd.player_uuid || "",
+      media_url: dd.player?.media_url || undefined,
       seeded: dd.seeded,
       email: dd.player?.email || "",
       nickname: dd.player?.nickname || ""
     }));
   };
-  const isSaved = JSON.stringify(draftPickPlayers?.sort((a, b) => a.position - b.position)) === JSON.stringify(convertPlayerDraft(draftPickParticipants || []).sort((a, b) => a.position - b.position));
+  const isSaved = JSON.stringify(draftPickPlayers?.sort((a, b) => a.position - b.position || a.id - b.id)) === JSON.stringify(convertPlayerDraft(draftPickParticipants || []).sort((a, b) => a.position - b.position || a.id - b.id));
   const isStarted = draftPickParticipants?.find(d => d.status == "PICKING" || d.status == "PICKED");
   useEffect(() => {
     if (draftPickData) {
@@ -198,6 +206,7 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
         position: dd.position,
         status: dd.status as PlayerDraftStatus,
         uuid: dd.player_uuid || "",
+        media_url: dd.player?.media_url || undefined,
         seeded: dd.seeded,
         email: dd.player?.email || "",
         nickname: dd.player?.nickname || ""
@@ -217,6 +226,18 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
     })
     setModalAlert(undefined)
   }
+
+  const actionAddMultipleToDraftPick = async (seeded?: boolean) => {
+    await actionAddDraftPick({
+      status: "AVAILABLE" as const,
+      players: multipleToggle.players,
+      position: 0,
+      seeded: seeded ?? false,
+    })
+    setMultipleToggle({ players: [], enable: false });
+    setModalAlert(undefined)
+  }
+
   const handleUpdatePosition = () => {
     actionUpdateDraftPickPosition({
       players: draftPickPlayers.map(dp => ({
@@ -270,33 +291,46 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
 
   }
   const handlePickPlayer = (player: IPlayerDraft) => {
-    setModalAlert({
+    setModalPickPlayer({
       open: true,
-      icon: "Users",
-      onClose: () => setModalAlert(undefined),
-      title: "Draft Pick Player",
-      description: `Help ${player.name} to pick his/her partner in the tournament?`,
-      buttons: [
-        ...draftPickPlayers.filter(d => !d.seeded && d.status != "PICKED").sort(() => Math.random() - 0.5).map(d => ({
-          label: d.name,
-          variant: "outline-primary" as const,
-          onClick: () => {
-            // TODO: Implement pick player logic
-            actionAssignDraftPick({
-              player_uuid: player.uuid,
-              partner_uuid: d.uuid,
-            });
-          },
-        })),
-        {
-          label: "Cancel",
-          variant: "primary",
-          onClick: () => {
-            setModalAlert(undefined)
-          },
-        },
-      ],
+      onClose: () => setModalPickPlayer(undefined),
+      onPick: (partner) => {
+        actionAssignDraftPick({
+          player_uuid: player.uuid,
+          partner_uuid: partner.uuid,
+        });
+      },
+      player,
+      availablePlayers: draftPickPlayers.filter(d => !d.seeded && d.status != "PICKED"),
     })
+    // setModalAlert({
+    //   open: true,
+    //   icon: "Users",
+    //   onClose: () => setModalAlert(undefined),
+    //   title: "Draft Pick Player",
+    //   description: `Help ${player.name} to pick his/her partner in the tournament?`,
+    //   size: "lg",
+    //   buttons: [
+    //     ...draftPickPlayers.filter(d => !d.seeded && d.status != "PICKED").sort(() => Math.random() - 0.5).map(d => ({
+    //       label: d.name,
+    //       variant: "outline-primary" as const,
+    //       onClick: () => {
+    //         // TODO: Implement pick player logic
+    //         actionAssignDraftPick({
+    //           player_uuid: player.uuid,
+    //           partner_uuid: d.uuid,
+    //         });
+    //       },
+    //     })),
+    //     {
+    //       label: "Cancel",
+    //       variant: "primary",
+    //       onClick: () => {
+    //         setModalAlert(undefined)
+    //       },
+    //     },
+    //   ],
+    // })
   }
   // const handleAddPlayers = (teams: TournamentParticipant) => {
   //   // TODO: Implement add players logic
@@ -340,11 +374,21 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
         </div>
       </div>
       {(!draftPickSession && !!approvedDraftPickData?.data?.participants?.filter(dt => !dt.drafted_by).length) && <div className="flex-1 overflow-auto box rounded-lg p-4">
-        <div className="mb-4 flex flex-row justify-between">
+        <div className="mb-4 flex flex-row justify-between items-center">
           <div>
             <h3 className="text-base font-medium text-gray-900 mb-2">Confirmed Players</h3>
             <p className="text-sm text-gray-500">Players who have been confirmed for the tournament draft</p>
           </div>
+          {multipleToggle.enable == false ?
+            <div>
+              <Button className="h-fit" variant="outline-primary" onClick={() => setMultipleToggle({ ...multipleToggle, enable: true })}>Add Multiple</Button>
+            </div> :
+            <div className="flex flex-row items-center justify-end gap-2">
+              <Button className="h-fit" variant="outline-danger" onClick={() => setMultipleToggle({ players: [], enable: false })}>Cancel</Button>
+              <Button className="h-fit" variant="primary" disabled={!multipleToggle.players.length} onClick={() => actionAddMultipleToDraftPick(true)}><Lucide icon="ChevronLeft" /> Add as Seeded</Button>
+              <Button className="h-fit" variant="outline-primary" disabled={!multipleToggle.players.length} onClick={() => actionAddMultipleToDraftPick(false)}>Add as Reguler <Lucide icon="ChevronRight" /></Button>
+
+            </div>}
         </div>
 
         {/* Players Grid */}
@@ -352,12 +396,33 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
           <div className="grid sm:grid-rows-2 sm:grid-flow-col gap-2 sm:h-36 max-h-fit w-fit pb-2">
             {/* Group teams into pairs for columns */}
             {approvedDraftPickData?.data?.participants?.filter(dp => !dp.drafted_by).map((participant, pIndex) => (
-              <div key={pIndex} className="sm:w-72 w-full sm:max-h-auto max-h-18 row-span-1 flex flex-row items-centr justify-start border rounded-lg overflow-hidden" >
+              <div
+                key={pIndex}
+                className={`sm:w-72 w-full sm:max-h-auto max-h-18 row-span-1 flex flex-row items-centr justify-start border rounded-lg overflow-hidden
+                  ${multipleToggle.enable && multipleToggle.players.includes(participant.player_uuid) ? "border-primary bg-emerald-50" : "border-gray-200 bg-white"}
+                  `}
+                onClick={() => {
+                  if (!!multipleToggle.enable) {
+                    if (multipleToggle.players.includes(participant.player_uuid)) {
+                      setMultipleToggle({
+                        ...multipleToggle,
+                        players: multipleToggle.players.filter(p => p !== participant.player_uuid)
+                      })
+
+                    } else {
+                      setMultipleToggle({
+                        ...multipleToggle,
+                        players: [...multipleToggle.players, participant.player_uuid]
+                      })
+                    }
+                  }
+                }}
+              >
                 <div className="aspect-square max-h-16">
                   <Image
-                    src={participant?.player?.media_url || ''}
+                    src={imageResizer(participant?.player?.media_url || '', 200)}
                     alt={participant?.player?.name || ""}
-                    className="w-full h-full bg-gray-200 flex items-center justify-center"
+                    className="w-full h-full bg-gray-200 object-cover flex items-center justify-center"
                   />
                 </div>
                 <div className="flex w-full flex-col items-start justify-around m-0 px-2 py-1">
@@ -366,7 +431,8 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
                     {participant.player?.nickname}
                   </div>
                 </div>
-                <div className="flex flex-col items-center justify-between p-1 gap-1">
+
+                {!multipleToggle.enable ? <div className="flex flex-col items-center justify-between p-1 gap-1">
                   <Button
                     variant="outline-primary"
                     size="sm"
@@ -393,7 +459,14 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
                     <Lucide icon="UserPlus" className="h-4 w-4 scale-x-[-1]" />
                     <Lucide icon="ChevronRight" className="h-4 w-4 text-danger" />
                   </Button>
-                </div>
+                </div> : <div className="flex flex-col items-center justify-between p-1 gap-1 text-emerald-800">
+                  {multipleToggle.players.includes(participant.player_uuid) ? <>
+                    <Lucide icon="CheckCircle2" />
+                  </> : <>
+                    <Lucide icon="Circle" />
+                  </>}
+
+                </div>}
 
               </div>
             ))}
@@ -459,7 +532,23 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
             reguler: draftPickPlayers.filter(dp => !dp.seeded),
             seeded: draftPickPlayers.filter(dp => !!dp.seeded)
           }}
-          onChange={(dp) => { setDraftPickPlayers([...dp.reguler, ...dp.seeded]) }}
+          onChange={async (dp) => {
+            const updatedPlayers = [...dp.reguler, ...dp.seeded];
+            const updatedPlayerIds = updatedPlayers.map(dp => dp.uuid);
+            const deletedPlayers = draftPickPlayers.find(dp => !updatedPlayerIds.includes(dp.uuid));
+            if (deletedPlayers) {
+
+              await actionAddDraftPick({
+                position: 0,
+                seeded: false,
+                player_uuid: deletedPlayers.uuid,
+                id: deletedPlayers.id,
+                status: "APPROVED"
+              })
+            }
+
+            setDraftPickPlayers(updatedPlayers)
+          }}
         />
       </div>
       {
@@ -526,12 +615,14 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
                               <span className="text-xs font-medium">{selectedPartner.name}</span>
                               <span className="text-xs text-gray-500">{selectedPartner.email}</span>
                             </div>
-                            {selectedPartner.media_url ?
-                              <Image src={selectedPartner.media_url} /> :
-                              <div className="h-7 aspect-square bg-gray-300 rounded-full overflow-hidden flex items-center justify-center">
-                                <Lucide icon="UserRound" className="h-full w-full" />
-                              </div>
-                            }
+                            <div className="h-7 w-7 overflow-hidden rounded-full">
+                              {selectedPartner.media_url ?
+                                <Image src={imageResizer(selectedPartner.media_url, 200)} className="w-full h-full object-contain" /> :
+                                <div className="h-7 aspect-square bg-gray-300 rounded-full overflow-hidden flex items-center justify-center">
+                                  <Lucide icon="UserRound" className="h-full w-full" />
+                                </div>
+                              }
+                            </div>
                           </div> : "";
                         })()}
                       </> : ""}
@@ -595,7 +686,7 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
                             <div key={player.uuid} className="flex items-center space-x-3">
                               <div className="flex-shrink-0">
                                 {player.media_url ? <Image
-                                  src={player.media_url || ''}
+                                  src={imageResizer(player.media_url || '', 200)}
                                   alt={player.name}
                                   className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center"
                                 /> :
@@ -666,7 +757,20 @@ export const TournamentDraftPick = ({ tournamentUuid, data }: TournamentDraftPic
         refId={modalAlert?.refId}
         buttons={modalAlert?.buttons}
       />
-
+      <ModalPickPlayer
+        open={!!modalPickPlayer?.open}
+        onClose={() => setModalPickPlayer(undefined)}
+        onPick={(partner) => {
+          actionAssignDraftPick({
+            player_uuid: modalPickPlayer?.player?.uuid || "",
+            partner_uuid: partner.uuid,
+          });
+          setModalPickPlayer(undefined)
+        }}
+        key={modalPickPlayer?.player?.uuid || ''}
+        player={modalPickPlayer?.player}
+        availablePlayers={modalPickPlayer?.availablePlayers?.sort(() => Math.random() - 0.5) || []}
+      />
     </div >
   )
 }

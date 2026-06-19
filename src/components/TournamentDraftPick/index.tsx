@@ -3,6 +3,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import Button from '../Base/Button';
 import Lucide from '../Base/Lucide';
+import { imageResizer } from '@/utils/helper';
 
 export enum PlayerDraftStatus {
   AVAILABLE = 'AVAILABLE',
@@ -31,6 +32,7 @@ export interface IPlayerDraft {
   position: number;
   team_uuid?: string;
   seeded: boolean;
+  media_url?: string;
   status: PlayerDraftStatus;
 }
 
@@ -153,17 +155,22 @@ export const TournamentDraftPickComponent = ({ tournamentUuid, players, onChange
                 <Lucide icon="ChevronDown" />
               </Button>
             </div>
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">
+            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600 relative">
               {player.position}
             </div>
             <div>
               <p className="font-medium text-gray-900">{player.name}</p>
-              {player.username ? (
-                <p className="text-sm text-gray-500">{(player.username && player.username !== player.name) ? player.username : player.email}</p>
-              ) : <p className="text-sm text-gray-500">-</p>}
+              <p className="text-sm text-gray-500">{player.username || player.nickname || player.email}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            <span className="px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-800 cursor-pointer hover:bg-red-200"
+              onClick={() => onChange({
+                seeded: players.seeded.filter(p => p.uuid !== player.uuid),
+                reguler: players.reguler.filter(p => p.uuid !== player.uuid),
+              })}>
+              <Lucide icon="Trash" className='h-4' />
+            </span>
             <span className={`px-2 py-1 text-xs font-medium rounded ${player.status === PlayerDraftStatus.AVAILABLE ? 'bg-green-100 text-green-800' :
               player.status === PlayerDraftStatus.PICKING ? 'bg-yellow-100 text-yellow-800' :
                 'bg-gray-100 text-gray-800'

@@ -390,8 +390,8 @@ export const GroupMatches: React.FC<GroupMatchesProps> = ({
                                 {team.players?.map((player) => (
                                   <div key={player.uuid}>
                                     <p className="w-full line-clamp-1 flex flex-row gap-1 items-center">
-                                      {player?.nickname && player.nickname !== player.name && <span className="font-medium text-gray-900">{`${player.nickname}`}</span>}
-                                      <span className={`line-clamp-1 w-fit ${player?.nickname && player.nickname !== player.name ? 'text-gray-500 font-normal text-xs' : 'font-medium text-gray-900'}`}>{player.name}</span>
+                                      <span className="font-medium text-gray-900">{player.name}</span>
+                                      {player?.nickname && player.nickname !== player.name ? <span className={`line-clamp-1 w-fit text-gray-500 font-normal text-xs`}>{player.nickname}</span> : <></>}
                                     </p>
                                   </div>
                                 ))}

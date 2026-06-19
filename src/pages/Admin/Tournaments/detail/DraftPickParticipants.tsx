@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Divider, Table } from "antd";
 import { TournamentsApiHooks } from "../api";
 import { draftPickStatusEnum, DraftPickStatusEnum, TournamentParticipant, TournamentsPayload } from "../api/schema";
@@ -39,10 +39,32 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   const [showAddTeamModal, setShowAddTeamModal] = useState(false);
   const [notifyEmail, setNotifyEmail] = useState(false);
   const screens = useBreakpoint();
-  const [pagination, setPagination] = useState<PaginationConfig>({
-    current: 1,
-    pageSize: 10,
-    total: 0
+  const [pagination, setPagination] = useState<{
+    registered: PaginationConfig;
+    rejected: PaginationConfig;
+    requested: PaginationConfig;
+    waitlisted: PaginationConfig;
+  }>({
+    registered: {
+      current: 1,
+      pageSize: 10,
+      total: 0
+    },
+    rejected: {
+      current: 1,
+      pageSize: 10,
+      total: 0
+    },
+    requested: {
+      current: 1,
+      pageSize: 10,
+      total: 0
+    },
+    waitlisted: {
+      current: 1,
+      pageSize: 10,
+      total: 0
+    }
   });
 
   // Helper function to format player name
@@ -94,8 +116,8 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
     },
     queries: {
       status: ["REQUESTED"],
-      page: pagination.current,
-      limit: pagination.pageSize
+      page: pagination.requested.current,
+      limit: pagination.requested.pageSize
     }
   }, {
     enabled: !!tournamentUuid
@@ -108,8 +130,8 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
     },
     queries: {
       status: ["APPROVED", "CONFIRMED"],
-      page: pagination.current,
-      limit: pagination.pageSize
+      page: pagination.registered.current,
+      limit: pagination.registered.pageSize
     }
   }, {
     enabled: !!tournamentUuid
@@ -122,8 +144,8 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
     },
     queries: {
       status: ["REJECTED"],
-      page: pagination.current,
-      limit: pagination.pageSize
+      page: pagination.rejected.current,
+      limit: pagination.rejected.pageSize
     }
   }, {
     enabled: !!tournamentUuid
@@ -135,8 +157,8 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
     },
     queries: {
       status: ["WAITLISTED"],
-      page: pagination.current,
-      limit: pagination.pageSize
+      page: pagination.waitlisted.current,
+      limit: pagination.waitlisted.pageSize
     }
   }, {
     enabled: !!tournamentUuid
@@ -159,11 +181,14 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
   // Update pagination when data changes
   const totalTeams = (requestedTeamsData?.data?.pagination?.total || 0)
   // Handle pagination change
-  const handlePaginationChange = (page: number, pageSize: number) => {
+  const handlePaginationChange = (type: keyof typeof pagination, page: number, pageSize: number) => {
     setPagination({
-      current: page,
-      pageSize,
-      total: pagination.total
+      ...pagination,
+      [type]: {
+        current: page,
+        pageSize,
+        total: pagination[type].total
+      }
     });
   };
   const handleMoveTourney = async (id: number, playerUuid: string, targetTourneyUuid: string, notifyEmail?: boolean) => {
@@ -534,6 +559,38 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
     }
   ]
 
+  useEffect(() => {
+
+    if (waitlistedTeams) {
+      setPagination((prev) => ({
+        ...prev,
+        waitlisted: {
+          ...prev.waitlisted,
+          total: waitlistedTeamsData?.data?.pagination?.total || 0,
+        }
+      }))
+    }
+    if (registeredTeams) {
+      setPagination((prev) => ({
+        ...prev,
+        registered: {
+          ...prev.registered,
+          total: confirmedTeamsData?.data?.pagination?.total || 0,
+        }
+      }))
+    }
+    if (requestedTeams) {
+      setPagination((prev) => ({
+        ...prev,
+        requested: {
+          ...prev.requested,
+          total: requestedTeamsData?.data?.pagination?.total || 0,
+        }
+      }))
+    }
+
+  }, [waitlistedTeams, registeredTeams, requestedTeams])
+
   return (
     <div className="grid grid-cols-12 gap-4">
       {/* Requested Teams Section */}
@@ -646,12 +703,12 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
             dataSource={registeredTeams}
             rowKey="uuid"
             pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
+              current: pagination.registered.current,
+              pageSize: pagination.registered.pageSize,
+              total: pagination.registered.total,
               showSizeChanger: true,
-              showQuickJumper: false,
-              onChange: handlePaginationChange,
+              showQuickJumper: true,
+              onChange: (page, pageSize) => handlePaginationChange('registered', page, pageSize),
               className: "responsive-pagination"
             }}
             className="w-full responsive-table"
@@ -735,12 +792,12 @@ export const TournamentDraftPickParticipants: React.FC<TournamentDraftPickPartic
             dataSource={waitlistedTeams}
             rowKey="uuid"
             pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
+              current: pagination.waitlisted.current,
+              pageSize: pagination.waitlisted.pageSize,
+              total: pagination.waitlisted.total,
               showSizeChanger: true,
               showQuickJumper: false,
-              onChange: handlePaginationChange,
+              onChange: (page, pageSize) => handlePaginationChange('waitlisted', page, pageSize),
               className: "responsive-pagination"
             }}
             className="w-full responsive-table"

@@ -340,11 +340,11 @@ export const TournamentDetailGroups: React.FC<TournamentDetailGroupsProps> = ({
   };
   const tableCol: ColumnType<TournamentTeams>[] = [
     {
-      title: "Team Name",
+      title: "",
       dataIndex: "name",
       key: "name",
-      render: (name: string, record) => (
-        <div className="font-medium text-sm">{name}</div>
+      render: (name: string, _record, index) => (
+        <div className="font-medium text-sm">{index + 1}</div>
       )
     },
     {

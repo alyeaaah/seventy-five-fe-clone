@@ -7,7 +7,8 @@ export const draftPickStatusEnum = z.enum(["AVAILABLE", "PICKING", "PICKED", "RE
 
 export const draftPickPayloadSchema = z.object({
   id:z.number().nullish(),
-  player_uuid: z.string(),
+  player_uuid: z.string().nullish(),
+  players: z.array(z.string()).nullish(),
   team_uuid: z.string().optional(),
   position: z.number().min(0),
   status: draftPickStatusEnum,

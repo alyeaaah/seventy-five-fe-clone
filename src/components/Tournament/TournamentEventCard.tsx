@@ -429,8 +429,8 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
               ${tournamentSponsors?.data?.filter(d => d.sponsorType === "GOLD")?.length === 2 && 'sm:px-10 sm:!flex-row justify-around'}
               `}>
                 <div className='relative w-fit'>
-                  <h4 className="text-sm font-semibold text-gray-700 !font-marker text-lg !text-[#ebce56] whitespace-nowrap">PRESENTED BY</h4>
-                  <h4 className="text-sm font-semibold text-gray-700 !font-marker text-lg !text-emerald-800  absolute top-[2px] left-[2px] whitespace-nowrap">PRESENTED BY</h4>
+                  <h4 className="font-semibold !font-bebas text-lg !text-[#ebce56] whitespace-nowrap">PRESENTED BY</h4>
+                  <h4 className="font-semibold !font-bebas text-lg !text-emerald-800  absolute top-[2px] left-[2px] whitespace-nowrap">PRESENTED BY</h4>
                 </div>
                 <div className='flex flex-row items-center justify-center max-w-full w-auto h-auto gap-2'>
                   {tournamentSponsors?.data?.filter(d => d.sponsorType === "GOLD").map((item) => (
