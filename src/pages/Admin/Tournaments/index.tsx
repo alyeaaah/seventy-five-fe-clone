@@ -65,6 +65,9 @@ function Tournaments() {
       queryClient.invalidateQueries({
         queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentsList"),
       });
+      queryClient.invalidateQueries({
+        queryKey: TournamentsApiHooks.getKeyByAlias("getTournamentEventsList"),
+      });
     },
     retry: false
   });
@@ -574,7 +577,7 @@ function Tournaments() {
                   handleUpdateStatus(value, "ONGOING");
                 }}
               >
-                <Lucide icon="Sparkles" className="w-4 h-4 mr-1" /> Start
+                <Lucide icon="Sparkles" className="w-4 h-4 mr-1" />Start
               </Button>
             </Tippy>}
             <Tippy
@@ -924,7 +927,7 @@ function Tournaments() {
                             navigate(paths.administrator.tournamentEvents.detail({ id: record.uuid || "" }).$);
                           }}
                         >
-                          <Lucide icon="Sparkles" className="w-4 h-4 mr-1" /> Start
+                          <Lucide icon="Sparkles" className="w-4 h-4 mr-1" />Start
                         </Button>
                       </Tippy>}
                       <Tippy

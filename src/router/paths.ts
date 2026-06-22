@@ -186,8 +186,9 @@ export const paths = {
     },
   },
   tournament: {
-    index: route(`/tournament/&:uuid?`, {
-       uuid: stringParser
+    index: route(`/tournament/&:uuid?&:event?`, {
+       uuid: stringParser,
+       event: stringParser
     }, {}),
     participants: route(`/tournament/participants/:uuid`, {
        uuid: stringParser

@@ -15,10 +15,12 @@ import { BracketTab } from './BracketTab';
 
 interface TournamentDetailMatchesProps {
   tournamentUuid?: string;
+  showHeader?: boolean;
 }
 
 const TournamentDetailMatches: React.FC<TournamentDetailMatchesProps> = ({
-  tournamentUuid
+  tournamentUuid,
+  showHeader = true
 }) => {
   const navigate = useNavigate();
   const accessToken = useAtomValue(accessTokenAtom);
@@ -87,13 +89,13 @@ const TournamentDetailMatches: React.FC<TournamentDetailMatchesProps> = ({
 
   return (
     <>
-      <div className="col-span-12 text-emerald-800 flex flex-row my-4">
+      {showHeader ? <div className="col-span-12 text-emerald-800 flex flex-row my-4">
         <IconLogoAlt className="h-10 w-20" />
         <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
           <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
           <span className="hidden sm:flex">TOURNAMENT&nbsp;</span>MATCHES
         </div>
-      </div>
+      </div> : <></>}
 
       {detailTournament?.data?.type === "ROUND ROBIN" ? (
         <div className="col-span-12">

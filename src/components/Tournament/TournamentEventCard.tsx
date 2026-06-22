@@ -16,6 +16,7 @@ import TournamentEventJoinModal from './TournamentEventJoinModal';
 import { PlayerHomeApiHooks } from '@/pages/Players/Home/api';
 import { IconLogo, IconLogoAlt } from '@/assets/images/icons';
 import Image from '../Image';
+import TournamentDetailMatches from './TournamentDetailMatches';
 
 interface TournamentEventCardProps {
   tournamentEventUuid?: string;
@@ -36,6 +37,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
   const [showRules, setShowRules] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
   const [filterParticipants, setFilterParticipants] = useState("")
+  const [segmentActive, setSegmentActive] = useState<'PARTICIPANTS' | 'MATCHES'>("PARTICIPANTS")
 
 
   const { mutate: joinTournament, isLoading: isJoining } = PublicTournamentApiHooks.useJoinTournament({
@@ -116,14 +118,14 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
 
   const { data: tournamentDraftParticipantsData } = PublicTournamentApiHooks.useGetPublicTournamentDraftParticipants({
     params: {
-      tournamentUuid: tournamentEvent?.data?.tournaments?.[0]?.uuid || ''
+      tournamentUuid: tournamentEvent?.data?.tournaments?.[0]?.uuid || tournamentEventUuid || ''
     },
     queries: {
       status: ["APPROVED", "AVAILABLE", "PICKED", "PICKING"],
       tournamentEventUuid: tournamentEventUuid || ''
     }
   }, {
-    enabled: !!(tournamentEventUuid),
+    enabled: !!tournamentEventUuid
   });
   const draftParticipants = tournamentDraftParticipantsData?.data?.participants || [];
 
@@ -240,7 +242,7 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
 
         <div className="flex items-center gap-2 mb-3">
           <span className={`px-3 py-1 ${showParticipants ? 'bg-gray-200 text-gray-800' : 'bg-gradient-to-r from-emerald-600 to-emerald-800 text-white'} text-xs font-semibold rounded-full uppercase`} onClick={() => setShowParticipants(false)}>
-            Tournament Event
+            Event
           </span>
           {draftParticipants?.length > 0 ? <span className={`px-3 py-1 ${showParticipants ? 'bg-gradient-to-r from-emerald-600 to-emerald-800 text-white' : 'bg-gray-200 text-gray-800'} text-xs font-semibold rounded-full uppercase`} onClick={() => setShowParticipants(true)}>
             Participants
@@ -250,7 +252,6 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
               event.status === 'ENDED' ? 'bg-gray-100 text-gray-800' :
                 'bg-yellow-100 text-yellow-800'
             }`}>
-            {event.status}
             {event.status == 'ONGOING' && 'ONGOING'}
             {event.status == 'PUBLISHED' && 'SOON'}
             {event.status == 'ENDED' && 'ENDED'}
@@ -420,8 +421,9 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                   Ask to Join
                 </Button>
               )}
-              {draftParticipants?.length > 0 ? <Button variant='outline-primary' className='h-8 mt-3' onClick={() => setShowParticipants(!showParticipants)}>{showParticipants ? 'See less' : 'Show Participants'}</Button>
-                : ""}</div>
+              {/* {draftParticipants?.length > 0 ? <Button variant='outline-primary' className='h-8 mt-3' onClick={() => setShowParticipants(!showParticipants)}>{showParticipants ? 'See less' : 'Show Participants'}</Button>
+                : ""} */}
+            </div>
 
             {!!tournamentSponsors?.data?.filter(d => d.sponsorType === "GOLD")?.length ?
               <div className={`mt-4 flex flex-col items-center borderborder-emerald-800 rounded-lg px-4 py-1 
@@ -457,21 +459,42 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
             )}
           </> : <>  </>}
           {!!draftParticipants?.length && <div className="col-span-12 sm:hidden grid grid-cols-12 gap-2 mt-4 h-max">
-            <div className="col-span-12 text-emerald-800 flex flex-row my-4">
-              <IconLogoAlt className="h-10 w-20" />
-              <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
-                <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
+
+
+            <div className="col-span-12 text-emerald-800 flex flex-row my-4 gap-2">
+              {tournamentEventData?.status === "DRAFT" && <IconLogoAlt className="h-10 w-20" />}
+              <div className={`h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] items-center px-3 flex relative cursor-pointer
+            ${segmentActive === "PARTICIPANTS" ? 'border-emerald-800 !text-emerald-800' : 'border-[#EBCE56] text-[#EBCE56]'}
+            `}
+                onClick={() => {
+                  setSegmentActive("PARTICIPANTS")
+                  setFilterParticipants("")
+                }
+                }
+              >
+                {tournamentEventData?.status === "DRAFT" ? <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div> : <></>}
                 participants
               </div>
+              {tournamentEventData?.status !== "DRAFT" ? <div className={`h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] items-center px-3 flex relative cursor-pointer
+            ${segmentActive === "MATCHES" ? 'border-emerald-800 !text-emerald-800' : 'border-[#EBCE56] text-[#EBCE56]'}
+            `}
+                onClick={() => {
+                  setSegmentActive("MATCHES");
+                  setFilterParticipants(tournamentEventData?.tournaments?.[0]?.uuid || "")
+                }}
+              >
+                MATCHES
+              </div>
+                : <></>}
             </div>
             <div className="col-span-12 flex flex-wrap gap-2">
 
-              <div key="all" className={`boder px-1 py-1 ${!filterParticipants ? 'border-x-2' : ''} !border-emerald-800 rounded-full text-emerald-800 cursor-pointer `} onClick={() => setFilterParticipants("")}>
+              {segmentActive === "PARTICIPANTS" && <div className={`boder px-1 py-1 ${!filterParticipants ? 'border-x-2' : ''} !border-emerald-800 rounded-full text-emerald-800 cursor-pointer `} onClick={() => setFilterParticipants("")}>
                 <div className={`border font-medium border-emerald-800 rounded-full px-3 py-1 ${!filterParticipants ? 'bg-emerald-800 text-white' : ''}`}>
                   All participants
                 </div>
-              </div>
-              {tournamentEvent?.data?.tournaments?.map((tournament) => (
+              </div>}
+              {tournamentEventData?.tournaments?.map((tournament) => (
                 <div key={tournament.uuid} className={`boder px-1 py-1 ${tournament.uuid === filterParticipants ? 'border-x-2' : ''} !border-emerald-800 rounded-full text-emerald-800 cursor-pointer `} onClick={() => setFilterParticipants(tournament.uuid || "")}>
                   <div className={`border font-medium border-emerald-800 rounded-full px-3 py-1 ${tournament.uuid === filterParticipants ? 'bg-emerald-800 text-white' : ''}`}>
                     {tournament.name}
@@ -479,7 +502,9 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                 </div>
               ))}
             </div>
-            <div className="col-span-12 text-emerald-800 grid grid-cols-12 gap-3">
+
+
+            {segmentActive === "PARTICIPANTS" ? <div className="col-span-12 text-emerald-800 grid grid-cols-12 gap-3">
               {draftParticipants?.filter((participant) => !filterParticipants || participant.tournament_uuid == filterParticipants).map((participant, index) => (
                 <Link to={paths.players.info({ uuid: participant.player_uuid || "" }).$} key={index} className="col-span-6 aspect-[3/4] relative overflow-hidden rounded-lg">
                   <div className="h-full w-full overflow-hidden relative z-0">
@@ -519,7 +544,8 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
                   No Participants Found
                 </div>
               )}
-            </div>
+            </div> : <></>}
+            {segmentActive === "MATCHES" ? <TournamentDetailMatches showHeader={false} tournamentUuid={filterParticipants} /> : <></>}
           </div>}
         </>}
 
