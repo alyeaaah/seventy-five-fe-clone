@@ -256,6 +256,12 @@ export const paths = {
     about: "/partnership/about",
     opportunities: "/partnership/opportunities",
   },
+  standalone: {
+    matches: route(`/all-matches/&:event?&:courts?`, {
+      event: stringParser,
+      courts: stringParser
+    }, {}),
+  },
   shop: {
     index: "/shop",
     detail: route(`/shop/detail/:uuid`, {

@@ -88,6 +88,8 @@ const recentMatchApi = makeEndpoint({
       page: z.number().nullish(),
       limit: z.number().nullish(),
       player: z.string().nullish(),
+      courts: z.array(z.string()).nullish(),
+      tournament_uuids:z.array(z.string().nullish()).nullish(),
       status: z.union([matchStatusEnum, z.array(matchStatusEnum)]).nullish(),
   }).build(),
   response: matchesListSchema

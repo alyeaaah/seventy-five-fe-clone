@@ -108,6 +108,7 @@ const PublicShopCart = lazy(() => import("@/pages/Public/Shop/Cart").then(m => (
 const PublicShopCheckout = lazy(() => import("@/pages/Public/Shop/Cart/checkout").then(m => ({ default: m.PublicShopCheckout })));
 const PublicWallOfFame = lazy(() => import("@/pages/Public/WallOfFame").then(m => ({ default: m.PublicWallOfFame })));
 const Partnership = lazy(() => import("@/pages/Public/Standalone/Partnership").then(m => ({ default: m.Partnership })));
+const AllMatches = lazy(() => import("@/pages/Public/Standalone/AllMatches").then(m => ({ default: m.AllMatches })));
 
 const PublicLayout = lazy(() => import("./PublicLayout").then(m => ({ default: m.PublicLayout })));
 
@@ -1013,6 +1014,14 @@ function Router() {
           <FullScreenMatch />
         </LazyWrapper>
       )
+    },
+    {
+      path: paths.standalone.matches.template,
+      element: (
+        <LazyWrapper>
+          <AllMatches />
+        </LazyWrapper>
+      ),
     },
     {
       path: paths.challenger.scoreboard.template,

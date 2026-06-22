@@ -272,6 +272,7 @@ export const tournamentEventStatusEnum = z.enum(["DRAFT", "POSTPONED", "ONGOING"
 export const tournamentEventSchema = z.object({
   id: z.number().nullish(),
   media_url: z.string().nullish(),
+  logo: z.string().nullish(),
   uuid: z.string().nullish(),
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),

@@ -88,6 +88,12 @@ export const publicTournamentDetailSchema = tournamentsSchema.extend({
     city: z.string(),
     lat: z.string().nullish(),
     long: z.string().nullish(),
+    fields: z.array(
+      z.object({
+        uuid: z.string().nullish(),
+        name: z.string().nullish(),
+      })
+    ).nullish()
   }),
   early_bird_price: z.number().or(z.string()).nullish(),
   early_bird_start_date: z.string().datetime().nullish(),
@@ -195,6 +201,7 @@ export const publicTournamentEventSchema = z.object({
   id: z.number().nullish(),
   uuid: z.string().nullish(),
   name: z.string(),
+  logo: z.string().nullish(),
   description: z.string(),
   rules: z.string(),
   commitment_fee: z.number(),
