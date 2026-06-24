@@ -70,7 +70,7 @@ module.exports = {
       animation: {
         "slide-in-top": "slide-in-top 0.5s ease-out forwards",
         "slide-out-top": "slide-out-top 0.5s ease-in forwards",
-        'infinite-scroll': 'infinite-scroll 25s linear infinite',
+        'infinite-scroll': 'infinite-scroll 300s linear infinite',
       },
       keyframes: {
         "slide-in-top": {
