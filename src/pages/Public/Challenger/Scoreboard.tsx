@@ -71,22 +71,22 @@ const StackedSimpleScoreboard = ({ match, currentScore }: { match: any, currentS
     <h3 className="text-xl font-bold text-center mb-6 text-white">GAME SCORE</h3>
 
     {/* Home Team Score */}
-    <div className="flex items-center justify-between bg-black bg-opacity-20 rounded-xl py-2 px-3 mb-3 relative z-[2]">
+    <div className="flex items-center justify-between bg-black bg-opacity-20 rounded-t-2xl pt-2 px-3  relative z-[2]">
       <div className="flex items-center">
-        <div className="min-w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold mr-4">
+        <div className="min-w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold mr-4 ">
           {match.home_team?.name?.slice(0, 3).toUpperCase()}
         </div>
         <div>
           <div className="text-xl font-semibold text-white uppercase">{match.home_team?.players?.map((player: any) => player.nickname || player.name).join('/') || "Home Team"}</div>
         </div>
       </div>
-      <div className="flex items-center space-x-4">
-        <div className="w-16 h-16 bg-white border-2 border-white rounded-lg flex items-center justify-center">
+      <div className="flex items-center space-x-2">
+        <div className="w-12 h-14 bg-white border-2 border-white rounded-t-lg flex items-center justify-center">
           <span className="text-2xl font-bold text-emerald-800">
             {currentScore.home_team_score || 0}
           </span>
         </div>
-        <div className="w-16 h-16 border-2 border-white rounded-lg flex items-center justify-center">
+        <div className="w-12 h-14 border-2 border-white rounded-t-lg flex items-center justify-center border-b-0">
           <span className="text-2xl font-bold text-white">
             {currentScore.game_scores && currentScore.game_scores.length > 0
               ? (currentScore.game_scores[currentScore.game_scores.length - 1]?.game_score_home || '0')
@@ -98,22 +98,22 @@ const StackedSimpleScoreboard = ({ match, currentScore }: { match: any, currentS
     </div>
 
     {/* Away Team Score */}
-    <div className="flex items-center justify-between bg-black bg-opacity-20 rounded-lg px-3 py-2 mb-1 relative z-[2]">
+    <div className="flex items-center justify-between bg-black bg-opacity-20 rounded-b-2xl px-3 pb-2 relative z-[2]">
       <div className="flex items-center">
-        <div className="min-w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold mr-4">
+        <div className="min-w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold mr-4 ">
           {match.away_team?.name?.slice(0, 3).toUpperCase()}
         </div>
         <div>
           <div className="text-xl font-semibold text-white uppercase line-clamp-1">{match.away_team?.players?.map((player: any) => player.nickname || player.name).join('/') || "Away Team"}</div>
         </div>
       </div>
-      <div className="flex items-center space-x-4">
-        <div className="w-16 h-16 bg-white border-2 border-white rounded-lg flex items-center justify-center">
+      <div className="flex items-center space-x-2">
+        <div className="w-12 h-14 bg-white border-2 border-white rounded-b-lg flex items-center justify-center ">
           <span className="text-2xl font-bold text-emerald-800">
             {currentScore.away_team_score || 0}
           </span>
         </div>
-        <div className="w-16 h-16 border-2 border-white rounded-lg flex items-center justify-center">
+        <div className="w-12 h-14 border-2 border-white rounded-b-lg flex items-center justify-center border-t-0">
           <span className="text-2xl font-bold text-white">
             {currentScore.game_scores && currentScore.game_scores.length > 0
               ? (currentScore.game_scores[currentScore.game_scores.length - 1]?.game_score_away || '0')
