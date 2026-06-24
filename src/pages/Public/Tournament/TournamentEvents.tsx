@@ -196,7 +196,7 @@ export const TournamentEvents = ({ uuid }: { uuid?: string }) => {
       )}
     </div>}
     {segmentActive === "MATCHES" && <FadeAnimation className="col-span-12 md:col-span-12 hidden sm:grid grid-cols-12 gap-0 h-max" direction="up">
-      ss{segmentActive}<TournamentDetailMatches tournamentUuid={filterParticipants} showHeader={false} />
+      <TournamentDetailMatches tournamentUuid={filterParticipants} showHeader={false} />
     </FadeAnimation>}
     {
       (
