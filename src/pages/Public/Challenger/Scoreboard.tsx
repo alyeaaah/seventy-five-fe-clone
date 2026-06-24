@@ -5,6 +5,8 @@ import { ScoreWebSocketListener } from "@/components/ScoreWebSocketListener";
 import { useScore } from "@/utils/score.util";
 import Lucide from "@/components/Base/Lucide";
 import { IconLogo, IconMascott } from "@/assets/images/icons";
+import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
+import { PublicChallangerApiHooks } from "./api";
 
 type ScoreboardVariant = 'stacked-simple' | 'stacked-full' | 'horizontal';
 
@@ -443,14 +445,28 @@ const HorizontalScoreboard = ({ match, currentScore }: { match: any, currentScor
 );
 
 export const ChallengerScoreboard = () => {
-  const { matchUuid, variant } = useRouteParams(paths.challenger.scoreboard);
+  const { matchUuid, variant, court } = useRouteParams(paths.challenger.scoreboard);
 
   // Fetch match details
   const { data: matchData, isLoading, error } = PublicMatchApiHooks.useGetMatchDetail({
     params: { uuid: matchUuid },
     queries: {}
+  }, {
+    enabled: !!matchUuid && !court
   });
 
+
+  const { data: ongoingMatches, refetch: refetchOngoingMatches, isLoading: isLoadingOngoingMatches } = PublicChallangerApiHooks.useGetMatches({
+    queries: {
+      status: [
+        matchStatusEnum.Values.ONGOING,
+      ],
+      limit: 2,
+      courts: court ? [court] : []
+    }
+  }, {
+    enabled: !!court
+  });
   // Use existing ScoreWebSocketListener for live score updates
   ScoreWebSocketListener({ enabled: true });
 
@@ -474,7 +490,7 @@ export const ChallengerScoreboard = () => {
     );
   }
 
-  const match = matchData.data;
+  const match = !!ongoingMatches?.data?.length ? ongoingMatches.data[0] : matchData.data;
   const currentScore = liveScore || match;
 
   // Render based on variant

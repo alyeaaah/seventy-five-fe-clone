@@ -208,9 +208,10 @@ export const paths = {
     match: route(`/challenger/match/:matchUuid`, {
       matchUuid: stringParser
     }, {}),
-    scoreboard: route(`/challenger/match/:matchUuid/scoreboard/&:variant?`, {
+    scoreboard: route(`/challenger/match/:matchUuid/scoreboard/&:variant?&:court?`, {
       matchUuid: stringParser,
-      variant: stringParser
+      variant: stringParser,
+      court: stringParser,
     }, {}),
   },
   merchandise: {
