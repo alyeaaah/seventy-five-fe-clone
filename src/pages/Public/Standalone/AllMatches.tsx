@@ -10,12 +10,13 @@ import moment from 'moment';
 import { NestedImage } from '@/components/NestedImage';
 import { IconLogo, IconVS } from '@/assets/images/icons';
 import Image from '@/components/Image';
-import { imageResizerDimension } from '@/utils/helper';
+import { imageResizer, imageResizerDimension } from '@/utils/helper';
 import { Carousel } from 'antd';
 import { clientEnv } from '@/env';
 import { ScoreWebSocketListener } from '@/components/ScoreWebSocketListener';
 import { useScore } from '@/utils/score.util';
 import { useDebounce } from 'ahooks';
+import { getAvatar } from '@/utils/faker';
 
 
 export const AllMatches: React.FC = () => {
@@ -65,13 +66,25 @@ export const AllMatches: React.FC = () => {
   });
   const { data: recentMatches } = PublicChallangerApiHooks.useGetMatches({
     queries: {
-      tournament_uuids: tournamentEvent?.data?.tournaments?.map(t => t.uuid) || null,
+      // tournament_uuids: tournamentEvent?.data?.tournaments?.map(t => t.uuid) || null,
       status: [
         matchStatusEnum.Values.ENDED,
       ],
     }
   });
 
+  const { data: tournamentSponsors } = PublicTournamentApiHooks.useGetTournamentDetailSponsors(
+    {
+      params: {
+        tournament_uuid: tournamentEvent?.data?.tournaments?.[0]?.uuid || ''
+      }
+    },
+    {
+      enabled: !!(tournamentEvent?.data?.tournaments?.[0]?.uuid || ''),
+      retry: false
+    }
+  );
+  const sponsors = [...tournamentSponsors?.data || [], ...tournamentSponsors?.data || [], ...tournamentSponsors?.data || [], ...tournamentSponsors?.data || [], ...tournamentSponsors?.data || []]
   if (eventLoading) return <div>Loading matches...</div>;
   const allCourts = Array.from(
     new Map(
@@ -101,25 +114,25 @@ export const AllMatches: React.FC = () => {
           {(tournamentEvent?.data?.logo && !tournamentEvent?.data?.logo?.includes('.webm')) && <Image src={imageResizerDimension(tournamentEvent?.data?.logo, 300, "h")} className='w-full h-fit object-contain' />}
           {(tournamentEvent?.data?.logo && tournamentEvent?.data?.logo?.includes('.webm')) && <video src={tournamentEvent?.data?.logo} autoPlay loop muted playsInline className="w-full h-fit object-contain"></video>}
         </div>
-        <div className='flex flex-col max-h-[calc(100vh-400px)]'>
-          <div className={`flex flex-col items-center justify-end gap-2 pb-0 my-2 pt-8 relative border-2  rounded-3xl min-h-[30vh] ${!darkMode ? 'border-emerald-800' : 'border-gray-300'}`}>
+        <div className='flex flex-col max-h-[calc(100vh-400px)] min-h-[40vh]'>
+          <div className={`flex flex-col items-center ${!!recentMatches?.data?.length ? 'justify-end sss' : 'justify-start'} gap-2 pb-0 my-2 pt-8 relative border-2  rounded-3xl min-h-[30vh] ${!darkMode ? 'border-emerald-800' : 'border-gray-300'}`}>
             <span className={`text-xl font-semibold w-fit absolute -top-1 m-auto -mt-4 px-4 py-1 text-center rounded-full z-10 ${!darkMode ? 'text-white bg-emerald-800' : 'text-emerald-900 bg-gray-200'}`}>RECENT MATCHES</span>
-            <div className='max-h-[calc(100%+32px)] overflow-scroll w-full -mt-16 pt-4 px-4 rounded-2xl'>
+            <div className='max-h-[calc(100%+32px)] min-h-[20vh] overflow-scroll w-full -mt-16 pt-4 px-4 rounded-2xl'>
               {!!recentMatches?.data?.length ? <Carousel
                 vertical
                 autoplay
                 dots={false}
                 slidesToScroll={1}
-                slidesToShow={recentMatches?.data?.length > 6 ? 6 : recentMatches?.data?.length}
+                slidesToShow={recentMatches?.data?.length > 7 ? 7 : recentMatches?.data?.length}
                 className='pt-2 min-h-[480px]'
               >
                 {recentMatches?.data?.map((item, idx) =>
-                  <Link key={idx} className='pb-2 h-24 w-full mb-2' to={paths.challenger.match({ matchUuid: item.uuid || "" }).$}>
+                  <Link key={idx} className='pb-2 h-24 w-full mb-4' to={paths.challenger.match({ matchUuid: item.uuid || "" }).$}>
                     <div className='flex flex-col justify-center items-center shadow-md rounded-3xl bg-gray-200 mr-0 px-2 pt-2'>
                       <div className="flex bg-white rounded-full justify-between p-1 h-12 w-full">
                         <NestedImage
                           players={item.home_team?.players?.map((player) => ({
-                            media_url: player.media_url || '',
+                            media_url: player.media_url || getAvatar(player.name + player.email + player.username, player.gender),
                             name: player.name || '',
                             uuid: player.uuid
                           })) || []}
@@ -138,7 +151,7 @@ export const AllMatches: React.FC = () => {
                         </div>
                         <NestedImage
                           players={item.away_team?.players?.map((player) => ({
-                            media_url: player.media_url || '',
+                            media_url: player.media_url || getAvatar(player.name + player.email + player.username, player.gender),
                             name: player.name || '',
                             uuid: player.uuid
                           })) || []}
@@ -161,7 +174,7 @@ export const AllMatches: React.FC = () => {
                   </Link>)
                 }
               </Carousel> :
-                <div className='flex flex-col items-center mt-20 justify-center text-center h-full w-full'>
+                <div className='flex flex-col items-center mt-2 justify-center text-center h-full w-full'>
                   <div className='w-full flex flex-row justify-center '>
                     <IconLogo className={`h-12 w-20 ${darkMode ? 'text-white' : 'text-emerald-800'}`} />
                   </div>
@@ -208,7 +221,7 @@ export const AllMatches: React.FC = () => {
             return (
               <div key={idx} onClick={() => navigate(paths.challenger.match({ matchUuid: match.uuid || "" }).$)} className='flex flex-col justify-center items-center my-2 mx-2 shadow-md md:shadow-none rounded-3xl lg:mx-0 lg:mr-2 px-2 relative border md:border-0'>
                 {/* Desktop */}
-                <div className='md:flex hidden flex-row justify-center overflow-hidden items-center mt-2 -mb-3 text-gray-500 text-xs border-emerald-800 w-fit mx-auto !z-[3] relative rounded-full border'>
+                <div className='md:flex hidden flex-row justify-center overflow-hidden items-center mt-2 -mb-3 text-gray-900 text-xs border-emerald-800 w-fit mx-auto !z-[3] relative rounded-full border'>
                   <div className='flex flex-row justify-center capitalize text-xs font-semibold py-1 px-2 bg-white'>
                     <Lucide icon='MapPin' className='w-6 h-4' /> {match.court_field?.court?.name && `${match.court_field?.court?.name} - ${match.court_field?.name}`}
                   </div>
@@ -304,6 +317,7 @@ export const AllMatches: React.FC = () => {
             autoplay
             autoplaySpeed={7500}
             slidesToShow={8}
+            swipeToSlide={true}
             vertical
             dots={true}
             dotPosition='bottom'
@@ -328,7 +342,7 @@ export const AllMatches: React.FC = () => {
                 <div className="hidden md:flex flex-row bg-gray-100 rounded-full justify-between p-2.5 w-full h-20 relative !z-[1] ">
                   <NestedImage
                     players={match.home_team?.players?.map((player) => ({
-                      media_url: player.media_url,
+                      media_url: player.media_url || getAvatar(player.name + player.email + player.username, player.gender),
                       name: player.name,
                       uuid: player.uuid
                     })) || []} />
@@ -353,7 +367,7 @@ export const AllMatches: React.FC = () => {
                   </div>
                   <NestedImage
                     players={match.away_team?.players?.map((player) => ({
-                      media_url: player.media_url,
+                      media_url: player.media_url || getAvatar(player.name + player.email + player.username, player.gender),
                       name: player.name,
                       uuid: player.uuid
                     })) || []}
@@ -365,7 +379,7 @@ export const AllMatches: React.FC = () => {
                 </div>
                 <div className="flex md:hidden bg-emerald-800 rounded-full justify-between p-1.5 h-14 w-full">
                   <NestedImage players={match.home_team?.players?.map((player) => ({
-                    media_url: player.media_url,
+                    media_url: player.media_url || getAvatar(player.name + player.email + player.username, player.gender),
                     name: player.name,
                     uuid: player.uuid
                   })) || []} />
@@ -373,7 +387,7 @@ export const AllMatches: React.FC = () => {
                     <IconVS className="w-16 h-8" />
                   </div>
                   <NestedImage players={match.away_team?.players?.map((player) => ({
-                    media_url: player.media_url,
+                    media_url: player.media_url || getAvatar(player.name + player.email + player.username, player.gender),
                     name: player.name,
                     uuid: player.uuid
                   })) || []} />
@@ -395,6 +409,36 @@ export const AllMatches: React.FC = () => {
                 </div>
               </div>))}
           </Carousel>
+        </div>
+      </div>
+      {/* Bottom Section - Sponsors (20% height) */}
+      <div className={`col-span-4 fixed bottom-0 right-0 left-0 items-center rounded-t-full justify-center py-3 px-4 h-[64px]`}>
+        <div className="w-full h-full absolute rounded-t-full left-0 top-4 bg-[url('https://res.cloudinary.com/doqyrkqgw/image/upload/v1782314140/adboard-100-white_ykyl8b.webp')] blur-lg"></div>
+        {/* Replace this section with your actual sponsor content */}
+        <div
+
+          x-data="{}"
+          x-init="$nextTick(() => {
+              let ul = $refs.logos;
+              ul.insertAdjacentHTML('afterend', ul.outerHTML);
+              ul.nextSibling.setAttribute('aria-hidden', 'true');
+          })"
+          className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-200px),transparent_100%)]">
+          <ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll">
+
+            {sponsors.map((image, index) => (
+              <li key={index} className="flex items-center justify-center max-h-12 w-auto">
+                <Image src={imageResizerDimension(image?.media_url || '', 200, 'h')} alt={`Sponsor ${index + 1}`} className="h-12 w-fit object-contain rounded-lg overflow-hidden" />
+              </li>
+            ))}
+          </ul>
+          <ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll" aria-hidden="true">
+            {sponsors.map((image, index) => (
+              <li key={index} className="flex items-center justify-center max-h-12 w-auto">
+                <Image src={imageResizerDimension(image?.media_url || '', 200, 'h')} alt={`Sponsor ${index + 1}`} className="h-12 w-fit object-contain rounded-lg overflow-hidden" />
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div >

@@ -184,6 +184,7 @@ export const TournamentDetailBracket: React.FC<TournamentDetailBracketProps> = (
   }
   const generateBracket = (): IRound[] => {
     let result: IRound[];
+
     if (data?.type === "ROUND ROBIN") {
       if (!knockoutMatchesData?.length) {
         // For round robin: calculate teams as total_group * group_qualifier
@@ -226,6 +227,7 @@ export const TournamentDetailBracket: React.FC<TournamentDetailBracketProps> = (
 
         // Shuffle teams with priorities to avoid same group and same position in early rounds
         const shuffledTeams = shuffleTeamsWithPriorities(allTeams);
+        console.log(allTeams, 'allTeams');
 
         // Use the utility functions to generate rounds
         const tournamentInfo = {
@@ -235,11 +237,13 @@ export const TournamentDetailBracket: React.FC<TournamentDetailBracketProps> = (
         };
 
         const firstRoundArray = TournamentDrawingUtils.generateFirstRound(shuffledTeams, tournamentInfo);
+        console.log(TournamentDrawingUtils.generateFirstRound(shuffledTeams, tournamentInfo), "firs");
 
         const firstRound = firstRoundArray[0]; // Get the first round
         if (!firstRound) return [];
         const currentRounds = TournamentDrawingUtils.generateAllRounds(firstRound, tournamentInfo);
         const currentMatches = assignScheduleKnockout(convertRoundToMatches(currentRounds));
+        console.log(currentMatches, "aaasss");
 
         setMatches(currentMatches);
         return convertMatchToRound(currentMatches);
@@ -272,6 +276,8 @@ export const TournamentDetailBracket: React.FC<TournamentDetailBracketProps> = (
     if (!matchesData?.data?.length || !courtOptions?.data) return;
 
     if (!knockoutMatchesData?.length) {
+      console.log("generateBracket");
+
       generateBracket()
     } else {
       const tempMatches = convertTournamentMatchToMatch(knockoutMatchesData || []);

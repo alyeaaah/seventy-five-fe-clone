@@ -70,6 +70,7 @@ module.exports = {
       animation: {
         "slide-in-top": "slide-in-top 0.5s ease-out forwards",
         "slide-out-top": "slide-out-top 0.5s ease-in forwards",
+        'infinite-scroll': 'infinite-scroll 25s linear infinite',
       },
       keyframes: {
         "slide-in-top": {
@@ -80,6 +81,10 @@ module.exports = {
           "0%": { transform: "translateY(0)", opacity: "1" },
           "100%": { transform: "translateY(-100px)", opacity: "0" },
         },
+        'infinite-scroll': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-100%)' },
+        }
       },
     },
   },

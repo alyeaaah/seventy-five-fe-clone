@@ -19,6 +19,32 @@ export enum TagsType {
   PRODUCT = "product",
   GALLERY = "gallery",
 }
+export const dummyAvatar = {
+  f: [
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304917/w7_gcvklr.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304916/w8_tde5at.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304916/w5_iasv1d.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304916/w2_ajh2e4.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304915/w4_adu1xr.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304915/w4_adu1xr.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304914/w3_zjzd92.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304914/w1_afeklg.jpg"
+  ],
+  m: [
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304894/5_jlc9i2.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304894/8_hngrz8.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304894/4_caxrqu.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304894/7_jkqqld.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304894/3_ihllvx.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304893/6_k3urng.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304893/1_ute84v.jpg",
+    "https://res.cloudinary.com/doqyrkqgw/image/upload/v1782304893/2_hgio9k.jpg"
+  ]
+}
+export const getAvatar = (param: string, gender: "m" | "f"): string => {
+  const idx = param.length % dummyAvatar[gender].length;
+  return dummyAvatar[gender][idx];
+}
 export const tagsTypeValue = [
   { label: "All", value: "" },
   { label: "Blog", value: TagsType.BLOG },
