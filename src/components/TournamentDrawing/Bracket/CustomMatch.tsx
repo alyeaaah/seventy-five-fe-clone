@@ -20,6 +20,7 @@ export const CustomMatch = ({ seed, roundIndex, seedIndex, round, onDrop, onSeed
   // Create ref with the correct type
   const dropHomeRef = useRef<HTMLDivElement | null>(null);
   const dropAwayRef = useRef<HTMLDivElement | null>(null);
+  const isThirdPlace = round === "final" && seedIndex === 1
 
   const [{ isOverHome }, dropHome] = useDrop(() => ({
     accept: 'TEAM',
@@ -42,11 +43,18 @@ export const CustomMatch = ({ seed, roundIndex, seedIndex, round, onDrop, onSeed
   dropAway(dropAwayRef);
 
   return (
-    <div className={`bracket-seed-container `} key={`seed-container-${roundIndex}-${seedIndex}`}>
-      <div className={`bracket-seed bg-white dark:bg-darkmode-600 ${readOnly ? 'hover:transform hover:scale-105 duration-700 transition-all hover:z-10' : ''}`} onClick={() => !!onSeedClick ? onSeedClick(seed, seedIndex, roundIndex) : null}>
+    <div className={`bracket-seed-container relative ${isThirdPlace ? "h-full w-full !absolute" : ""}`} key={`seed-container-${roundIndex}-${seedIndex}`}>
+      <div
+        className={
+          `bracket-seed bg-white dark:bg-darkmode-600
+          ${isThirdPlace ? 'sm:!absolute sm:!bottom-0 sm:!left-0' : ''}
+          ${readOnly ? 'hover:transform hover:scale-105 duration-700 transition-all hover:z-10' : ''}
+        `}
+        onClick={() => !!onSeedClick ? onSeedClick(seed, seedIndex, roundIndex) : null}
+      >
         <div className='absolute bottom-[94px] w-full z-10 flex justify-center cursor-pointer text-xs font-medium'>
           <div className='border px-2 rounded-md border-emerald-800 dark:border-emerald-400 text-emerald-800 dark:text-emerald-400 capitalize'>
-            {round || `Match ${seedIndex + 1}`}
+            {isThirdPlace ? "3rd Place" : round || `Match ${seedIndex + 1}`}
           </div>
         </div>
         <div ref={dropHomeRef} className='bracket-team' style={{ borderRadius: 12, backgroundColor: isOverHome ? '#d0cebf' : "unset" }} key={`team-home-${roundIndex}-${seedIndex}`}>

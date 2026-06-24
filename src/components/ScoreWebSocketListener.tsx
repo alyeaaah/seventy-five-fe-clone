@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useMatchSocket } from '@/hooks/useMatchSocket';
 import { useScore } from '@/utils/score.util';
+import { ScoreUpdatePayload } from '@/pages/Admin/MatchDetail/api/schema';
 
 interface ScoreWebSocketListenerProps {
   enabled?: boolean;
+  onChange?: (matches: ScoreUpdatePayload[]) => void;
 }
 
 /**
@@ -18,7 +20,8 @@ interface ScoreWebSocketListenerProps {
  * const currentScores = getCurrentMatchScores(matchUuid);
  */
 export const ScoreWebSocketListener = ({
-  enabled = true
+  enabled = true,
+  onChange
 }: ScoreWebSocketListenerProps) => {
   const { matches, isConnected } = useMatchSocket();
   const { setAllScore } = useScore();
@@ -28,7 +31,7 @@ export const ScoreWebSocketListener = ({
 
     if (matches.length > 0) {
       // Convert all WebSocket data to ScoreUpdatePayload format
-      const allScoreUpdates = matches.map(match => ({
+      const allScoreUpdates: ScoreUpdatePayload[] = matches.map(match => ({
         match_uuid: match.matchUuid,
         home_team_score: match.score.filter(g => g.game_score_home === "WIN").length.toString(),
         away_team_score: match.score.filter(g => g.game_score_away === "WIN").length.toString(),
@@ -44,6 +47,7 @@ export const ScoreWebSocketListener = ({
 
       // Update all scores from WebSocket data
       setAllScore(allScoreUpdates);
+      onChange?.(allScoreUpdates);
     }
   }, [matches, isConnected, enabled]);
 

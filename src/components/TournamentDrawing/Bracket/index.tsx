@@ -9,7 +9,7 @@ export const DraggableBracket = ({
   readOnly,
   setRounds,
   onSeedClick,
-  className
+  className,
 }: {
   rounds: IRound[];
   readOnly?: boolean,
@@ -102,7 +102,7 @@ export const DraggableBracket = ({
     <DndProvider backend={HTML5Backend}>
       <Bracket
         rounds={rounds}
-        bracketClassName={`bracket-container ${className}`}
+        bracketClassName={`bracket-container relative ${className}`}
         key={"bracket"}
         roundTitleComponent={(e) => {
           return <div className='text-lg font-bold' key={e.toString()}>{e.toString()}</div>

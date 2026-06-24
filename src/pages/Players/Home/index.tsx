@@ -18,7 +18,7 @@ import { defaultAvatar } from "@/utils/faker";
 import { PlayerMatchApiHooks } from "../Matches/api";
 import { matchStatusEnum } from "@/pages/Admin/MatchDetail/api/schema";
 import { PublicBlogApiHooks } from "@/pages/Public/Blog/api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { paths } from "@/router/paths";
 import { ModalCompleteProfile } from "../Components/ModalCompleteProfile";
 import Button from "@/components/Base/Button";
@@ -82,16 +82,6 @@ export const PlayerHome = () => {
         </div>
         <div className="sm:col-span-4 col-span-12 flex flex-col justify-center sm:items-end items-center">
 
-          {(userData?.isReferee || !!assignedRefereesData?.data?.length) && (
-            <div className="flex flex-row my-1 sm:my-2" onClick={() => {
-              navigate(paths.player.referee.index.template);
-            }}>
-              <div className="w-6">
-                <Lucide icon="ShieldCheck" />
-              </div>
-              <div className="w-max">Referee Access</div>
-            </div>
-          )}
 
           <div className="flex flex-row my-1 sm:my-2">
             <div className="w-6">
@@ -108,9 +98,9 @@ export const PlayerHome = () => {
             </div>}
         </div>
       </div>
-      <div className="col-span-12 bg-emerald-800 rounded-lg p-4 text-white flex justify-between items-center gap-1">
+      {(!data?.data?.media_url || !data?.data?.phone || !data?.data?.dateOfBirth || !data?.data?.socialMediaIg) && <div className="col-span-12 bg-emerald-800 rounded-lg p-4 text-white flex justify-between items-center gap-1">
         <div className="flex flex-row items-center gap-1">
-          <Lucide icon="Info" />
+          <Lucide icon="Info" className="w-8 mr-1" />
           <span>Please complete your profile before accessing this page</span>
         </div>
         <Button
@@ -123,12 +113,22 @@ export const PlayerHome = () => {
         >
           Complete Profile
         </Button>
-      </div>
+      </div>}
       <div className="col-span-12 sm:col-span-4 lg:col-span-3 xl:col-span-3 2xl:col-span-2 grid grid-cols-12 h-fit max-w-full gap-y-4">
-        <OverallRating
-          className="col-span-12"
-          overallRating={Intl.NumberFormat("id-ID").format(data?.data?.skills ? Math.ceil(calculateAverage(data?.data?.skills || {})) : 0)}
-        />
+
+        {(userData?.isReferee || !!assignedRefereesData?.data?.length) ? (
+          <Link to={paths.player.referee.index.template} className="flex flex-col items-center justify-center my-1 sm:my-2 bg-[#EBCE56] hover:bg-[#D8B938] transition-all ease-in-out cursor-pointer rounded-xl p-4 col-span-12 min-h-32  border border-emerald-800">
+            <div className="w-12 h-10 mb-2">
+              <Lucide icon="ShieldCheck" className="text-emerald-800 animate-ping w-full h-full" />
+            </div>
+            <div className="w-max text-2xl font-bold text-emerald-800">Referee Access</div>
+          </Link>
+        ) : (
+          <OverallRating
+            className="col-span-12"
+            overallRating={Intl.NumberFormat("id-ID").format(data?.data?.skills ? Math.ceil(calculateAverage(data?.data?.skills || {})) : 0)}
+          />
+        )}
         <PlayerPointComponent
           className="col-span-12"
           point={Intl.NumberFormat("id-ID").format(data?.data?.point || 0)}

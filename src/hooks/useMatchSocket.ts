@@ -74,7 +74,6 @@ export const useMatchSocket = (): UseMatchSocketReturn => {
       disconnect();
     };
   }, []);
-  console.log("MATCHES GET", matches);
   
   return {
     matches,

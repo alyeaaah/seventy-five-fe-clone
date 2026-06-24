@@ -257,9 +257,10 @@ export const paths = {
     opportunities: "/partnership/opportunities",
   },
   standalone: {
-    matches: route(`/all-matches/&:event?&:courts?`, {
+    matches: route(`/all-matches/&:event?&:courts?&:dark?`, {
       event: stringParser,
-      courts: stringParser
+      courts: stringParser,
+      dark: stringParser
     }, {}),
   },
   shop: {

@@ -99,7 +99,7 @@ export const PlayerReferee = () => {
   return (
     <div className="w-full py-0 grid grid-cols-12 gap-4">
       <div className="col-span-12">
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-2 sm:p-8">
+        <div className="flex flex-col items-center justify-center min-h-[400px] py-2sm:p-8">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
@@ -111,7 +111,7 @@ export const PlayerReferee = () => {
             {/* Assigned Matches Section */}
             {assignedRefereesData?.data && assignedRefereesData.data.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg text-center font-semibold text-gray-900 mb-4">Assigned Matches</h2>
+                {/* <h2 className="text-lg text-center font-semibold text-gray-900 mb-4">Assigned Matches</h2> */}
                 <div className="space-y-3">
                   {assignedRefereesData.data.map((referee) => (
                     <div
@@ -134,11 +134,11 @@ export const PlayerReferee = () => {
                             Click to enter
                           </div>
                         </div>
-                        <div className="text-sm text-gray-500 line-clamp-1">
-                          {referee.match?.home_team?.players?.map(p => p.player.nickname || p.player?.name).join("/")}
+                        <div className="font-semibold text-gray-900 line-clamp-1 uppercase">
+                          {referee.match?.home_team?.players?.map(p => p.player.name?.split(" ")?.map((name, i) => i < 2 ? name : null).join(" ") || p.player?.name).join(" / ")}
                         </div>
-                        <div className="text-sm text-gray-500 line-clamp-1">
-                          {referee.match?.away_team?.players?.map(p => p.player.nickname || p.player?.name).join("/")}
+                        <div className="font-semibold text-gray-900 line-clamp-1 uppercase">
+                          {referee.match?.away_team?.players?.map(p => p.player.name?.split(" ")?.map((name, i) => i < 2 ? name : null).join(" ") || p.player?.name).join(" / ")}
                         </div>
                       </div>
                       {/* <div className="text-right">

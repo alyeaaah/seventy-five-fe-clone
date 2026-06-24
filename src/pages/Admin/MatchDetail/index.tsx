@@ -745,7 +745,7 @@ export const MatchDetail = () => {
               <div className="col-span-12 flex flex-row justify-end items-center">
                 <div className="flex flex-col">
                   <Button
-                    className="px-1 py-0 w-full rounded-xl mb-1"
+                    className="px-1 py-0 w-full rounded-xl mb-1 h-10"
                     variant="outline-primary"
                     disabled={data?.data?.status != "ONGOING"}
                     onClick={() => {
@@ -758,7 +758,7 @@ export const MatchDetail = () => {
                     {currentScore?.game_score_home || 0}
                   </div>
                   <Button
-                    className="px-1 py-0 w-full rounded-xl mt-1"
+                    className="px-1 py-0 w-full rounded-xl mt-1 h-10"
                     variant="outline-danger"
                     disabled={data?.data?.status != "ONGOING"}
                     onClick={() => {
@@ -866,7 +866,7 @@ export const MatchDetail = () => {
                 </div>
                 <div className="flex flex-col">
                   <Button
-                    className="px-1 py-0 w-full rounded-xl mb-1"
+                    className="px-1 py-0 w-full rounded-xl mb-1 h-10"
                     variant="outline-primary"
                     disabled={data?.data?.status != "ONGOING"}
                     onClick={() => {
@@ -879,7 +879,7 @@ export const MatchDetail = () => {
                     {currentScore?.game_score_away || 0}
                   </div>
                   <Button
-                    className="px-1 py-0 w-full rounded-xl mt-1"
+                    className="px-1 py-0 w-full rounded-xl mt-1 h-10"
                     variant="outline-danger"
                     disabled={data?.data?.status != "ONGOING"}
                     onClick={() => {
@@ -1021,8 +1021,8 @@ export const MatchDetail = () => {
               {data?.data?.home_team?.players?.map((player, index) => (
                 <div key={index} className="col-span-12 flex flex-row items-center">
                   <div className="mr-2 w-full">
-                    <h2 className="text-[10px] text-right font-normal capitalize text-ellipsis line-clamp-1 w-full">{player?.name}</h2>
-                    <h3 className="text-[10px] text-right font-light capitalize text-ellipsis line-clamp-1">{player?.nickname}</h3>
+                    <h2 className="text-md text-right font-medium text-gray-950 uppercase line-clamp-1 w-full">{player?.name}</h2>
+                    <h3 className="text-[10px] text-right font-light capitalize line-clamp-1">{player?.nickname}</h3>
                   </div>
                   <div className="min-w-8">
                     <Image src={player?.media_url || ''} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
@@ -1064,7 +1064,7 @@ export const MatchDetail = () => {
                     <Image src={player?.media_url || ''} alt={player?.name} className="w-8 h-8 rounded-lg object-cover" />
                   </div>
                   <div className="ml-2 w-full">
-                    <h2 className="text-[10px] text-left font-normal capitalize text-ellipsis line-clamp-1 w-full">{player?.name}</h2>
+                    <h2 className="text-md text-gray-950 text-left font-medium uppercase text-ellipsis line-clamp-1 w-full">{player?.name}</h2>
                     <h3 className="text-[10px] text-left font-light capitalize text-ellipsis line-clamp-1">{player?.nickname}</h3>
                   </div>
                 </div>

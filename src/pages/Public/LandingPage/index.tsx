@@ -3,7 +3,7 @@ import { Illustration, TennisPlay } from '@/assets/images/illustrations/illustra
 import LayoutWrapper from '@/components/LayoutWrapper';
 import { Layout, Typography, Carousel } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import { UpcomingMatch } from './components/MatchComponent';
 import { LiveMatch } from './components/LiveMatchComponent';
 import { PublicHeader } from './components/HeaderLandingPage';
@@ -11,6 +11,9 @@ import { PWAInstallButton } from '@/components/PWAInstallButton';
 import { ScoreWebSocketListener } from '@/components/ScoreWebSocketListener';
 import VisibilitySensorWrapper from '@/components/VisibilitySensorWrapper';
 import { CarouselSchema, CarouselTypeEnum } from './api/schema';
+import { PublicTournamentApiHooks } from '../Tournament/api';
+import Image from '@/components/Image';
+import { imageResizerDimension } from '@/utils/helper';
 
 // Lazy load below-the-fold components to improve LCP
 const FeaturedPlayer = lazy(() => import('./components/FeaturedPlayerComponent'));
@@ -29,7 +32,7 @@ export const LandingPage = () => {
   const [slideIsVisible, setSlideIsVisible] = useState<boolean>();
   const [animateMenu, setAnimateMenu] = useState(false);
 
-  const mainCarousel: CarouselSchema[] = [{
+  const [mainCarousel, setMainCarousel] = useState<CarouselSchema[]>([{
     title: "Family Comes First!",
     type: CarouselTypeEnum.TEXTFIGURE,
     figure: <TennisPlay className='w-full h-full' />
@@ -40,7 +43,32 @@ export const LandingPage = () => {
     type: CarouselTypeEnum.TEXTFIGURE,
     figure: <Illustration className='w-full h-full' />
   }
-  ]
+  ])
+
+  const { data: tournamentEvents, isLoading: tournamentEventsLoading } = PublicTournamentApiHooks.useGetPublicTournamentEventList(
+    {
+      queries: {
+        status: "ONGOING"
+      }
+    },
+    {
+      enabled: true
+    }
+  );
+  useEffect(() => {
+    if (tournamentEvents) {
+      setMainCarousel((prev) => [...tournamentEvents.data.map((tournamentEvent) => {
+        return {
+          title: tournamentEvent.name,
+          type: CarouselTypeEnum.TEXTFIGURE,
+          figure: tournamentEvent.logo?.includes(".webm") ?
+            <video src={tournamentEvent?.logo} autoPlay loop muted playsInline className="w-full h-fit object-contain"></video> :
+            <><Image src={imageResizerDimension(tournamentEvent?.logo || "", 300, "h")} className='w-full h-fit object-contain' /></>,
+          target_url: `/tournament/?event=${tournamentEvent.uuid}`
+        }
+      }), ...prev.filter((item) => !!tournamentEvents.data.find((t) => t.name !== item.title))]);
+    }
+  }, [tournamentEvents])
   return (
     <>
       {/* WebSocket listener for real-time score updates */}
@@ -55,12 +83,18 @@ export const LandingPage = () => {
           <div className='z-10 h-full'>
             <Carousel arrows autoplay={false} autoplaySpeed={8000} className='h-[calc(50vh-32px)]'>
               {mainCarousel.map((mc, i) => (
-                <div className=' w-full h-[calc(50vh-32px)]' key={i}>
+                <div className=' w-full h-[calc(50vh-32px)]' key={i} onClick={() => {
+                  if (mc.target_url) {
+                    navigate(mc.target_url);
+                  } else if (mc.target_url_external) {
+                    window.open(mc.target_url_external, '_blank');
+                  }
+                }}>
                   <div className='h-full grid grid-rows-2 justify-around sm:grid sm:grid-cols-2' style={{ minHeight: 'calc(50vh - 32px)' }}>
                     <div className='sm:col-span-1 row-span-1 flex flex-col justify-center items-start sm:px-4 relative sm:aspect-video'>
                       <div className='relative'>
                         <h3 className="text-white font-bold md:text-6xl text-5xl relative z-[1]">{mc.title}</h3>
-                        <h3 className="text-emerald-800 font-bold md:text-6xl text-5xl absolute top-[2px] left-[2px] -right-[1px]">{mc.title}</h3>
+                        <h3 className="text-emerald-800 font-bold md:text-6xl text-5xl absolute top-[2px] left-[2px] -right-[2px]">{mc.title}</h3>
                       </div>
                       {mc.subtitle &&
                         <div className='relative'>
@@ -69,7 +103,7 @@ export const LandingPage = () => {
                         </div>
                       }
                     </div>
-                    {mc.figure && <div className='sm:col-span-1 row-span-1'>
+                    {mc.figure && <div className='sm:col-span-1 row-span-1  h-max'>
                       <div className='w-full h-full flex justify-center items-center'>
                         {mc.figure}
                       </div>

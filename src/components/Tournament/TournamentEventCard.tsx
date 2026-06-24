@@ -459,8 +459,6 @@ const TournamentEventCard: React.FC<TournamentEventCardProps> = ({
             )}
           </> : <>  </>}
           {!!draftParticipants?.length && <div className="col-span-12 sm:hidden grid grid-cols-12 gap-2 mt-4 h-max">
-
-
             <div className="col-span-12 text-emerald-800 flex flex-row my-4 gap-2">
               {tournamentEventData?.status === "DRAFT" && <IconLogoAlt className="h-10 w-20" />}
               <div className={`h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] items-center px-3 flex relative cursor-pointer
