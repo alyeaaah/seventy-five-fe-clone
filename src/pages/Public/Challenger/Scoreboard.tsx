@@ -474,7 +474,7 @@ export const ChallengerScoreboard = () => {
   const { getCurrentMatchScores } = useScore();
   const liveScore = getCurrentMatchScores(matchUuid);
 
-  if (isLoading) {
+  if (!(!isLoading || !isLoadingOngoingMatches)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-xl">Loading scoreboard...</div>
