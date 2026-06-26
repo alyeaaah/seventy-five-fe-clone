@@ -204,7 +204,9 @@ export const TournamentEvents = ({ uuid }: { uuid?: string }) => {
           <div className="col-span-12 text-emerald-800 flex flex-row my-4">
             <IconLogoAlt className="h-10 w-20" />
             <div className="h-10 w-fit text-xl uppercase font-semibold rounded-full border-[3px] border-emerald-800 items-center px-3 flex relative">
-              <div className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"></div>
+              <div
+                className="h-10 absolute -right-12 aspect-square border-[3px] border-emerald-800 rounded-full"
+                onClick={() => navigate(paths.standalone.matches({ event: tournamentEvent?.uuid || "" }).$)}></div>
               Supported By
             </div>
           </div>

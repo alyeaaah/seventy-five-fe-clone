@@ -66,7 +66,7 @@ export const AllMatches: React.FC = () => {
   });
   const { data: recentMatches } = PublicChallangerApiHooks.useGetMatches({
     queries: {
-      // tournament_uuids: tournamentEvent?.data?.tournaments?.map(t => t.uuid) || null,
+      tournament_uuids: tournamentEvent?.data?.tournaments?.map(t => t.uuid) || null,
       status: [
         matchStatusEnum.Values.ENDED,
       ],

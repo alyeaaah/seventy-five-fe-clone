@@ -63,7 +63,7 @@ function Main(props: { layout?: "side-menu" | "simple-menu" | "top-menu" }) {
           {/* BEGIN: Account Menu */}
           <Menu>
             <Menu.Button className="flex flex-row items-center !justify-end">
-              {userData?.name ? <span className="text-white  z-10 mr-2"> sHi, {userData?.name}!</span> : null}
+              {userData?.name ? <span className="text-white  z-10 mr-2"> Hi, {userData?.name}!</span> : null}
               <div className="block w-8 h-8 overflow-hidden rounded-full text-white shadow-lg image-fit zoom-in intro-x">
                 {userData?.media_url ? <img
                   alt="Midone Tailwind HTML Admin Template"
