@@ -7,6 +7,8 @@ import Lucide from '../Base/Lucide';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/router/paths';
 import { useScore } from '@/utils/score.util';
+import { useAtomValue } from 'jotai';
+import { accessTokenAtom, userAtom } from '@/utils/store';
 
 export const MatchCardThumbnail: React.FC<MatchCardProps> = ({
   match,
@@ -20,6 +22,10 @@ export const MatchCardThumbnail: React.FC<MatchCardProps> = ({
     getCurrentGameScore,
     getCurrentMatchScores,
   } = useScore();
+
+  const accessToken = useAtomValue(accessTokenAtom);
+  const user = useAtomValue(userAtom);
+  const userIsLogin = !!accessToken && !!user;
   return (
     <div
       key={match.uuid || `match-${matchIndex}`}
@@ -77,6 +83,9 @@ export const MatchCardThumbnail: React.FC<MatchCardProps> = ({
             className='text-xs !max-h-8 flex gap-2 text-gray-700'
             size='sm'
             onClick={(e) => {
+              if (!userIsLogin) {
+                return;
+              }
               e.stopPropagation();
               navigate(paths.administrator.customMatch.detail({ matchUuid: match.uuid || "" }).$);
             }}
