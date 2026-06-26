@@ -47,6 +47,9 @@ export const FooterComponent = ({ className }: HTMLProps<HTMLDivElement>) => {
               <li className='py-1'>
                 <Link to={paths.partnership.opportunities}>Partnership Opportunities</Link>
               </li>
+              <li className='py-1'>
+                <Link to={"https://seventyfive.club/all-matches/?event=3730bce8-9560-4e29-9b65-bfcd0712e1de&courts="}>All Matches</Link>
+              </li>
             </ul>
           </div>
         </div>
